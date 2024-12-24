@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 import Home from './Pages/Home'
 import  Login  from './Components/Home/Login';
-import  Sign   from './Components/Home/Signup'
+import  Signup  from './Components/Home/Signup'
 import  Dashboard  from './Pages/Dashboard'
 
 import ProfilePage from "./Pages/ProfilePages/ProfilePage";
@@ -35,7 +35,7 @@ function App() {
 
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Sign />} />
+        <Route path="/signup" element={<Signup />} />
         <Route path="/dashboard" element={<Dashboard />} />
 
         <Route path="/profile" element={<ProfilePage />} />
