@@ -20,6 +20,7 @@ const CallReport = () => {
   ];
 
   return (
+    <>
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-7xl mx-auto">
         <h1 className="text-2xl font-bold text-gray-800 mb-6">Call Report</h1>
@@ -100,6 +101,11 @@ const CallReport = () => {
         </div>
       </div>
     </div>
+     {/* Footer */}
+     <footer className="text-black text-center py-4 mt-6">
+        <p>&copy; 2024 Margdarshak Media. All rights reserved.</p>
+      </footer>
+    </>
   );
 };
 

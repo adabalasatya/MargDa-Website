@@ -2,6 +2,7 @@ import React from "react";
 
 const QrScanPage = () => {
   return (
+    <>
     <div className="flex items-center justify-center min-h-screen  px-6">
       <div className="w-full max-w-sm p-6 bg-white rounded-lg shadow-md sm:max-w-md ml-16">
         <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
@@ -20,6 +21,11 @@ const QrScanPage = () => {
         </button>
       </div>
     </div>
+     {/* Footer */}
+     <footer className="text-black text-center py-4 mt-6">
+        <p>&copy; 2024 Margdarshak Media. All rights reserved.</p>
+      </footer>
+    </>
   );
 };
 

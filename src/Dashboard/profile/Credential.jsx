@@ -3,7 +3,9 @@ import React from "react";
 
 const CredentialPage = () => {
   return (
-    <div className="flex items-center justify-center min-h-screen  px-4">
+    <>
+
+<div className="flex items-center justify-center min-h-screen  px-4">
       <div className="w-full max-w-xs p-4 bg-white rounded-lg shadow-md sm:max-w-sm ml-16">
         <h2 className="text-xl sm:text-2xl font-bold text-center text-gray-800 mb-4 sm:mb-6">
           Update Credentials
@@ -45,7 +47,16 @@ const CredentialPage = () => {
           </button>
         </form>
       </div>
+      
     </div>
+
+     {/* Footer */}
+     <footer className="text-balck text-center py-4 mt-6">
+    <p>&copy; 2024 Margdarshak Media. All rights reserved.</p>
+  </footer>
+
+    </>
+   
   );
 };
 

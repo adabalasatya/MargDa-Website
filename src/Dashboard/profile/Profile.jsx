@@ -37,6 +37,8 @@ const ProfilePage = () => {
   };
 
   return (
+
+    <>
     <div className="w-full min-h-screen flex justify-center items-center px-4 sm:px-6 lg:px-8">
       
       <div className="bg-white p-8 w-full max-w-4xl shadow-lg rounded-xl ml-16">
@@ -195,7 +197,7 @@ const ProfilePage = () => {
             <div className="mt-8 text-center">
               <button
                 type="submit"
-                className="w-full py-3 px-6 bg-orange-600 text-white rounded-lg font-semibold text-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 transition ease-in-out duration-200"
+                className="w-full py-3 px-6 bg-orange-500 text-white rounded-lg font-semibold text-lg hover:bg-orange-600 focus:ring-4 focus:ring-blue-300 transition ease-in-out duration-200"
               >
                 Update Profile
               </button>
@@ -204,6 +206,13 @@ const ProfilePage = () => {
         </div>
       </div>
     </div>
+
+     {/* Footer */}
+     <footer className="text-black text-center py-4 mt-6">
+        <p>&copy; 2024 Margdarshak Media. All rights reserved.</p>
+      </footer>
+    
+    </>
   );
 };
 

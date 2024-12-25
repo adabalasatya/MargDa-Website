@@ -53,7 +53,7 @@ const Login = () => {
 
     // Navigate to dashboard
     setTimeout(() => {
-      navigate("/dashboard");
+      navigate("/data");
     }, 2000); // Delay for user to see the toast
   };
 
