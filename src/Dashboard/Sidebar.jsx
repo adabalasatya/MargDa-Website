@@ -1,37 +1,49 @@
 import React, { useState, useEffect } from "react";
 import { Menu } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
-import { FaWhatsapp, FaQrcode, FaVideo, FaPhone, FaSms, FaEnvelope, FaChartBar } from "react-icons/fa";
+import {
+  FaWhatsapp,
+  FaQrcode,
+  FaVideo,
+  FaPhone,
+  FaSms,
+  FaEnvelope,
+  FaChartBar,
+} from "react-icons/fa";
 import Logo from "../assets/margdarshakendra-logo.webp";
 
 const Sidebar = ({ isOpen, toggleSidebar, isMobile }) => {
   const location = useLocation();
-  
-  // Initialize state from localStorage or default to false
+
   const [isUserMenuOpen, setUserMenuOpen] = useState(() => {
-    const saved = localStorage.getItem('userMenuOpen');
-    return saved ? JSON.parse(saved) : false;
-  });
-  
-  const [isReportMenuOpen, setReportMenuOpen] = useState(() => {
-    const saved = localStorage.getItem('reportMenuOpen');
+    const saved = localStorage.getItem("userMenuOpen");
     return saved ? JSON.parse(saved) : false;
   });
 
-  // Save menu states to localStorage whenever they change
+  const [isReportMenuOpen, setReportMenuOpen] = useState(() => {
+    const saved = localStorage.getItem("reportMenuOpen");
+    return saved ? JSON.parse(saved) : false;
+  });
+
   useEffect(() => {
-    localStorage.setItem('userMenuOpen', JSON.stringify(isUserMenuOpen));
+    localStorage.setItem("userMenuOpen", JSON.stringify(isUserMenuOpen));
   }, [isUserMenuOpen]);
 
   useEffect(() => {
-    localStorage.setItem('reportMenuOpen', JSON.stringify(isReportMenuOpen));
+    localStorage.setItem("reportMenuOpen", JSON.stringify(isReportMenuOpen));
   }, [isReportMenuOpen]);
 
-  // Close menus when route changes
   useEffect(() => {
-    setUserMenuOpen(false);
-    setReportMenuOpen(false);
-  }, [location.pathname]);
+    const handleOutsideClick = (e) => {
+      if (!e.target.closest("aside")) {
+        setUserMenuOpen(false);
+        setReportMenuOpen(false);
+      }
+    };
+
+    document.addEventListener("click", handleOutsideClick);
+    return () => document.removeEventListener("click", handleOutsideClick);
+  }, []);
 
   const toggleUserMenu = (e) => {
     e.stopPropagation();
@@ -43,7 +55,6 @@ const Sidebar = ({ isOpen, toggleSidebar, isMobile }) => {
     setReportMenuOpen(!isReportMenuOpen);
   };
 
-  // Handle link clicks
   const handleLinkClick = () => {
     if (isMobile) {
       toggleSidebar();
@@ -61,7 +72,9 @@ const Sidebar = ({ isOpen, toggleSidebar, isMobile }) => {
 
       <div className={`relative z-30 ${isMobile ? "fixed inset-y-0 left-0" : ""}`}>
         <aside
-          className={`bg-white text-gray-900 transition-all duration-300 ease-in-out shadow-lg ${isOpen ? "w-64" : "w-20"} max-h-screen overflow-y-auto`}
+          className={`bg-white text-gray-900 transition-all duration-300 ease-in-out shadow-lg ${
+            isOpen ? "w-64" : "w-20"
+          } max-h-screen overflow-y-auto`}
           onClick={(e) => e.stopPropagation()}
         >
           <div className="p-4 flex items-center border-b border-gray-300">
@@ -80,9 +93,12 @@ const Sidebar = ({ isOpen, toggleSidebar, isMobile }) => {
             </button>
           </div>
 
+          {/* User Menu */}
           <div className="p-4 flex items-center border-b border-gray-300 relative">
             <div
-              className={`flex items-center ${isOpen ? "space-x-2" : "justify-center"}`}
+              className={`flex items-center ${
+                isOpen ? "space-x-2" : "justify-center"
+              }`}
             >
               <div
                 className="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center text-white font-bold text-lg cursor-pointer"
@@ -100,7 +116,9 @@ const Sidebar = ({ isOpen, toggleSidebar, isMobile }) => {
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className={`w-5 h-5 transition-transform ${isUserMenuOpen ? "rotate-180" : ""}`}
+                  className={`w-5 h-5 transition-transform ${
+                    isUserMenuOpen ? "rotate-180" : ""
+                  }`}
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -116,30 +134,31 @@ const Sidebar = ({ isOpen, toggleSidebar, isMobile }) => {
             )}
           </div>
 
-          {/* Profile Section Dropdown */}
-          <div
-            className={`mt-2 overflow-hidden rounded-lg transition-all duration-300 ${isUserMenuOpen ? "max-h-screen" : "max-h-0"}`}
-          >
-            <div className={`bg-gray-50 shadow-md ${!isOpen ? "text-center" : ""}`}>
-              {[
-                { title: "Profile", icon: "👤", link: "/profile" },
-                { title: "Credential", icon: "🔑", link: "/credential" },
-                { title: "Email Auth", icon: "📧", link: "/email-auth" },
-                { title: "Data Share", icon: "📤", link: "/data-share" },
-                { title: "Qr Scan", icon: <FaQrcode />, link: "/qr-scan" },
-              ].map((item, index) => (
-                <Link
-                  key={index}
-                  to={item.link}
-                  onClick={handleLinkClick}
-                  className={`flex items-center px-4 py-2 text-sm font-medium text-gray-700 hover:bg-orange-500 hover:text-white transition-colors duration-300 ${!isOpen ? "justify-center" : ""}`}
-                >
-                  <span className="text-lg">{item.icon}</span>
-                  {isOpen && <span className="ml-2">{item.title}</span>}
-                </Link>
-              ))}
+          {isUserMenuOpen && (
+            <div className="mt-2 overflow-hidden rounded-lg transition-all duration-300 max-h-screen">
+              <div className={`bg-gray-50 shadow-md ${!isOpen ? "text-center" : ""}`}>
+                {[
+                  { title: "Profile", icon: "👤", link: "/profile" },
+                  { title: "Credential", icon: "🔑", link: "/credential" },
+                  { title: "Email Auth", icon: "📧", link: "/email-auth" },
+                  { title: "Data Share", icon: "📤", link: "/data-share" },
+                  { title: "Qr Scan", icon: <FaQrcode />, link: "/qr-scan" },
+                ].map((item, index) => (
+                  <Link
+                    key={index}
+                    to={item.link}
+                    onClick={handleLinkClick}
+                    className={`flex items-center px-4 py-2 text-sm font-medium text-gray-700 hover:bg-orange-500 hover:text-white transition-colors duration-300 ${
+                      !isOpen ? "justify-center" : ""
+                    }`}
+                  >
+                    <span className="text-lg">{item.icon}</span>
+                    {isOpen && <span className="ml-2">{item.title}</span>}
+                  </Link>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Profile Stats Section */}
           {isOpen && (
@@ -174,7 +193,9 @@ const Sidebar = ({ isOpen, toggleSidebar, isMobile }) => {
                 className={`flex items-center px-4 py-5 text-lg font-medium text-gray-700 transition-colors duration-300 ${!isOpen ? "justify-center" : "justify-start"} hover:bg-orange-500 rounded-2xl hover:text-white`}
                 onClick={toggleReportMenu}
               >
-                <span className="text-lg"><FaChartBar /></span>
+                <span className="text-lg">
+                  <FaChartBar />
+                </span>
                 {isOpen && <span className="ml-4">Report</span>}
                 {isOpen && (
                   <button
@@ -183,7 +204,9 @@ const Sidebar = ({ isOpen, toggleSidebar, isMobile }) => {
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
-                      className={`w-5 h-5 transition-transform ${isReportMenuOpen ? "rotate-180" : ""}`}
+                      className={`w-5 h-5 transition-transform ${
+                        isReportMenuOpen ? "rotate-180" : ""
+                      }`}
                       fill="none"
                       viewBox="0 0 24 24"
                       stroke="currentColor"
@@ -204,13 +227,20 @@ const Sidebar = ({ isOpen, toggleSidebar, isMobile }) => {
                     { title: "Call Report", icon: <FaPhone />, link: "/call" },
                     { title: "SMS Report", icon: <FaSms />, link: "/sms" },
                     { title: "Email Report", icon: <FaEnvelope />, link: "/email" },
-                    { title: "WhatsApp Report", icon: <FaWhatsapp className="text-green-500" />, link: "/whatsapp" },
+                    {
+                      title: "WhatsApp Report",
+                      icon: <FaWhatsapp />,
+                      link: "/whatsapp",
+                    },
+                   
                   ].map((item, index) => (
                     <Link
                       key={index}
                       to={item.link}
                       onClick={handleLinkClick}
-                      className={`flex items-center px-4 py-2 text-sm font-medium text-gray-700 rounded-lg hover:bg-orange-500 hover:text-white transition-colors duration-300 ${!isOpen ? "justify-center" : "justify-start"}`}
+                      className={`flex items-center px-4 py-2 text-sm font-medium text-gray-700 rounded-lg hover:bg-orange-500 hover:text-white transition-colors duration-300 ${
+                        !isOpen ? "justify-center" : ""
+                      }`}
                     >
                       <span className="text-lg">{item.icon}</span>
                       {isOpen && <span className="ml-2">{item.title}</span>}
@@ -222,21 +252,25 @@ const Sidebar = ({ isOpen, toggleSidebar, isMobile }) => {
           </nav>
 
           {/* Independent Menu Items */}
-          {[
-            { title: "Template", icon: "📄", link: "/template" },
-            { title: "Meeting", icon: <FaVideo />, link: "/meeting" },
-            { title: "Master Data", icon: "📁", link: "/master-data" },
-          ].map((item, index) => (
-            <Link
-              key={index}
-              to={item.link}
-              onClick={handleLinkClick}
-              className={`flex items-center px-4 py-5 text-lg font-medium text-gray-700 rounded-lg hover:bg-orange-500 hover:text-white transition-colors duration-300 ${!isOpen ? "justify-center" : "justify-start"}`}
-            >
-              <span className="text-lg">{item.icon}</span>
-              {isOpen && <span className="ml-4">{item.title}</span>}
-            </Link>
-          ))}
+          <nav className="mt-4">
+            {[
+              { title: "Template", icon: "📄", link: "/template" },
+              { title: "Meeting", icon: <FaVideo />, link: "/meeting" },
+              { title: "Master Data", icon: "📁", link: "/master-data" },
+              { title: "Settings", icon: "⚙️", link: "/settings" }, 
+              { title: "Logout", icon: "🚪", link:"/logout" },
+            ].map((item, index) => (
+              <Link
+                key={index}
+                to={item.link}
+                onClick={handleLinkClick}
+                className={`flex items-center px-4 py-5 text-lg font-medium text-gray-700 rounded-lg hover:bg-orange-500 hover:text-white transition-colors duration-300 ${!isOpen ? "justify-center" : "justify-start"}`}
+              >
+                <span className="text-lg">{item.icon}</span>
+                {isOpen && <span className="ml-4">{item.title}</span>}
+              </Link>
+            ))}
+          </nav>
         </aside>
       </div>
     </>

@@ -18,6 +18,11 @@ const Leads = () => {
       phone: "91970777717",
       gender: "Female",
       whatsapp: "91970777717",
+      location: {
+        city: "Mumbai",
+        state: "Maharashtra",
+        country: "India",
+      },
     },
     {
       id: 2,
@@ -26,6 +31,11 @@ const Leads = () => {
       phone: "91970777718",
       gender: "Male",
       whatsapp: "91970777718",
+      location: {
+        city: "New York",
+        state: "NY",
+        country: "USA",
+      },
     },
     {
       id: 3,
@@ -34,6 +44,11 @@ const Leads = () => {
       phone: "91970777719",
       gender: "Female",
       whatsapp: "91970777719",
+      location: {
+        city: "London",
+        state: "England",
+        country: "UK",
+      },
     },
   ];
 
@@ -61,36 +76,44 @@ const Leads = () => {
         </div>
       </div>
 
-      {/* Search and Filter Section */}
+      {/* Search and Show Section */}
+      <div className="bg-white p-4 shadow rounded-lg mb-6 flex justify-between items-center">
+        {/* Show Section */}
+        <label className="flex items-center">
+          <span className="text-sm font-semibold mr-2">Show</span>
+          <input
+            type="number"
+            className="border border-gray-300 p-2 rounded w-20"
+            placeholder="10"
+          />
+          <span className="text-sm font-bold ml-2">Records</span>
+        </label>
+
+        {/* Search Section */}
+        <div className="relative">
+          <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+          <input
+            type="text"
+            className="border border-gray-300 p-2 pl-10 rounded w-72"
+            placeholder="Search"
+          />
+        </div>
+      </div>
+
+      {/* Filter Section */}
       <div className="bg-white p-4 shadow rounded-lg mb-6">
         <div className="flex flex-wrap items-center space-x-4">
-          <label>
-            <span className="text-sm font-semibold">Show</span>
-            <input
-              type="number"
-              className="border border-gray-300 p-2 rounded ml-2 w-20"
-              placeholder="10"
-            />
-          </label>
-          <div className="relative flex-1">
-            <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-            <input
-              type="text"
-              className="w-full border border-gray-300 p-2 pl-10 rounded"
-              placeholder="Search"
-            />
-          </div>
           <select className="border border-gray-300 p-2 rounded">
-            <option>Data Type</option>
+            <option>At The Data Type</option>
           </select>
           <select className="border border-gray-300 p-2 rounded">
-            <option>Country</option>
+            <option>At The Data Country</option>
           </select>
           <select className="border border-gray-300 p-2 rounded">
-            <option>State</option>
+            <option>At The Data State</option>
           </select>
           <select className="border border-gray-300 p-2 rounded">
-            <option>District</option>
+            <option>At The Data District</option>
           </select>
           <input
             type="text"
@@ -98,7 +121,7 @@ const Leads = () => {
             placeholder="Pin Code"
           />
           <button className="bg-orange-500 text-white px-4 py-2 rounded shadow">
-            + Task
+            + At The Data Task
           </button>
         </div>
       </div>
@@ -109,7 +132,8 @@ const Leads = () => {
           <thead className="bg-gray-200">
             <tr>
               <th className="px-4 py-2">#</th>
-              <th className="px-4 py-2">Data</th>
+              <th className="px-16 py-2">Data</th>
+              <th className="px-16 py-2">Location</th>
               <th className="px-4 py-2">Logs</th>
               <th className="px-4 py-2">Remarks</th>
               <th className="px-4 py-2">Actions</th>
@@ -133,6 +157,11 @@ const Leads = () => {
                       <p className="text-xs">Whatsapp: {item.whatsapp}</p>
                     </div>
                   </div>
+                </td>
+                <td className="px-16 py-2">
+                  <p className="text-xs">City: {item.location.city}</p>
+                  <p className="text-xs">State: {item.location.state}</p>
+                  <p className="text-xs">Country: {item.location.country}</p>
                 </td>
                 <td className="px-4 py-2">
                   <p className="text-xs">Logged In: 2024-12-24 10:30 AM</p>

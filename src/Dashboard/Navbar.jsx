@@ -1,25 +1,27 @@
 import React, { useState } from "react";
 import { FaUsers, FaSignOutAlt, FaBuilding, FaDatabase, FaUserTie, FaBars, FaWhatsapp, FaPhoneAlt, FaSms, FaVideo } from "react-icons/fa"; // Add the new icons
-
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom"; // Add useNavigate for programmatic navigation
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false); // State to manage the menu visibility
+  const navigate = useNavigate(); // Initialize navigate
 
   const toggleMenu = () => {
     setMenuOpen(!menuOpen); // Toggle the menu
   };
 
+  const handleLogout = () => {
+    // Clear authentication data (e.g., remove token from localStorage or sessionStorage)
+    localStorage.removeItem("authToken"); // Replace with your authentication logic
+    sessionStorage.removeItem("authToken");
+
+    // Redirect to login page or home page after logout
+    navigate("/"); // Redirect to the login page
+  };
+
   return (
     <div className="relative flex items-center justify-between px-6 py-3 bg-white text-gray-800 shadow-md rounded-lg">
       {/* Left-aligned Title as a Button (Link to Dashboard) */}
-      <Link 
-        to="/dashboard" 
-        className="font-semibold tracking-wider text-lg cursor-pointer hover:text-orange-500 transition duration-300 ease-in-out"
-      >
-        Dashboard
-      </Link>
-
       {/* Mobile Menu Icon (Visible only on mobile screens) */}
       <div className="sm:hidden">
         <button onClick={toggleMenu} className="text-gray-800">
@@ -33,7 +35,6 @@ const Navbar = () => {
         ${menuOpen ? "transition-transform duration-300 ease-out opacity-100 translate-y-0" : "transition-transform duration-300 ease-in opacity-0 -translate-y-12"}`}
       >
         <div className="space-y-4">
-
           <button
             className="flex items-center px-3 py-2 text-xs font-medium text-gray-800 bg-white border-2 border-gray-300 rounded-lg shadow-md hover:bg-orange-500 hover:text-white transition-colors duration-300 ease-in-out"
           >
@@ -82,7 +83,7 @@ const Navbar = () => {
           <button className="flex items-center w-full px-3 py-2 text-xs font-medium text-gray-800 bg-white border-2 border-gray-300 rounded-lg shadow-md hover:bg-orange-500 hover:text-white transition-colors duration-300 ease-in-out">
             <FaUsers className="mr-2" /> Team
           </button>
-          <button className="flex items-center w-full px-3 py-2 text-xs font-medium text-gray-800 bg-white border-2 border-gray-300 rounded-lg shadow-md hover:bg-red-600 hover:text-white transition-colors duration-300 ease-in-out">
+          <button onClick={handleLogout} className="flex items-center w-full px-3 py-2 text-xs font-medium text-gray-800 bg-white border-2 border-gray-300 rounded-lg shadow-md hover:bg-red-600 hover:text-white transition-colors duration-300 ease-in-out">
             <FaSignOutAlt className="mr-2" /> Logout
           </button>
         </div>
@@ -93,7 +94,6 @@ const Navbar = () => {
         {/* Centered Nav Items */}
         <div className="flex justify-start w-full  space-x-4 sm:space-x-8">
           <button
-           
             className="flex items-center px-3 py-2 text-xs font-medium text-gray-800 bg-white border-2 border-gray-300 rounded-lg shadow-md hover:bg-orange-500 hover:text-white transition-colors duration-300 ease-in-out sm:px-4 sm:py-2 sm:text-sm"
           >
             <FaBuilding className="mr-2" /> Workplace
@@ -121,7 +121,7 @@ const Navbar = () => {
           >
             <FaUsers className="mr-2" /> Team
           </Link>
-          <button className="flex items-center px-3 py-2 text-xs font-medium text-gray-800 bg-white border-2 border-gray-300 rounded-lg shadow-md hover:bg-red-600 hover:text-white transition-colors duration-300 ease-in-out sm:px-4 sm:py-2 sm:text-sm">
+          <button onClick={handleLogout} className="flex items-center px-3 py-2 text-xs font-medium text-gray-800 bg-white border-2 border-gray-300 rounded-lg shadow-md hover:bg-red-600 hover:text-white transition-colors duration-300 ease-in-out sm:px-4 sm:py-2 sm:text-sm">
             <FaSignOutAlt className="mr-2" /> Logout
           </button>
         </div>

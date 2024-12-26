@@ -28,6 +28,9 @@ import MasterData from "./Pages/ReportPages/MasterDataPage";
 import LeadPage from './Pages/NavPages/LeadPage';
 import DataPage from './Pages/NavPages/DataPage';
 
+import SettingPage from './Pages/SettingPage'
+import Logout from './Pages/LogoutPage';
+
 
 function App() {
   
@@ -60,6 +63,8 @@ function App() {
           <Route path="meeting" element={<Meeting/>} />
           <Route path="report" element={<Report/>} />
           <Route path="master-data" element={<MasterData/>} />
+          <Route path="settings" element={<SettingPage/>} />
+          <Route path="logout" element={<Logout/>} />
           
          
 
