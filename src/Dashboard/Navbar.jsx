@@ -54,32 +54,7 @@ const Navbar = () => {
             <FaUserTie className="mr-2" /> Lead
           </Link>
 
-          {/* New Icons After Lead */}
-          <Link 
-            to="/whatsapp" 
-            className="flex items-center px-3 py-2 text-xs font-medium text-gray-800 bg-white border-2 border-gray-300 rounded-lg shadow-md hover:bg-green-500 hover:text-white transition-colors duration-300 ease-in-out"
-          >
-            <FaWhatsapp className="mr-2" /> WhatsApp
-          </Link>
-          <Link 
-            to="/phone" 
-            className="flex items-center px-3 py-2 text-xs font-medium text-gray-800 bg-white border-2 border-gray-300 rounded-lg shadow-md hover:bg-blue-500 hover:text-white transition-colors duration-300 ease-in-out"
-          >
-            <FaPhoneAlt className="mr-2" /> Phone
-          </Link>
-          <Link 
-            to="/sms" 
-            className="flex items-center px-3 py-2 text-xs font-medium text-gray-800 bg-white border-2 border-gray-300 rounded-lg shadow-md hover:bg-yellow-500 hover:text-white transition-colors duration-300 ease-in-out"
-          >
-            <FaSms className="mr-2" /> SMS
-          </Link>
-          <Link 
-            to="/meeting" 
-            className="flex items-center px-3 py-2 text-xs font-medium text-gray-800 bg-white border-2 border-gray-300 rounded-lg shadow-md hover:bg-red-500 hover:text-white transition-colors duration-300 ease-in-out"
-          >
-            <FaVideo className="mr-2" /> Meeting
-          </Link>
-
+          
           <button className="flex items-center w-full px-3 py-2 text-xs font-medium text-gray-800 bg-white border-2 border-gray-300 rounded-lg shadow-md hover:bg-orange-500 hover:text-white transition-colors duration-300 ease-in-out">
             <FaUsers className="mr-2" /> Team
           </button>

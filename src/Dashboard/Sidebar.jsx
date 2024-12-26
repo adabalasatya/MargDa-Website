@@ -9,8 +9,14 @@ import {
   FaSms,
   FaEnvelope,
   FaChartBar,
+  FaUsers, 
+  FaRegFileAlt, 
+  FaIdCard, 
+  FaCogs,
+  
 } from "react-icons/fa";
 import Logo from "../assets/margdarshakendra-logo.webp";
+
 
 const Sidebar = ({ isOpen, toggleSidebar, isMobile }) => {
   const location = useLocation();
@@ -25,6 +31,8 @@ const Sidebar = ({ isOpen, toggleSidebar, isMobile }) => {
     return saved ? JSON.parse(saved) : false;
   });
 
+  const [isAdminMenuOpen, setAdminMenuOpen] = useState(false); // Admin menu state
+
   useEffect(() => {
     localStorage.setItem("userMenuOpen", JSON.stringify(isUserMenuOpen));
   }, [isUserMenuOpen]);
@@ -38,6 +46,7 @@ const Sidebar = ({ isOpen, toggleSidebar, isMobile }) => {
       if (!e.target.closest("aside")) {
         setUserMenuOpen(false);
         setReportMenuOpen(false);
+        setAdminMenuOpen(false); // Close admin menu on outside click
       }
     };
 
@@ -53,6 +62,11 @@ const Sidebar = ({ isOpen, toggleSidebar, isMobile }) => {
   const toggleReportMenu = (e) => {
     e.stopPropagation();
     setReportMenuOpen(!isReportMenuOpen);
+  };
+
+  const toggleAdminMenu = (e) => { // Toggle admin menu
+    e.stopPropagation();
+    setAdminMenuOpen(!isAdminMenuOpen);
   };
 
   const handleLinkClick = () => {
@@ -160,6 +174,73 @@ const Sidebar = ({ isOpen, toggleSidebar, isMobile }) => {
             </div>
           )}
 
+            {/* Admin Menu */}
+            <div className="p-4 flex items-center border-b border-gray-300 relative">
+            <div
+              className={`flex items-center ${isOpen ? "space-x-2" : "justify-center"}`}
+            >
+              <div
+                className="w-10 h-10 bg-gray-500 rounded-full flex items-center justify-center text-white font-bold text-lg cursor-pointer"
+                onClick={toggleAdminMenu}
+              >
+                A
+              </div>
+              {isOpen && <h2 className="text-lg font-semibold">Admin</h2>}
+            </div>
+            {isOpen && (
+              <button
+                onClick={toggleAdminMenu}
+                className="ml-auto text-gray-600 hover:text-red-600 focus:outline-none"
+                title="Toggle Admin Menu"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className={`w-5 h-5 transition-transform ${
+                    isAdminMenuOpen ? "rotate-180" : ""
+                  }`}
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M19 9l-7 7-7-7"
+                  />
+                </svg>
+              </button>
+            )}
+          </div>
+
+          {isAdminMenuOpen && (
+  <div className="mt-2 overflow-hidden rounded-lg transition-all duration-300 max-h-screen">
+    <div className={`bg-gray-50 shadow-md ${!isOpen ? "text-center" : ""}`}>
+      {[
+        { title: "User Link", icon: <FaIdCard />, link: "/user-link" },
+        { title: "Variable", icon: <FaCogs />, link: "/variable" },
+        { title: "Team", icon: <FaUsers />, link: "/team" },
+        { title: "Template Approval", icon: <FaRegFileAlt />, link: "/template-approval" },
+        { title: "User KYC", icon: <FaIdCard />, link: "/user-kyc" },
+        { title: "WhatsApp Scan", icon: <FaQrcode />, link: "/whatsapp-scan" },
+      ].map((item, index) => (
+        <Link
+          key={index}
+          to={item.link}
+          onClick={handleLinkClick}
+          className={`flex items-center px-4 py-2 text-sm font-medium text-gray-700 hover:bg-orange-500 hover:text-white transition-colors duration-300 ${
+            !isOpen ? "justify-center" : ""
+          }`}
+        >
+          <span className="text-lg">{item.icon}</span>
+          {isOpen && <span className="ml-2">{item.title}</span>}
+        </Link>
+      ))}
+    </div>
+  </div>
+)}
+
+
           {/* Profile Stats Section */}
           {isOpen && (
             <div className="p-4 space-y-2 mt-4">
@@ -258,7 +339,7 @@ const Sidebar = ({ isOpen, toggleSidebar, isMobile }) => {
               { title: "Meeting", icon: <FaVideo />, link: "/meeting" },
               { title: "Master Data", icon: "📁", link: "/master-data" },
               { title: "Settings", icon: "⚙️", link: "/settings" }, 
-              { title: "Logout", icon: "🚪", link:"/logout" },
+              { title: "Logout", icon: "🚪" },
             ].map((item, index) => (
               <Link
                 key={index}
