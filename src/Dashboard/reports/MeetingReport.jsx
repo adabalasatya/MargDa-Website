@@ -2,79 +2,71 @@ import React from 'react';
 import {
   FaSearch,
   FaCalendarAlt,
-  FaPhone,
   FaUser,
+  FaLink,
   FaClock,
-  FaArrowDown,
-  FaArrowUp,
 } from 'react-icons/fa';
 
-const CallReport = () => {
-  // Sample data for calls
-  const calls = [
+const MeetingReport = () => {
+  // Sample data for meetings
+  const meetings = [
     {
       dateTime: '12-12-2024 05:47:55',
-      callType: 'Incoming',
-      caller: 'RP Singh (919212401007)',
-      receiver: 'Unknown (919478805499)',
-      duration: '0h 0m 12s',
-      record: 'to pay audio (No download)',
+      meetType: 'Google Meet',
+      meetingLink: 'iku-cveo-yiu',
+      host: 'RP Singh',
+      client: 'Sanju',
+      joinTime: '6.00 PM - 6.15 PM',
+      duration: '12 minutes',
       crm: 'CRM+',
     },
-    // Add more call data here
+    {
+      dateTime: '13-12-2024 10:30:00',
+      meetType: 'MS Teams',
+      meetingLink: 'xyz-abc-def',
+      host: 'SK Sharma',
+      client: 'Rahul',
+      joinTime: '10.30 AM - 11.00 AM',
+      duration: '30 minutes',
+      crm: 'CRM+',
+    },
+    // Add more meeting data here
   ];
 
   // Sample data for team report
   const teamReport = [
     {
-      callType: 'Incoming',
-      totalCalls: 47,
-      totalTalkTime: '1h 1m 39s',
-      averageTime: '0h 1m 18s',
+      associate: 'RP Singh',
+      totalAligned: 47,
+      totalJoined: 23,
+      totalOnboarded: 12,
     },
     {
-      callType: 'Rejected',
-      totalCalls: 2,
-      totalTalkTime: '0h 0m 0s',
-      averageTime: '0h 1m 18s',
+      associate: 'SK Sharma',
+      totalAligned: 2,
+      totalJoined: 12,
+      totalOnboarded: 1,
     },
-    {
-      callType: 'Outgoing',
-      totalCalls: 32,
-      totalTalkTime: '0h 28m 35s',
-      averageTime: '0h 1m 18s',
-    },
-    {
-      callType: 'Missed',
-      totalCalls: 25,
-      totalTalkTime: '0h 0m 0s',
-      averageTime: '0h 1m 18s',
-    },
-    {
-      callType: 'All In + Out',
-      totalCalls: 66,
-      totalTalkTime: '0h 28m 35s',
-      averageTime: '0h 28m 35s',
-    },
+    // Add more team report data here
   ];
 
   // Sample data for team summary
   const teamSummary = {
-    topCaller: 'RP Singh (919212401007) - 32 Calls - 0h 28m 35s',
-    topReceiver: 'RP Singh (919212401007) - 43 Calls - 0h 59m 49s',
-    topTalkerOutgoing: 'RP Singh (919212401007) - 0h 5m 6s',
-    topTalkerIncoming: 'RP Singh (919212401007) - 0h 5m 6s',
-    lowestCaller: 'RP Singh (919212401007) - 32 Calls - 0h 28m 35s',
-    lowestReceiver: 'RP Singh (919212401007) - 43 Calls - 0h 59m 49s',
-    lowestTalkerOutgoing: 'RP Singh (919212401007) - Outgoing - 0h 5m 6s',
-    lowestTalkerIncoming: 'RP Singh (919212401007) - Incoming - 0h 5m 6s',
+    topAligner: 'RP Singh - 32',
+    topJoiner: 'RP Singh - 49',
+    topOnboarder: 'RP Singh - 34',
+    topTeamBuilder: 'RP Singh - 7 + 12',
+    lowestAligner: 'RP Singh - 32',
+    lowestJoiner: 'RP Singh - 49',
+    lowestOnboarder: 'RP Singh - 34',
+    lowestTeamBuilder: 'RP Singh - 1 + 6',
   };
 
   return (
     <div className="p-4">
-      {/* Call Report Section */}
+      {/* Meeting Report Section */}
       <div className="mb-8">
-        <h2 className="text-xl font-bold mb-4 text-orange-500">Call Report</h2>
+        <h2 className="text-xl font-bold mb-4 text-orange-500">Meeting Report</h2>
         <div className="flex items-center mb-4">
           <FaCalendarAlt className="mr-2 text-orange-500" />
           <span className="mr-4">From Date</span>
@@ -109,7 +101,7 @@ const CallReport = () => {
           </div>
         </div>
 
-        {/* Table for Calls */}
+        {/* Table for Meetings */}
         <table className="w-full border-collapse border border-orange-300">
           <thead>
             <tr className="bg-gray-200">
@@ -117,31 +109,37 @@ const CallReport = () => {
                 <FaCalendarAlt className="inline mr-2 text-orange-500" />Date-Time
               </th>
               <th className="border border-orange-300 p-2">
-                <FaPhone className="inline mr-2 text-orange-500" />Call Type
+                <FaUser className="inline mr-2 text-orange-500" />Meet Type
               </th>
               <th className="border border-orange-300 p-2">
-                <FaUser className="inline mr-2 text-orange-500" />Caller
+                <FaLink className="inline mr-2 text-orange-500" />Meeting Link
               </th>
               <th className="border border-orange-300 p-2">
-                <FaUser className="inline mr-2 text-orange-500" />Receiver
+                <FaUser className="inline mr-2 text-orange-500" />Host
+              </th>
+              <th className="border border-orange-300 p-2">
+                <FaUser className="inline mr-2 text-orange-500" />Client
+              </th>
+              <th className="border border-orange-300 p-2">
+                <FaClock className="inline mr-2 text-orange-500" />Join Time
               </th>
               <th className="border border-orange-300 p-2">
                 <FaClock className="inline mr-2 text-orange-500" />Duration
               </th>
-              <th className="border border-orange-300 p-2">Record</th>
               <th className="border border-orange-300 p-2">CRM</th>
             </tr>
           </thead>
           <tbody>
-            {calls.map((call, index) => (
+            {meetings.map((meeting, index) => (
               <tr key={index} className="hover:bg-orange-50">
-                <td className="border border-orange-300 p-2">{call.dateTime}</td>
-                <td className="border border-orange-300 p-2">{call.callType}</td>
-                <td className="border border-orange-300 p-2">{call.caller}</td>
-                <td className="border border-orange-300 p-2">{call.receiver}</td>
-                <td className="border border-orange-300 p-2">{call.duration}</td>
-                <td className="border border-orange-300 p-2">{call.record}</td>
-                <td className="border border-orange-300 p-2">{call.crm}</td>
+                <td className="border border-orange-300 p-2">{meeting.dateTime}</td>
+                <td className="border border-orange-300 p-2">{meeting.meetType}</td>
+                <td className="border border-orange-300 p-2">{meeting.meetingLink}</td>
+                <td className="border border-orange-300 p-2">{meeting.host}</td>
+                <td className="border border-orange-300 p-2">{meeting.client}</td>
+                <td className="border border-orange-300 p-2">{meeting.joinTime}</td>
+                <td className="border border-orange-300 p-2">{meeting.duration}</td>
+                <td className="border border-orange-300 p-2">{meeting.crm}</td>
               </tr>
             ))}
           </tbody>
@@ -163,7 +161,7 @@ const CallReport = () => {
 
       {/* Team Report Section */}
       <div className="mb-8">
-        <h2 className="text-xl font-bold mb-4 text-orange-500">Your Team's Call Report</h2>
+        <h2 className="text-xl font-bold mb-4 text-orange-500">Your Team's Meeting Report</h2>
         <div className="flex items-center mb-4">
           <FaSearch className="mr-2 text-orange-500" />
           <input
@@ -180,20 +178,20 @@ const CallReport = () => {
           <thead>
             <tr className="bg-gray-200">
               <th className="border border-orange-300 p-2">
-                <FaPhone className="inline mr-2 text-orange-500" />Call Type
+                <FaUser className="inline mr-2 text-orange-500" />Associates
               </th>
-              <th className="border border-orange-300 p-2">Total Calls</th>
-              <th className="border border-orange-300 p-2">Total Talk Time</th>
-              <th className="border border-orange-300 p-2">Average Time</th>
+              <th className="border border-orange-300 p-2">Total Aligned</th>
+              <th className="border border-orange-300 p-2">Total Joined</th>
+              <th className="border border-orange-300 p-2">Total Onboarded</th>
             </tr>
           </thead>
           <tbody>
             {teamReport.map((report, index) => (
               <tr key={index} className="hover:bg-orange-50">
-                <td className="border border-orange-300 p-2">{report.callType}</td>
-                <td className="border border-orange-300 p-2">{report.totalCalls}</td>
-                <td className="border border-orange-300 p-2">{report.totalTalkTime}</td>
-                <td className="border border-orange-300 p-2">{report.averageTime}</td>
+                <td className="border border-orange-300 p-2">{report.associate}</td>
+                <td className="border border-orange-300 p-2">{report.totalAligned}</td>
+                <td className="border border-orange-300 p-2">{report.totalJoined}</td>
+                <td className="border border-orange-300 p-2">{report.totalOnboarded}</td>
               </tr>
             ))}
           </tbody>
@@ -205,7 +203,7 @@ const CallReport = () => {
         <div className="bg-white p-4 rounded-lg shadow-md">
           <h3 className="text-lg font-semibold text-gray-700 mb-4 flex items-center">
             <FaUser className="h-5 w-5 mr-2 text-orange-500" />
-            Team’s Call Summary
+            Team’s Meeting Summary
           </h3>
           <div className="overflow-x-auto">
             <table className="w-full border border-gray-200 text-sm text-left">
@@ -219,67 +217,67 @@ const CallReport = () => {
               <tbody>
                 <tr className="hover:bg-orange-50">
                   <td className="py-2 px-4 flex items-center">
-                    <FaArrowUp className="h-5 w-5 mr-2 text-orange-500" />
-                    Top Caller
+                    <FaUser className="h-5 w-5 mr-2 text-orange-500" />
+                    Top Aligner
                   </td>
-                  <td className="py-2 px-4">RP Singh (919212401007)</td>
-                  <td className="py-2 px-4">{teamSummary.topCaller}</td>
+                  <td className="py-2 px-4">RP Singh</td>
+                  <td className="py-2 px-4">{teamSummary.topAligner}</td>
                 </tr>
                 <tr className="hover:bg-orange-50">
                   <td className="py-2 px-4 flex items-center">
-                    <FaArrowUp className="h-5 w-5 mr-2 text-orange-500" />
-                    Top Receiver
+                    <FaUser className="h-5 w-5 mr-2 text-orange-500" />
+                    Top Joiner
                   </td>
-                  <td className="py-2 px-4">RP Singh (919212401007)</td>
-                  <td className="py-2 px-4">{teamSummary.topReceiver}</td>
+                  <td className="py-2 px-4">RP Singh</td>
+                  <td className="py-2 px-4">{teamSummary.topJoiner}</td>
                 </tr>
                 <tr className="hover:bg-orange-50">
                   <td className="py-2 px-4 flex items-center">
-                    <FaArrowUp className="h-5 w-5 mr-2 text-orange-500" />
-                    Top Talker (Outgoing)
+                    <FaUser className="h-5 w-5 mr-2 text-orange-500" />
+                    Top On-boarder
                   </td>
-                  <td className="py-2 px-4">RP Singh (919212401007)</td>
-                  <td className="py-2 px-4">{teamSummary.topTalkerOutgoing}</td>
+                  <td className="py-2 px-4">RP Singh</td>
+                  <td className="py-2 px-4">{teamSummary.topOnboarder}</td>
                 </tr>
                 <tr className="hover:bg-orange-50">
                   <td className="py-2 px-4 flex items-center">
-                    <FaArrowUp className="h-5 w-5 mr-2 text-orange-500" />
-                    Top Talker (Incoming)
+                    <FaUser className="h-5 w-5 mr-2 text-orange-500" />
+                    Top Team Builder
                   </td>
-                  <td className="py-2 px-4">RP Singh (919212401007)</td>
-                  <td className="py-2 px-4">{teamSummary.topTalkerIncoming}</td>
+                  <td className="py-2 px-4">RP Singh</td>
+                  <td className="py-2 px-4">{teamSummary.topTeamBuilder}</td>
                 </tr>
                 <tr className="hover:bg-orange-50">
                   <td className="py-2 px-4 flex items-center">
-                    <FaArrowDown className="h-5 w-5 mr-2 text-orange-500" />
-                    Lowest Caller
+                    <FaUser className="h-5 w-5 mr-2 text-orange-500" />
+                    Lowest Aligner
                   </td>
-                  <td className="py-2 px-4">RP Singh (919212401007)</td>
-                  <td className="py-2 px-4">{teamSummary.lowestCaller}</td>
+                  <td className="py-2 px-4">RP Singh</td>
+                  <td className="py-2 px-4">{teamSummary.lowestAligner}</td>
                 </tr>
                 <tr className="hover:bg-orange-50">
                   <td className="py-2 px-4 flex items-center">
-                    <FaArrowDown className="h-5 w-5 mr-2 text-orange-500" />
-                    Lowest Receiver
+                    <FaUser className="h-5 w-5 mr-2 text-orange-500" />
+                    Lowest Joiner
                   </td>
-                  <td className="py-2 px-4">RP Singh (919212401007)</td>
-                  <td className="py-2 px-4">{teamSummary.lowestReceiver}</td>
+                  <td className="py-2 px-4">RP Singh</td>
+                  <td className="py-2 px-4">{teamSummary.lowestJoiner}</td>
                 </tr>
                 <tr className="hover:bg-orange-50">
                   <td className="py-2 px-4 flex items-center">
-                    <FaArrowDown className="h-5 w-5 mr-2 text-orange-500" />
-                    Lowest Talker (Outgoing)
+                    <FaUser className="h-5 w-5 mr-2 text-orange-500" />
+                    Lowest On-boarder
                   </td>
-                  <td className="py-2 px-4">RP Singh (919212401007)</td>
-                  <td className="py-2 px-4">{teamSummary.lowestTalkerOutgoing}</td>
+                  <td className="py-2 px-4">RP Singh</td>
+                  <td className="py-2 px-4">{teamSummary.lowestOnboarder}</td>
                 </tr>
                 <tr className="hover:bg-orange-50">
                   <td className="py-2 px-4 flex items-center">
-                    <FaArrowDown className="h-5 w-5 mr-2 text-orange-500" />
-                    Lowest Talker (Incoming)
+                    <FaUser className="h-5 w-5 mr-2 text-orange-500" />
+                    Lowest Team Builder
                   </td>
-                  <td className="py-2 px-4">RP Singh (919212401007)</td>
-                  <td className="py-2 px-4">{teamSummary.lowestTalkerIncoming}</td>
+                  <td className="py-2 px-4">RP Singh</td>
+                  <td className="py-2 px-4">{teamSummary.lowestTeamBuilder}</td>
                 </tr>
               </tbody>
             </table>
@@ -290,4 +288,4 @@ const CallReport = () => {
   );
 };
 
-export default CallReport;
+export default MeetingReport;

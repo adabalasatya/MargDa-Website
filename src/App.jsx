@@ -22,20 +22,24 @@ import QrScanPage from "./Pages/ProfilePages/QrScanPage";
 import UserLinkPage from './Pages/AdminPages/UserLinkPage';
 import VariablePage from './Pages/AdminPages/VariablePage';
 import TeamPage from './Pages/AdminPages/TeamPage'
+import TemplateApprovalPage from './Pages/AdminPages/TemplateApprovalPage'
+import UserKycPage from './Pages/AdminPages/UserKycPage'
+import WhatsappScanPage from './Pages/AdminPages/WhatsappScanPage'
 
 //ReportSection
 import CallReport from "./Pages/ReportPages/CallReportPage";
 import SmsReport from "./Pages/ReportPages/SmsReportPage";
 import EmailReport from "./Pages/ReportPages/EmailReportPage";
 import WhatsappReport from "./Pages/ReportPages/WhatsappReportPage"
+import MeetingReport from "./Pages/ReportPages/MeetingReportPage";
+import MyWorkTimelinePage from './Pages/ReportPages/WorkTimeLinePage';
+import ClientTimePage from './Pages/ReportPages/ClientTimelinePage'
 
 //OutsideSection
-import Template from "./Pages/ReportPages/TemplatePage";
-import Meeting from "./Pages/ReportPages/MeetingPage";
-import Report from "./Pages/ReportPages/ReportPage";
-import MasterData from "./Pages/ReportPages/MasterDataPage";
-import SettingPage from './Pages/SettingPage'
-import Logout from './Pages/LogoutPage';
+import Template from "./Pages/OutSidebarPages/TemplatePage";
+import MasterData from "./Pages/OutSidebarPages/MasterDataPage";
+import SettingPage from './Pages/OutSidebarPages/SettingPage'
+import Logout from './Pages/OutSidebarPages/LogoutPage';
 
  
 
@@ -71,22 +75,27 @@ function App() {
         <Route path="/user-link" element={<UserLinkPage />} />
         <Route path="/variable" element={<VariablePage />} />
         <Route path="/team" element={<TeamPage />} />
+        <Route path="/template-approval" element={<TemplateApprovalPage />} />
+        <Route path="/user-kyc" element={<UserKycPage />} />
+        <Route path="/whatsapp-scan" element={<WhatsappScanPage />} />
          
          {/* Report Section with drop-down menu */}
-          <Route path="/call" element={<CallReport />} />
-          <Route path="/sms" element={<SmsReport />} />
-          <Route path="/email" element={<EmailReport />} />
-          <Route path="/whatsapp" element={<WhatsappReport />} />
+         <Route path="/email-report" element={<EmailReport />} />
+         <Route path="/whatsapp-report" element={<WhatsappReport />} />
+          <Route path="/call-report" element={<CallReport />} />
+          <Route path="/sms-report" element={<SmsReport />} />
+          <Route path="meeting-report" element={<MeetingReport/>} />
+          <Route path="/my-work-report" element={<MyWorkTimelinePage/>} />
+          <Route path="/client-timeline" element={<ClientTimePage/>} />
+          
 
           {/* OutSide Section with drop-down menu */}
           <Route path="template" element={<Template />} />
-          <Route path="meeting" element={<Meeting/>} />
-          <Route path="report" element={<Report/>} />
           <Route path="master-data" element={<MasterData/>} />
           <Route path="settings" element={<SettingPage/>} />
           <Route path="logout" element={<Logout/>} />
           
-         
+          
 
       </Routes>
     </Router>  

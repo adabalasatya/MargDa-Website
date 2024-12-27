@@ -1,139 +1,247 @@
-import React, { useState } from "react";
+import React from 'react';
+import {
+  FaSearch,
+  FaCalendarAlt,
+  FaUser,
+  FaPaperPlane,
+  FaReply,
+  FaTimesCircle,
+  FaClock,
+} from 'react-icons/fa';
 
 const SMSReport = () => {
-  const [records, setRecords] = useState(10); // Number of records to show
+  // Sample data for SMS messages
+  const messages = [
+    {
+      task: 'Task 1',
+      name: 'SK Sharma',
+      mobile: '1234567890',
+      message: 'Invitation for a virtual meeting',
+      dateTime: '10-12-2024 00:00',
+      simApi: 'SIM',
+      crm: 'CRM+',
+    },
+    {
+      task: 'Task 2',
+      name: 'RP Singh',
+      mobile: '9876543210',
+      message: 'Follow-up on project update',
+      dateTime: '11-12-2024 10:30',
+      simApi: 'API',
+      crm: 'CRM+',
+    },
+    // Add more message data here
+  ];
+
+  // Sample data for team report
+  const teamReport = [
+    {
+      associate: 'RP Singh',
+      totalSent: 47,
+      totalUnreplied: 23,
+      maxDelay: '12 days',
+    },
+    {
+      associate: 'SK Sharma',
+      totalSent: 2,
+      totalUnreplied: 12,
+      maxDelay: '1 day',
+    },
+    // Add more team report data here
+  ];
+
+  // Sample data for team summary
+  const teamSummary = {
+    topSender: 'RP Singh - 32 SMS',
+    topReplier: 'RP Singh - 32 SMS',
+    topNeglecter: 'RP Singh - 49 SMS',
+    topDelayer: 'RP Singh - 34 SMS',
+    lowestSender: 'RP Singh - 32 SMS',
+  };
 
   return (
-    <>
-    <div className="p-6 bg-gray-100 min-h-screen">
-      <h1 className="text-2xl font-bold text-gray-800 mb-4">
-        SMS Report
-      </h1>
-      <div className="bg-white p-4 rounded-lg shadow-md">
-        <h2 className="text-lg font-semibold text-gray-700 mb-4">
-          Here is your and the Team's SMS Report
-        </h2>
-        {/* Filters */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-6 gap-4 mb-6">
-          <select className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500">
-            <option>Advisor</option>
-          </select>
-          <select className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500">
-            <option>Through</option>
-          </select>
-          <select className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500">
-            <option>User</option>
-          </select>
+    <div className="p-4">
+      {/* SMS Report Section */}
+      <div className="mb-8">
+        <h2 className="text-xl font-bold mb-4 text-orange-500">SMS Report</h2>
+        <div className="flex items-center mb-4">
+          <FaCalendarAlt className="mr-2 text-orange-500" />
+          <span className="mr-4">From Date</span>
+          <FaCalendarAlt className="mr-2 text-orange-500" />
+          <span className="mr-4">To Date</span>
+          <FaSearch className="mr-2 text-orange-500" />
           <input
-            type="date"
-            className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
+            type="text"
+            placeholder="Search"
+            className="border p-2 rounded focus:border-orange-500 focus:ring-orange-500"
           />
-          <input
-            type="date"
-            className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
-          />
-          <button className="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600">
-            Search
-          </button>
         </div>
-        {/* Record Controls */}
+
+        {/* Task List and Search Bar */}
         <div className="flex items-center justify-between mb-4">
-          <div>
-            <label className="text-gray-700">
-              Show
-              <select
-                className="mx-2 border border-gray-300 rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-orange-500"
-                value={records}
-                onChange={(e) => setRecords(e.target.value)}
-              >
-                <option value="10">10</option>
-                <option value="25">25</option>
-                <option value="50">50</option>
-                <option value="100">100</option>
-              </select>
-              records
-            </label>
+          <div className="flex items-center">
+            <span className="mr-2">Show</span>
+            <input
+              type="number"
+              placeholder="10"
+              className="border p-2 rounded w-16 focus:border-orange-500 focus:ring-orange-500"
+            />
+            <span className="ml-2">records</span>
           </div>
-          <div>
+          <div className="flex items-center">
+            <FaSearch className="mr-2 text-orange-500" />
             <input
               type="text"
               placeholder="Search"
-              className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
+              className="border p-2 rounded focus:border-orange-500 focus:ring-orange-500"
             />
           </div>
         </div>
-        {/* Table */}
-        <table className="w-full border border-gray-200 text-sm text-left">
-          <thead className="bg-gray-200 text-gray-700">
-            <tr>
-              <th className="py-2 px-4">Date - Time</th>
-              <th className="py-2 px-4">Through</th>
-              <th className="py-2 px-4">Advisor</th>
-              <th className="py-2 px-4">Client</th>
-              <th className="py-2 px-4">Content</th>
-              <th className="py-2 px-4">Replied</th>
-              <th className="py-2 px-4">Delay (in days)</th>
+
+        {/* Table for SMS Messages */}
+        <table className="w-full border-collapse border border-orange-300">
+          <thead>
+            <tr className="bg-gray-200">
+              <th className="border border-orange-300 p-2">Task</th>
+              <th className="border border-orange-300 p-2">Name</th>
+              <th className="border border-orange-300 p-2">Mobile</th>
+              <th className="border border-orange-300 p-2">Message</th>
+              <th className="border border-orange-300 p-2">Date + Time Stamp</th>
+              <th className="border border-orange-300 p-2">SIM/API</th>
+              <th className="border border-orange-300 p-2">CRM+</th>
             </tr>
           </thead>
           <tbody>
-            {/* Example row */}
-            <tr className="hover:bg-gray-100">
-              <td className="py-2 px-4">2024-12-24</td>
-              <td className="py-2 px-4">Mobile</td>
-              <td className="py-2 px-4">John Doe</td>
-              <td className="py-2 px-4">Jane Smith</td>
-              <td className="py-2 px-4">Message Content</td>
-              <td className="py-2 px-4">Yes</td>
-              <td className="py-2 px-4">3</td>
-            </tr>
+            {messages.map((message, index) => (
+              <tr key={index} className="hover:bg-orange-50">
+                <td className="border border-orange-300 p-2">{message.task}</td>
+                <td className="border border-orange-300 p-2">{message.name}</td>
+                <td className="border border-orange-300 p-2">{message.mobile}</td>
+                <td className="border border-orange-300 p-2">{message.message}</td>
+                <td className="border border-orange-300 p-2">{message.dateTime}</td>
+                <td className="border border-orange-300 p-2">{message.simApi}</td>
+                <td className="border border-orange-300 p-2">{message.crm}</td>
+              </tr>
+            ))}
           </tbody>
         </table>
+
         {/* Pagination */}
-        <div className="mt-4 flex items-center justify-between">
-          <p>Showing 1 to {records} of 207 records</p>
-          <div className="flex items-center space-x-2">
-            <button className="px-3 py-1 bg-gray-200 text-gray-700 rounded-md">
-              Previous
+        <div className="mt-4">
+          <span>Showing 1 to 10 records</span>
+          <div className="inline-block float-right">
+            <button className="mr-2 px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600">
+              {"<<"} Previous
             </button>
-            <button className="px-3 py-1 bg-orange-500 text-white rounded-md">
-              Next
+            <button className="px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600">
+              Next {">>"}
             </button>
           </div>
         </div>
       </div>
-      {/* Summary */}
-      <div className="mt-6">
-        <div className="bg-white p-4 rounded-lg shadow-md">
-          <h3 className="text-lg font-semibold text-gray-700 mb-4">
-            Team Summary
-          </h3>
-          <table className="w-full border border-gray-200 text-sm text-left">
-            <thead className="bg-gray-200 text-gray-700">
-              <tr>
-                <th className="py-2 px-4">Advisor</th>
-                <th className="py-2 px-4">Total Sent</th>
-                <th className="py-2 px-4">Total Un-replied</th>
-                <th className="py-2 px-4">Maximum Delay</th>
-              </tr>
-            </thead>
-            <tbody>
-              {/* Example row */}
-              <tr className="hover:bg-gray-100">
-                <td className="py-2 px-4">RP Singh</td>
-                <td className="py-2 px-4">47</td>
-                <td className="py-2 px-4">23</td>
-                <td className="py-2 px-4">12 days</td>
-              </tr>
-            </tbody>
-          </table>
+
+      {/* Team Report Section */}
+      <div className="mb-8">
+        <h2 className="text-xl font-bold mb-4 text-orange-500">Your Team's SMS Report</h2>
+        <div className="flex items-center mb-4">
+          <FaSearch className="mr-2 text-orange-500" />
+          <input
+            type="text"
+            placeholder="Search Associates"
+            className="border p-2 rounded focus:border-orange-500 focus:ring-orange-500 mr-4"
+          />
+          <FaCalendarAlt className="mr-2 text-orange-500" />
+          <span className="mr-4">From Date</span>
+          <FaCalendarAlt className="mr-2 text-orange-500" />
+          <span className="mr-4">To Date</span>
         </div>
+        <table className="w-full border-collapse border border-orange-300">
+          <thead>
+            <tr className="bg-gray-200">
+              <th className="border border-orange-300 p-2">
+                <FaUser className="inline mr-2 text-orange-500" />Associates
+              </th>
+              <th className="border border-orange-300 p-2">Total Sent</th>
+              <th className="border border-orange-300 p-2">Total Un-replied</th>
+              <th className="border border-orange-300 p-2">Maximum Delays</th>
+            </tr>
+          </thead>
+          <tbody>
+            {teamReport.map((report, index) => (
+              <tr key={index} className="hover:bg-orange-50">
+                <td className="border border-orange-300 p-2">{report.associate}</td>
+                <td className="border border-orange-300 p-2">{report.totalSent}</td>
+                <td className="border border-orange-300 p-2">{report.totalUnreplied}</td>
+                <td className="border border-orange-300 p-2">{report.maxDelay}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
+
+      {/* Team Summary Section */}
+      <section className="mb-6">
+        <div className="bg-white p-4 rounded-lg shadow-md">
+          <h3 className="text-lg font-semibold text-gray-700 mb-4 flex items-center">
+            <FaUser className="h-5 w-5 mr-2 text-orange-500" />
+            Team’s SMS Summary
+          </h3>
+          <div className="overflow-x-auto">
+            <table className="w-full border border-gray-200 text-sm text-left">
+              <thead className="bg-gray-200 text-black-700">
+                <tr>
+                  <th className="py-2 px-4">Category</th>
+                  <th className="py-2 px-4">Team Member</th>
+                  <th className="py-2 px-4">Details</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr className="hover:bg-orange-50">
+                  <td className="py-2 px-4 flex items-center">
+                    <FaPaperPlane className="h-5 w-5 mr-2 text-orange-500" />
+                    Top Sender
+                  </td>
+                  <td className="py-2 px-4">RP Singh</td>
+                  <td className="py-2 px-4">{teamSummary.topSender}</td>
+                </tr>
+                <tr className="hover:bg-orange-50">
+                  <td className="py-2 px-4 flex items-center">
+                    <FaReply className="h-5 w-5 mr-2 text-orange-500" />
+                    Top Replier
+                  </td>
+                  <td className="py-2 px-4">RP Singh</td>
+                  <td className="py-2 px-4">{teamSummary.topReplier}</td>
+                </tr>
+                <tr className="hover:bg-orange-50">
+                  <td className="py-2 px-4 flex items-center">
+                    <FaTimesCircle className="h-5 w-5 mr-2 text-orange-500" />
+                    Top Neglecter
+                  </td>
+                  <td className="py-2 px-4">RP Singh</td>
+                  <td className="py-2 px-4">{teamSummary.topNeglecter}</td>
+                </tr>
+                <tr className="hover:bg-orange-50">
+                  <td className="py-2 px-4 flex items-center">
+                    <FaClock className="h-5 w-5 mr-2 text-orange-500" />
+                    Top Delayer
+                  </td>
+                  <td className="py-2 px-4">RP Singh</td>
+                  <td className="py-2 px-4">{teamSummary.topDelayer}</td>
+                </tr>
+                <tr className="hover:bg-orange-50">
+                  <td className="py-2 px-4 flex items-center">
+                    <FaPaperPlane className="h-5 w-5 mr-2 text-orange-500" />
+                    Lowest Sender
+                  </td>
+                  <td className="py-2 px-4">RP Singh</td>
+                  <td className="py-2 px-4">{teamSummary.lowestSender}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
     </div>
-     {/* Footer */}
-     <footer className="text-black text-center py-4 mt-6">
-        <p>&copy; 2024 Margdarshak Media. All rights reserved.</p>
-      </footer>
-    </>
   );
 };
 
