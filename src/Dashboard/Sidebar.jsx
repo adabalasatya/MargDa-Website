@@ -14,11 +14,16 @@ import {
   FaIdCard, 
   FaCogs,
   FaComments,
+  FaTasks,
 } from "react-icons/fa";
+import { useMediaQuery } from "react-responsive"; // Import useMediaQuery
 import Logo from "../assets/margdarshakendra-logo.webp";
 
-const Sidebar = ({ isOpen, toggleSidebar, isMobile }) => {
+const Sidebar = ({ toggleSidebar }) => {
   const location = useLocation();
+  const isMobile = useMediaQuery({ query: "(max-width: 768px)" }); // Detect mobile screen size
+  const [isOpen, setIsOpen] = useState(!isMobile); // Default to closed on mobile
+
   const [isUserMenuOpen, setUserMenuOpen] = useState(() => {
     const saved = localStorage.getItem("userMenuOpen");
     return saved ? JSON.parse(saved) : false;
@@ -69,7 +74,7 @@ const Sidebar = ({ isOpen, toggleSidebar, isMobile }) => {
 
   const handleLinkClick = () => {
     if (isMobile) {
-      toggleSidebar();
+      setIsOpen(false); // Close sidebar on mobile when a link is clicked
     }
   };
 
@@ -78,7 +83,7 @@ const Sidebar = ({ isOpen, toggleSidebar, isMobile }) => {
       {isMobile && isOpen && (
         <div
           className="fixed inset-0 bg-black bg-opacity-50 z-20 md:hidden"
-          onClick={toggleSidebar}
+          onClick={() => setIsOpen(false)}
         />
       )}
 
@@ -100,7 +105,7 @@ const Sidebar = ({ isOpen, toggleSidebar, isMobile }) => {
               className={`${
                 isOpen ? "ml-auto" : "mx-auto"
               } bg-white text-gray-900 p-2 rounded-full shadow hover:bg-orange-500 hover:text-white focus:outline-none transition-all duration-300`}
-              onClick={toggleSidebar}
+              onClick={() => setIsOpen(!isOpen)}
             >
               <Menu className="w-6 h-6" />
             </button>
@@ -283,8 +288,8 @@ const Sidebar = ({ isOpen, toggleSidebar, isMobile }) => {
                     { title: "SMS Report", icon: <FaSms />, link: "/sms-report" },
                     { title: "Call Report", icon: <FaPhone />, link: "/call-report" },
                     { title: "Meeting Report", icon: <FaVideo />, link: "/meeting-report" },
-                    { title: "Work Time-line", icon: "📅", link: "/my-work-report" },
-                    { title: "Client Timeline", icon: <FaChartBar />, link: "/client-timeline" },
+                    { title: "Work Nodes", icon: <FaTasks />, link: "/my-work-report" },
+                    { title: "Client Nodes", icon: <FaChartBar />, link: "/client-timeline" },
                   ].map((item, index) => (
                     <Link
                       key={index}

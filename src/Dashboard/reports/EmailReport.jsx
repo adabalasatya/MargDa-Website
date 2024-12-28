@@ -46,20 +46,52 @@ const EmailReport = () => {
 
   return (
     <div className="p-4">
+      {/* Header Section */}
+      <div className="mb-8">
+  <h1 className="text-2xl font-bold mb-4 text-orange-500">Email Report</h1>
+  <div className="flex space-x-16 mb-4">
+    <span className="text-lg font-semibold text-black-700">&lt;Your Email&gt;</span>
+    <span className="text-lg font-semibold text-black-700">&lt;Team Report&gt;</span>
+    <span className="text-lg font-semibold text-black-700">&lt;Team Summary&gt;</span>
+  </div>
+</div>
+
       {/* Email Report Section */}
       <div className="mb-8">
-        <h2 className="text-xl font-bold mb-4 text-orange-500">Email Report</h2>
         <div className="flex items-center mb-4">
           <FaCalendarAlt className="mr-2 text-orange-500" />
           <span className="mr-4">From Date</span>
           <FaCalendarAlt className="mr-2 text-orange-500" />
           <span className="mr-4">To Date</span>
           <FaSearch className="mr-2 text-orange-500" />
-          <input
-            type="text"
-            placeholder="Search"
-            className="border p-2 rounded focus:border-orange-500 focus:ring-orange-500"
-          />
+            <input
+              type="text"
+              placeholder="Search"
+              className="border p-2 rounded focus:border-orange-500 focus:ring-orange-500"
+            />
+        </div>
+        {/* New Section for "Show [ ] records" and "Search [ ]" */}
+        <div className="flex justify-between items-center mb-4">
+          {/* Left Side: Show [ ] records */}
+          <div className="flex items-center">
+            <span className="mr-2">Show</span>
+            <input
+              type="number"
+              className="border p-2 rounded w-20 focus:border-orange-500 focus:ring-orange-500"
+              placeholder="10"
+            />
+            <span className="ml-2">Records</span>
+          </div>
+
+          {/* Right Side: Search Bar */}
+          <div className="flex items-center">
+            <FaSearch className="mr-2 text-orange-500" />
+            <input
+              type="text"
+              placeholder="Search"
+              className="border p-2 rounded focus:border-orange-500 focus:ring-orange-500"
+            />
+          </div>
         </div>
         <table className="w-full border-collapse border border-orange-300">
           <thead>
@@ -117,47 +149,77 @@ const EmailReport = () => {
       </div>
 
       {/* Team Report Section */}
-      <div className="mb-8">
-        <h2 className="text-xl font-bold mb-4 text-orange-500">Your Team's Email Report</h2>
-        <div className="flex items-center mb-4">
-          <FaSearch className="mr-2 text-orange-500" />
-          <input
-            type="text"
-            placeholder="Search Associates"
-            className="border p-2 rounded focus:border-orange-500 focus:ring-orange-500 mr-4"
-          />
-          <FaCalendarAlt className="mr-2 text-orange-500" />
-          <span className="mr-4">From Date</span>
-          <FaCalendarAlt className="mr-2 text-orange-500" />
-          <span className="mr-4">To Date</span>
-        </div>
-        <table className="w-full border-collapse border border-orange-300">
-          <thead>
-            <tr className="bg-gray-200">
-              <th className="border border-orange-300 p-2">
-                <FaUser className="inline mr-2 text-orange-500" />Associates
-              </th>
-              <th className="border border-orange-300 p-2">Total Sent</th>
-              <th className="border border-orange-300 p-2">Total Un-replied</th>
-              <th className="border border-orange-300 p-2">Maximum Delays</th>
-            </tr>
-          </thead>
-          <tbody>
-            {teamReport.map((report, index) => (
-              <tr key={index} className="hover:bg-orange-50">
-                <td className="border border-orange-300 p-2">{report.associate}</td>
-                <td className="border border-orange-300 p-2">{report.totalSent}</td>
-                <td className="border border-orange-300 p-2">{report.totalUnreplied}</td>
-                <td className="border border-orange-300 p-2">{report.maxDelay}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+<div className="mb-8">
+  <h2 className="text-xl font-bold mb-4 text-orange-500">Your Team's Email Report</h2>
+  {/* Header with all elements in the same line */}
+  <div className="flex items-center mb-4">
+    {/* Associates */}
+    <div className="flex items-center mr-4">
+      <FaUser className="mr-2 text-orange-500" />
+      <span className="text-lg font-semibold text-gray-700">Associates</span>
+    </div>
+    {/* List */}
+    <span className="text-lg font-semibold text-gray-700 mr-4">&lt;List&gt;</span>
+    {/* Search Bar */}
+    <div className="flex items-center mr-4">
+      <FaSearch className="mr-2 text-orange-500" />
+      <input
+        type="text"
+        placeholder="Search"
+        className="border p-2 rounded focus:border-orange-500 focus:ring-orange-500"
+      />
+    </div>
+    {/* From Date */}
+    <div className="flex items-center mr-4">
+      <FaCalendarAlt className="mr-2 text-orange-500" />
+      <span className="text-lg font-semibold text-gray-700">From Date</span>
+    </div>
+    {/* To Date */}
+    <div className="flex items-center">
+      <FaCalendarAlt className="mr-2 text-orange-500" />
+      <span className="text-lg font-semibold text-gray-700">To Date</span>
+    </div>
+  </div>
+  {/* Table */}
+  <table className="w-full border-collapse border border-orange-300">
+    <thead>
+      <tr className="bg-gray-200">
+        <th className="border border-orange-300 p-2">
+          <FaUser className="inline mr-2 text-orange-500" />Associates
+        </th>
+        <th className="border border-orange-300 p-2">Total Sent</th>
+        <th className="border border-orange-300 p-2">Total Un-replied</th>
+        <th className="border border-orange-300 p-2">Maximum Delays</th>
+      </tr>
+    </thead>
+    <tbody>
+      {teamReport.map((report, index) => (
+        <tr key={index} className="hover:bg-orange-50">
+          <td className="border border-orange-300 p-2">{report.associate}</td>
+          <td className="border border-orange-300 p-2">{report.totalSent}</td>
+          <td className="border border-orange-300 p-2">{report.totalUnreplied}</td>
+          <td className="border border-orange-300 p-2">{report.maxDelay}</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
 
       {/* Team Summary Section */}
       <section className="mb-6">
         <div className="bg-white p-4 rounded-lg shadow-md">
+        <div className="flex items-center mb-4">
+          <FaCalendarAlt className="mr-2 text-orange-500" />
+          <span className="mr-4">From Date</span>
+          <FaCalendarAlt className="mr-2 text-orange-500" />
+          <span className="mr-4">To Date</span>
+          <FaSearch className="mr-2 text-orange-500" />
+            <input
+              type="text"
+              placeholder="Search"
+              className="border p-2 rounded focus:border-orange-500 focus:ring-orange-500"
+            />
+        </div>
           <h3 className="text-lg font-semibold text-gray-700 mb-4 flex items-center">
             <FaEnvelope className="text-orange-500 h-5 w-5 mr-2" />
             Team’s Email Summary

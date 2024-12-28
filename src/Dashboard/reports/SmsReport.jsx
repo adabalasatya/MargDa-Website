@@ -63,7 +63,14 @@ const SMSReport = () => {
     <div className="p-4">
       {/* SMS Report Section */}
       <div className="mb-8">
-        <h2 className="text-xl font-bold mb-4 text-orange-500">SMS Report</h2>
+  <h1 className="text-2xl font-bold mb-4 text-orange-500">SMS Report</h1>
+  <div className="flex space-x-16 mb-4">
+    <span className="text-lg font-semibold text-black-700">&lt;Your Sms&gt;</span>
+    <span className="text-lg font-semibold text-black-700">&lt;Team Report&gt;</span>
+    <span className="text-lg font-semibold text-black-700">&lt;Team Summary&gt;</span>
+  </div>
+</div>
+      <div className="mb-8">
         <div className="flex items-center mb-4">
           <FaCalendarAlt className="mr-2 text-orange-500" />
           <span className="mr-4">From Date</span>
@@ -144,17 +151,33 @@ const SMSReport = () => {
       <div className="mb-8">
         <h2 className="text-xl font-bold mb-4 text-orange-500">Your Team's SMS Report</h2>
         <div className="flex items-center mb-4">
-          <FaSearch className="mr-2 text-orange-500" />
-          <input
-            type="text"
-            placeholder="Search Associates"
-            className="border p-2 rounded focus:border-orange-500 focus:ring-orange-500 mr-4"
-          />
-          <FaCalendarAlt className="mr-2 text-orange-500" />
-          <span className="mr-4">From Date</span>
-          <FaCalendarAlt className="mr-2 text-orange-500" />
-          <span className="mr-4">To Date</span>
-        </div>
+            {/* Associates */}
+            <div className="flex items-center mr-4">
+              <FaUser className="mr-2 text-orange-500" />
+              <span className="text-lg font-semibold text-gray-700">Associates</span>
+            </div>
+            {/* List */}
+            <span className="text-lg font-semibold text-gray-700 mr-4">&lt;List&gt;</span>
+            {/* Search Bar */}
+            <div className="flex items-center mr-4">
+              <FaSearch className="mr-2 text-orange-500" />
+              <input
+                type="text"
+                placeholder="Search"
+                className="border p-2 rounded focus:border-orange-500 focus:ring-orange-500"
+              />
+            </div>
+            {/* From Date */}
+            <div className="flex items-center mr-4">
+              <FaCalendarAlt className="mr-2 text-orange-500" />
+              <span className="text-lg font-semibold text-gray-700">From Date</span>
+            </div>
+            {/* To Date */}
+            <div className="flex items-center">
+              <FaCalendarAlt className="mr-2 text-orange-500" />
+              <span className="text-lg font-semibold text-gray-700">To Date</span>
+            </div>
+          </div>
         <table className="w-full border-collapse border border-orange-300">
           <thead>
             <tr className="bg-gray-200">
@@ -182,6 +205,18 @@ const SMSReport = () => {
       {/* Team Summary Section */}
       <section className="mb-6">
         <div className="bg-white p-4 rounded-lg shadow-md">
+          <div className="flex items-center mb-4">
+                    <FaCalendarAlt className="mr-2 text-orange-500" />
+                    <span className="mr-4">From Date</span>
+                    <FaCalendarAlt className="mr-2 text-orange-500" />
+                    <span className="mr-4">To Date</span>
+                    <FaSearch className="mr-2 text-orange-500" />
+                      <input
+                        type="text"
+                        placeholder="Search"
+                        className="border p-2 rounded focus:border-orange-500 focus:ring-orange-500"
+                      />
+                  </div>
           <h3 className="text-lg font-semibold text-gray-700 mb-4 flex items-center">
             <FaUser className="h-5 w-5 mr-2 text-orange-500" />
             Team’s SMS Summary
@@ -198,7 +233,7 @@ const SMSReport = () => {
               <tbody>
                 <tr className="hover:bg-orange-50">
                   <td className="py-2 px-4 flex items-center">
-                    <FaPaperPlane className="h-5 w-5 mr-2 text-orange-500" />
+                    <FaPaperPlane className="h-5 w-5 mr-2 text-green-500" />
                     Top Sender
                   </td>
                   <td className="py-2 px-4">RP Singh</td>
@@ -206,7 +241,7 @@ const SMSReport = () => {
                 </tr>
                 <tr className="hover:bg-orange-50">
                   <td className="py-2 px-4 flex items-center">
-                    <FaReply className="h-5 w-5 mr-2 text-orange-500" />
+                    <FaReply className="h-5 w-5 mr-2 text-blue-500" />
                     Top Replier
                   </td>
                   <td className="py-2 px-4">RP Singh</td>
@@ -214,7 +249,7 @@ const SMSReport = () => {
                 </tr>
                 <tr className="hover:bg-orange-50">
                   <td className="py-2 px-4 flex items-center">
-                    <FaTimesCircle className="h-5 w-5 mr-2 text-orange-500" />
+                    <FaTimesCircle className="h-5 w-5 mr-2 text-red-500" />
                     Top Neglecter
                   </td>
                   <td className="py-2 px-4">RP Singh</td>
@@ -222,7 +257,7 @@ const SMSReport = () => {
                 </tr>
                 <tr className="hover:bg-orange-50">
                   <td className="py-2 px-4 flex items-center">
-                    <FaClock className="h-5 w-5 mr-2 text-orange-500" />
+                    <FaClock className="h-5 w-5 mr-2 text-yellow-500" />
                     Top Delayer
                   </td>
                   <td className="py-2 px-4">RP Singh</td>
@@ -230,7 +265,7 @@ const SMSReport = () => {
                 </tr>
                 <tr className="hover:bg-orange-50">
                   <td className="py-2 px-4 flex items-center">
-                    <FaPaperPlane className="h-5 w-5 mr-2 text-orange-500" />
+                    <FaPaperPlane className="h-5 w-5 mr-2 text-gray-500" />
                     Lowest Sender
                   </td>
                   <td className="py-2 px-4">RP Singh</td>

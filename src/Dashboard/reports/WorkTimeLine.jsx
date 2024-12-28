@@ -223,6 +223,18 @@ const MyWorkTimeline = () => {
       {/* Your Team’s Work Summary Section */}
       <section className="mb-6">
         <div className="bg-white p-4 rounded-lg shadow-md">
+          <div className="flex items-center mb-4">
+                    <FaCalendarAlt className="mr-2 text-orange-500" />
+                    <span className="mr-4">From Date</span>
+                    <FaCalendarAlt className="mr-2 text-orange-500" />
+                    <span className="mr-4">To Date</span>
+                    <FaSearch className="mr-2 text-orange-500" />
+                      <input
+                        type="text"
+                        placeholder="Search"
+                        className="border p-2 rounded focus:border-orange-500 focus:ring-orange-500"
+                      />
+                  </div>
           <h3 className="text-lg font-semibold text-gray-700 mb-4 flex items-center">
             <FaUser className="h-5 w-5 mr-2 text-orange-500" />
             Your Team’s Work Summary
