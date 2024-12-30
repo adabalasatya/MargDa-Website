@@ -118,42 +118,49 @@ const CallReport = () => {
         </div>
 
         {/* Table for Calls */}
-        <table className="w-full border-collapse border border-orange-300">
-          <thead>
-            <tr className="bg-gray-200">
-              <th className="border border-orange-300 p-2">
-                <FaCalendarAlt className="inline mr-2 text-orange-500" />Date-Time
-              </th>
-              <th className="border border-orange-300 p-2">
-                <FaPhone className="inline mr-2 text-orange-500" />Call Type
-              </th>
-              <th className="border border-orange-300 p-2">
-                <FaUser className="inline mr-2 text-orange-500" />Caller
-              </th>
-              <th className="border border-orange-300 p-2">
-                <FaUser className="inline mr-2 text-orange-500" />Receiver
-              </th>
-              <th className="border border-orange-300 p-2">
-                <FaClock className="inline mr-2 text-orange-500" />Duration
-              </th>
-              <th className="border border-orange-300 p-2">Record</th>
-              <th className="border border-orange-300 p-2">CRM</th>
-            </tr>
-          </thead>
-          <tbody>
-            {calls.map((call, index) => (
-              <tr key={index} className="hover:bg-orange-50">
-                <td className="border border-orange-300 p-2">{call.dateTime}</td>
-                <td className="border border-orange-300 p-2">{call.callType}</td>
-                <td className="border border-orange-300 p-2">{call.caller}</td>
-                <td className="border border-orange-300 p-2">{call.receiver}</td>
-                <td className="border border-orange-300 p-2">{call.duration}</td>
-                <td className="border border-orange-300 p-2">{call.record}</td>
-                <td className="border border-orange-300 p-2">{call.crm}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <div className="overflow-x-auto rounded-lg shadow-md">
+  <table className="w-full border-collapse bg-white">
+    <thead>
+      <tr className="bg-gradient-to-r from-orange-400 to-orange-500 text-white">
+        <th className="py-3 px-4 text-left font-semibold">
+          <FaCalendarAlt className="inline mr-2" />Date-Time
+        </th>
+        <th className="py-3 px-4 text-left font-semibold">
+          <FaPhone className="inline mr-2" />Call Type
+        </th>
+        <th className="py-3 px-4 text-left font-semibold">
+          <FaUser className="inline mr-2" />Caller
+        </th>
+        <th className="py-3 px-4 text-left font-semibold">
+          <FaUser className="inline mr-2" />Receiver
+        </th>
+        <th className="py-3 px-4 text-left font-semibold">
+          <FaClock className="inline mr-2" />Duration
+        </th>
+        <th className="py-3 px-4 text-left font-semibold">Record</th>
+        <th className="py-3 px-4 text-left font-semibold">CRM</th>
+      </tr>
+    </thead>
+    <tbody>
+      {calls.map((call, index) => (
+        <tr
+          key={index}
+          className={`border-b border-gray-100 ${
+            index % 2 === 0 ? "bg-gray-50" : "bg-white"
+          } hover:bg-orange-50 transition-colors duration-200`}
+        >
+          <td className="py-3 px-4 text-gray-700">{call.dateTime}</td>
+          <td className="py-3 px-4 text-gray-700">{call.callType}</td>
+          <td className="py-3 px-4 text-gray-700">{call.caller}</td>
+          <td className="py-3 px-4 text-gray-700">{call.receiver}</td>
+          <td className="py-3 px-4 text-gray-700">{call.duration}</td>
+          <td className="py-3 px-4 text-gray-700">{call.record}</td>
+          <td className="py-3 px-4 text-gray-700">{call.crm}</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
 
         {/* Pagination */}
         <div className="mt-4">
@@ -200,28 +207,35 @@ const CallReport = () => {
               <span className="text-lg font-semibold text-gray-700">To Date</span>
             </div>
           </div>
-        <table className="w-full border-collapse border border-orange-300">
-          <thead>
-            <tr className="bg-gray-200">
-              <th className="border border-orange-300 p-2">
-                <FaPhone className="inline mr-2 text-orange-500" />Call Type
-              </th>
-              <th className="border border-orange-300 p-2">Total Calls</th>
-              <th className="border border-orange-300 p-2">Total Talk Time</th>
-              <th className="border border-orange-300 p-2">Average Time</th>
-            </tr>
-          </thead>
-          <tbody>
-            {teamReport.map((report, index) => (
-              <tr key={index} className="hover:bg-orange-50">
-                <td className="border border-orange-300 p-2">{report.callType}</td>
-                <td className="border border-orange-300 p-2">{report.totalCalls}</td>
-                <td className="border border-orange-300 p-2">{report.totalTalkTime}</td>
-                <td className="border border-orange-300 p-2">{report.averageTime}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+
+          <div className="overflow-x-auto rounded-lg shadow-md">
+  <table className="w-full border-collapse bg-white">
+    <thead>
+      <tr className="bg-gradient-to-r from-orange-400 to-orange-500 text-white">
+        <th className="py-3 px-4 text-left font-semibold">
+          <FaPhone className="inline mr-2" />Call Type
+        </th>
+        <th className="py-3 px-4 text-left font-semibold">Total Calls</th>
+        <th className="py-3 px-4 text-left font-semibold">Total Talk Time</th>
+        <th className="py-3 px-4 text-left font-semibold">Average Time</th>
+      </tr>
+    </thead>
+    <tbody>
+      {teamReport.map((report, index) => (
+        <tr
+          key={index}
+          className="border-b border-gray-100 hover:bg-orange-50 transition-colors duration-200"
+        >
+          <td className="py-3 px-4 text-gray-700">{report.callType}</td>
+          <td className="py-3 px-4 text-gray-700">{report.totalCalls}</td>
+          <td className="py-3 px-4 text-gray-700">{report.totalTalkTime}</td>
+          <td className="py-3 px-4 text-gray-700">{report.averageTime}</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
+
       </div>
 
       {/* Team Summary Section */}
@@ -243,83 +257,45 @@ const CallReport = () => {
             <FaUser className="h-5 w-5 mr-2 text-orange-500" />
             Team’s Call Summary
           </h3>
-          <div className="overflow-x-auto">
-            <table className="w-full border border-gray-200 text-sm text-left">
-              <thead className="bg-gray-200 text-black-700">
-                <tr>
-                  <th className="py-2 px-4">Category</th>
-                  <th className="py-2 px-4">Team Member</th>
-                  <th className="py-2 px-4">Details</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr className="hover:bg-orange-50">
-                  <td className="py-2 px-4 flex items-center">
-                    <FaArrowUp className="h-5 w-5 mr-2 text-orange-500" />
-                    Top Caller
-                  </td>
-                  <td className="py-2 px-4">RP Singh (919212401007)</td>
-                  <td className="py-2 px-4">{teamSummary.topCaller}</td>
-                </tr>
-                <tr className="hover:bg-orange-50">
-                  <td className="py-2 px-4 flex items-center">
-                    <FaArrowUp className="h-5 w-5 mr-2 text-orange-500" />
-                    Top Receiver
-                  </td>
-                  <td className="py-2 px-4">RP Singh (919212401007)</td>
-                  <td className="py-2 px-4">{teamSummary.topReceiver}</td>
-                </tr>
-                <tr className="hover:bg-orange-50">
-                  <td className="py-2 px-4 flex items-center">
-                    <FaArrowUp className="h-5 w-5 mr-2 text-orange-500" />
-                    Top Talker (Outgoing)
-                  </td>
-                  <td className="py-2 px-4">RP Singh (919212401007)</td>
-                  <td className="py-2 px-4">{teamSummary.topTalkerOutgoing}</td>
-                </tr>
-                <tr className="hover:bg-orange-50">
-                  <td className="py-2 px-4 flex items-center">
-                    <FaArrowUp className="h-5 w-5 mr-2 text-orange-500" />
-                    Top Talker (Incoming)
-                  </td>
-                  <td className="py-2 px-4">RP Singh (919212401007)</td>
-                  <td className="py-2 px-4">{teamSummary.topTalkerIncoming}</td>
-                </tr>
-                <tr className="hover:bg-orange-50">
-                  <td className="py-2 px-4 flex items-center">
-                    <FaArrowDown className="h-5 w-5 mr-2 text-orange-500" />
-                    Lowest Caller
-                  </td>
-                  <td className="py-2 px-4">RP Singh (919212401007)</td>
-                  <td className="py-2 px-4">{teamSummary.lowestCaller}</td>
-                </tr>
-                <tr className="hover:bg-orange-50">
-                  <td className="py-2 px-4 flex items-center">
-                    <FaArrowDown className="h-5 w-5 mr-2 text-orange-500" />
-                    Lowest Receiver
-                  </td>
-                  <td className="py-2 px-4">RP Singh (919212401007)</td>
-                  <td className="py-2 px-4">{teamSummary.lowestReceiver}</td>
-                </tr>
-                <tr className="hover:bg-orange-50">
-                  <td className="py-2 px-4 flex items-center">
-                    <FaArrowDown className="h-5 w-5 mr-2 text-orange-500" />
-                    Lowest Talker (Outgoing)
-                  </td>
-                  <td className="py-2 px-4">RP Singh (919212401007)</td>
-                  <td className="py-2 px-4">{teamSummary.lowestTalkerOutgoing}</td>
-                </tr>
-                <tr className="hover:bg-orange-50">
-                  <td className="py-2 px-4 flex items-center">
-                    <FaArrowDown className="h-5 w-5 mr-2 text-orange-500" />
-                    Lowest Talker (Incoming)
-                  </td>
-                  <td className="py-2 px-4">RP Singh (919212401007)</td>
-                  <td className="py-2 px-4">{teamSummary.lowestTalkerIncoming}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+
+          <div className="overflow-x-auto rounded-lg shadow-md">
+  <table className="w-full border-collapse bg-white">
+    <thead>
+      <tr className="bg-gradient-to-r from-orange-400 to-orange-500 text-white">
+        <th className="py-3 px-4 text-left font-semibold">Category</th>
+        <th className="py-3 px-4 text-left font-semibold">Team Member</th>
+        <th className="py-3 px-4 text-left font-semibold">Details</th>
+      </tr>
+    </thead>
+    <tbody>
+      {[
+        { icon: FaArrowUp, color: "orange-500", label: "Top Caller", detail: teamSummary.topCaller },
+        { icon: FaArrowUp, color: "orange-500", label: "Top Receiver", detail: teamSummary.topReceiver },
+        { icon: FaArrowUp, color: "orange-500", label: "Top Talker (Outgoing)", detail: teamSummary.topTalkerOutgoing },
+        { icon: FaArrowUp, color: "orange-500", label: "Top Talker (Incoming)", detail: teamSummary.topTalkerIncoming },
+        { icon: FaArrowDown, color: "orange-500", label: "Lowest Caller", detail: teamSummary.lowestCaller },
+        { icon: FaArrowDown, color: "orange-500", label: "Lowest Receiver", detail: teamSummary.lowestReceiver },
+        { icon: FaArrowDown, color: "orange-500", label: "Lowest Talker (Outgoing)", detail: teamSummary.lowestTalkerOutgoing },
+        { icon: FaArrowDown, color: "orange-500", label: "Lowest Talker (Incoming)", detail: teamSummary.lowestTalkerIncoming },
+      ].map((item, index) => (
+        <tr
+          key={index}
+          className={`border-b border-gray-100 ${
+            index % 2 === 0 ? "bg-gray-50" : "bg-white"
+          } hover:bg-orange-50 transition-colors duration-200`}
+        >
+          <td className="py-3 px-4 flex items-center text-gray-700">
+            <item.icon className={`h-5 w-5 mr-2 text-${item.color}`} />
+            {item.label}
+          </td>
+          <td className="py-3 px-4 text-gray-700">RP Singh (919212401007)</td>
+          <td className="py-3 px-4 text-gray-700">{item.detail}</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
+
         </div>
       </section>
     </div>

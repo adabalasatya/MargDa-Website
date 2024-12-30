@@ -93,48 +93,57 @@ const EmailReport = () => {
             />
           </div>
         </div>
-        <table className="w-full border-collapse border border-orange-300">
-          <thead>
-            <tr className="bg-gray-200">
-              <th className="border border-orange-300 p-2">
-                <FaCalendarAlt className="inline mr-2 text-orange-500" />Date-Time
-              </th>
-              <th className="border border-orange-300 p-2">
-                <FaEnvelope className="inline mr-2 text-orange-500" />SMTP
-              </th>
-              <th className="border border-orange-300 p-2">
-                <FaUser className="inline mr-2 text-orange-500" />Sender
-              </th>
-              <th className="border border-orange-300 p-2">
-                <FaUser className="inline mr-2 text-orange-500" />Receiver
-              </th>
-              <th className="border border-orange-300 p-2">Subject</th>
-              <th className="border border-orange-300 p-2">Matter</th>
-              <th className="border border-orange-300 p-2">
-                <FaPaperclip className="inline mr-2 text-orange-500" />Attach
-              </th>
-              <th className="border border-orange-300 p-2">
-                <FaEye className="inline mr-2 text-orange-500" />View+Time
-              </th>
-              <th className="border border-orange-300 p-2">CRM</th>
-            </tr>
-          </thead>
-          <tbody>
-            {emails.map((email, index) => (
-              <tr key={index} className="hover:bg-orange-50">
-                <td className="border border-orange-300 p-2">{email.dateTime}</td>
-                <td className="border border-orange-300 p-2">{email.smtp}</td>
-                <td className="border border-orange-300 p-2">{email.sender}</td>
-                <td className="border border-orange-300 p-2">{email.receiver}</td>
-                <td className="border border-orange-300 p-2">{email.subject}</td>
-                <td className="border border-orange-300 p-2">{email.matter}</td>
-                <td className="border border-orange-300 p-2">{email.attach}</td>
-                <td className="border border-orange-300 p-2">{email.viewTime}</td>
-                <td className="border border-orange-300 p-2">{email.crm}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+
+        <div className="overflow-x-auto rounded-lg shadow-md">
+  <table className="w-full border-collapse bg-white">
+    <thead>
+      <tr className="bg-gradient-to-r from-orange-400 to-orange-500 text-white">
+        <th className="py-3 px-4 text-left font-semibold">
+          <FaCalendarAlt className="inline mr-2" />Date-Time
+        </th>
+        <th className="py-3 px-4 text-left font-semibold">
+          <FaEnvelope className="inline mr-2" />SMTP
+        </th>
+        <th className="py-3 px-4 text-left font-semibold">
+          <FaUser className="inline mr-2" />Sender
+        </th>
+        <th className="py-3 px-4 text-left font-semibold">
+          <FaUser className="inline mr-2" />Receiver
+        </th>
+        <th className="py-3 px-4 text-left font-semibold">Subject</th>
+        <th className="py-3 px-4 text-left font-semibold">Matter</th>
+        <th className="py-3 px-4 text-left font-semibold">
+          <FaPaperclip className="inline mr-2" />Attach
+        </th>
+        <th className="py-3 px-4 text-left font-semibold">
+          <FaEye className="inline mr-2" />View+Time
+        </th>
+        <th className="py-3 px-4 text-left font-semibold">CRM</th>
+      </tr>
+    </thead>
+    <tbody>
+      {emails.map((email, index) => (
+        <tr
+          key={index}
+          className={`border-b border-gray-100 ${
+            index % 2 === 0 ? "bg-gray-50" : "bg-white"
+          } hover:bg-orange-50 transition-colors duration-200`}
+        >
+          <td className="py-3 px-4 text-gray-700">{email.dateTime}</td>
+          <td className="py-3 px-4 text-gray-700">{email.smtp}</td>
+          <td className="py-3 px-4 text-gray-700">{email.sender}</td>
+          <td className="py-3 px-4 text-gray-700">{email.receiver}</td>
+          <td className="py-3 px-4 text-gray-700">{email.subject}</td>
+          <td className="py-3 px-4 text-gray-700">{email.matter}</td>
+          <td className="py-3 px-4 text-gray-700">{email.attach}</td>
+          <td className="py-3 px-4 text-gray-700">{email.viewTime}</td>
+          <td className="py-3 px-4 text-gray-700">{email.crm}</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
+
         <div className="mt-4">
           <span>Showing 1 to 10 records</span>
           <div className="inline-block float-right">
@@ -180,29 +189,38 @@ const EmailReport = () => {
       <span className="text-lg font-semibold text-gray-700">To Date</span>
     </div>
   </div>
+
   {/* Table */}
-  <table className="w-full border-collapse border border-orange-300">
+  <div className="overflow-x-auto rounded-lg shadow-md">
+  <table className="w-full border-collapse bg-white">
     <thead>
-      <tr className="bg-gray-200">
-        <th className="border border-orange-300 p-2">
-          <FaUser className="inline mr-2 text-orange-500" />Associates
+      <tr className="bg-gradient-to-r from-orange-400 to-orange-500 text-white">
+        <th className="py-3 px-4 text-left font-semibold">
+          <FaUser className="inline mr-2" />Associates
         </th>
-        <th className="border border-orange-300 p-2">Total Sent</th>
-        <th className="border border-orange-300 p-2">Total Un-replied</th>
-        <th className="border border-orange-300 p-2">Maximum Delays</th>
+        <th className="py-3 px-4 text-left font-semibold">Total Sent</th>
+        <th className="py-3 px-4 text-left font-semibold">Total Un-replied</th>
+        <th className="py-3 px-4 text-left font-semibold">Maximum Delays</th>
       </tr>
     </thead>
     <tbody>
       {teamReport.map((report, index) => (
-        <tr key={index} className="hover:bg-orange-50">
-          <td className="border border-orange-300 p-2">{report.associate}</td>
-          <td className="border border-orange-300 p-2">{report.totalSent}</td>
-          <td className="border border-orange-300 p-2">{report.totalUnreplied}</td>
-          <td className="border border-orange-300 p-2">{report.maxDelay}</td>
+        <tr
+          key={index}
+          className={`border-b border-gray-100 ${
+            index % 2 === 0 ? "bg-gray-50" : "bg-white"
+          } hover:bg-orange-50 transition-colors duration-200`}
+        >
+          <td className="py-3 px-4 text-gray-700">{report.associate}</td>
+          <td className="py-3 px-4 text-gray-700">{report.totalSent}</td>
+          <td className="py-3 px-4 text-gray-700">{report.totalUnreplied}</td>
+          <td className="py-3 px-4 text-gray-700">{report.maxDelay}</td>
         </tr>
       ))}
     </tbody>
   </table>
+</div>
+
 </div>
 
       {/* Team Summary Section */}
@@ -224,59 +242,42 @@ const EmailReport = () => {
             <FaEnvelope className="text-orange-500 h-5 w-5 mr-2" />
             Team’s Email Summary
           </h3>
-          <div className="overflow-x-auto">
-            <table className="w-full border border-gray-200 text-sm text-left">
-              <thead className="bg-gray-200 text-black-700">
-                <tr>
-                  <th className="py-2 px-4">Category</th>
-                  <th className="py-2 px-4">Team Member</th>
-                  <th className="py-2 px-4">Details</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr className="hover:bg-orange-50">
-                  <td className="py-2 px-4 flex items-center">
-                    <FaPaperPlane className="text-green-500 h-5 w-5 mr-2" />
-                    Top Sender
-                  </td>
-                  <td className="py-2 px-4">RP Singh</td>
-                  <td className="py-2 px-4">32 SMS</td>
-                </tr>
-                <tr className="hover:bg-orange-50">
-                  <td className="py-2 px-4 flex items-center">
-                    <FaReply className="text-blue-500 h-5 w-5 mr-2" />
-                    Top Replier
-                  </td>
-                  <td className="py-2 px-4">RP Singh</td>
-                  <td className="py-2 px-4">32 SMS</td>
-                </tr>
-                <tr className="hover:bg-orange-50">
-                  <td className="py-2 px-4 flex items-center">
-                    <FaTimesCircle className="text-red-500 h-5 w-5 mr-2" />
-                    Top Neglecter
-                  </td>
-                  <td className="py-2 px-4">RP Singh</td>
-                  <td className="py-2 px-4">49 SMS</td>
-                </tr>
-                <tr className="hover:bg-orange-50">
-                  <td className="py-2 px-4 flex items-center">
-                    <FaClock className="text-yellow-500 h-5 w-5 mr-2" />
-                    Top Delayer
-                  </td>
-                  <td className="py-2 px-4">RP Singh</td>
-                  <td className="py-2 px-4">34 SMS</td>
-                </tr>
-                <tr className="hover:bg-orange-50">
-                  <td className="py-2 px-4 flex items-center">
-                    <FaPaperPlane className="text-gray-500 h-5 w-5 mr-2" />
-                    Lowest Sender
-                  </td>
-                  <td className="py-2 px-4">RP Singh</td>
-                  <td className="py-2 px-4">32 SMS</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+
+          <div className="overflow-x-auto rounded-lg shadow-md">
+  <table className="w-full border-collapse bg-white">
+    <thead>
+      <tr className="bg-gradient-to-r from-orange-400 to-orange-500 text-white">
+        <th className="py-3 px-4 text-left font-semibold">Category</th>
+        <th className="py-3 px-4 text-left font-semibold">Team Member</th>
+        <th className="py-3 px-4 text-left font-semibold">Details</th>
+      </tr>
+    </thead>
+    <tbody>
+      {[
+        { icon: FaPaperPlane, color: "green-500", label: "Top Sender", detail: "32 SMS" },
+        { icon: FaReply, color: "blue-500", label: "Top Replier", detail: "32 SMS" },
+        { icon: FaTimesCircle, color: "red-500", label: "Top Neglecter", detail: "49 SMS" },
+        { icon: FaClock, color: "yellow-500", label: "Top Delayer", detail: "34 SMS" },
+        { icon: FaPaperPlane, color: "gray-500", label: "Lowest Sender", detail: "32 SMS" },
+      ].map((item, index) => (
+        <tr
+          key={index}
+          className={`border-b border-gray-100 ${
+            index % 2 === 0 ? "bg-gray-50" : "bg-white"
+          } hover:bg-orange-50 transition-colors duration-200`}
+        >
+          <td className="py-3 px-4 flex items-center text-gray-700">
+            <item.icon className={`h-5 w-5 mr-2 text-${item.color}`} />
+            {item.label}
+          </td>
+          <td className="py-3 px-4 text-gray-700">RP Singh</td>
+          <td className="py-3 px-4 text-gray-700">{item.detail}</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
+
         </div>
       </section>
     </div>

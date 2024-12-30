@@ -109,49 +109,59 @@ const MeetingReport = () => {
           </div>
         </div>
 
-        {/* Table for Meetings */}
-        <table className="w-full border-collapse border border-orange-300">
-          <thead>
-            <tr className="bg-gray-200">
-              <th className="border border-orange-300 p-2">
-                <FaCalendarAlt className="inline mr-2 text-orange-500" />Date-Time
-              </th>
-              <th className="border border-orange-300 p-2">
-                <FaUser className="inline mr-2 text-orange-500" />Meet Type
-              </th>
-              <th className="border border-orange-300 p-2">
-                <FaLink className="inline mr-2 text-orange-500" />Meeting Link
-              </th>
-              <th className="border border-orange-300 p-2">
-                <FaUser className="inline mr-2 text-orange-500" />Host
-              </th>
-              <th className="border border-orange-300 p-2">
-                <FaUser className="inline mr-2 text-orange-500" />Client
-              </th>
-              <th className="border border-orange-300 p-2">
-                <FaClock className="inline mr-2 text-orange-500" />Join Time
-              </th>
-              <th className="border border-orange-300 p-2">
-                <FaClock className="inline mr-2 text-orange-500" />Duration
-              </th>
-              <th className="border border-orange-300 p-2">CRM</th>
-            </tr>
-          </thead>
-          <tbody>
-            {meetings.map((meeting, index) => (
-              <tr key={index} className="hover:bg-orange-50">
-                <td className="border border-orange-300 p-2">{meeting.dateTime}</td>
-                <td className="border border-orange-300 p-2">{meeting.meetType}</td>
-                <td className="border border-orange-300 p-2">{meeting.meetingLink}</td>
-                <td className="border border-orange-300 p-2">{meeting.host}</td>
-                <td className="border border-orange-300 p-2">{meeting.client}</td>
-                <td className="border border-orange-300 p-2">{meeting.joinTime}</td>
-                <td className="border border-orange-300 p-2">{meeting.duration}</td>
-                <td className="border border-orange-300 p-2">{meeting.crm}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <div className="overflow-x-auto rounded-lg shadow-md">
+  <table className="w-full border-collapse bg-white">
+    <thead>
+      <tr className="bg-gradient-to-r from-orange-400 to-orange-500 text-white">
+        <th className="py-3 px-4 text-left font-semibold">
+          <FaCalendarAlt className="inline mr-2" />Date-Time
+        </th>
+        <th className="py-3 px-4 text-left font-semibold">
+          <FaUser className="inline mr-2" />Meet Type
+        </th>
+        <th className="py-3 px-4 text-left font-semibold">
+          <FaLink className="inline mr-2" />Meeting Link
+        </th>
+        <th className="py-3 px-4 text-left font-semibold">
+          <FaUser className="inline mr-2" />Host
+        </th>
+        <th className="py-3 px-4 text-left font-semibold">
+          <FaUser className="inline mr-2" />Client
+        </th>
+        <th className="py-3 px-4 text-left font-semibold">
+          <FaClock className="inline mr-2" />Join Time
+        </th>
+        <th className="py-3 px-4 text-left font-semibold">
+          <FaClock className="inline mr-2" />Duration
+        </th>
+        <th className="py-3 px-4 text-left font-semibold">CRM</th>
+      </tr>
+    </thead>
+    <tbody>
+      {meetings.map((meeting, index) => (
+        <tr
+          key={index}
+          className={`border-b border-gray-100 ${
+            index % 2 === 0 ? "bg-gray-50" : "bg-white"
+          } hover:bg-orange-50 transition-colors duration-200`}
+        >
+          <td className="py-3 px-4 text-gray-700">{meeting.dateTime}</td>
+          <td className="py-3 px-4 text-gray-700">{meeting.meetType}</td>
+          <td className="py-3 px-4 text-gray-700">
+            <a href={meeting.meetingLink} className="text-blue-500 hover:underline">
+              {meeting.meetingLink}
+            </a>
+          </td>
+          <td className="py-3 px-4 text-gray-700">{meeting.host}</td>
+          <td className="py-3 px-4 text-gray-700">{meeting.client}</td>
+          <td className="py-3 px-4 text-gray-700">{meeting.joinTime}</td>
+          <td className="py-3 px-4 text-gray-700">{meeting.duration}</td>
+          <td className="py-3 px-4 text-gray-700">{meeting.crm}</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
 
         {/* Pagination */}
         <div className="mt-4">
@@ -198,28 +208,37 @@ const MeetingReport = () => {
               <span className="text-lg font-semibold text-gray-700">To Date</span>
             </div>
           </div>
-        <table className="w-full border-collapse border border-orange-300">
-          <thead>
-            <tr className="bg-gray-200">
-              <th className="border border-orange-300 p-2">
-                <FaUser className="inline mr-2 text-orange-500" />Associates
-              </th>
-              <th className="border border-orange-300 p-2">Total Aligned</th>
-              <th className="border border-orange-300 p-2">Total Joined</th>
-              <th className="border border-orange-300 p-2">Total Onboarded</th>
-            </tr>
-          </thead>
-          <tbody>
-            {teamReport.map((report, index) => (
-              <tr key={index} className="hover:bg-orange-50">
-                <td className="border border-orange-300 p-2">{report.associate}</td>
-                <td className="border border-orange-300 p-2">{report.totalAligned}</td>
-                <td className="border border-orange-300 p-2">{report.totalJoined}</td>
-                <td className="border border-orange-300 p-2">{report.totalOnboarded}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+
+          <div className="overflow-x-auto rounded-lg shadow-md">
+  <table className="w-full border-collapse bg-white">
+    <thead>
+      <tr className="bg-gradient-to-r from-orange-400 to-orange-500 text-white">
+        <th className="py-3 px-4 text-left font-semibold">
+          <FaUser className="inline mr-2" />Associates
+        </th>
+        <th className="py-3 px-4 text-left font-semibold">Total Aligned</th>
+        <th className="py-3 px-4 text-left font-semibold">Total Joined</th>
+        <th className="py-3 px-4 text-left font-semibold">Total Onboarded</th>
+      </tr>
+    </thead>
+    <tbody>
+      {teamReport.map((report, index) => (
+        <tr
+          key={index}
+          className={`border-b border-gray-100 ${
+            index % 2 === 0 ? "bg-gray-50" : "bg-white"
+          } hover:bg-orange-50 transition-colors duration-200`}
+        >
+          <td className="py-3 px-4 text-gray-700">{report.associate}</td>
+          <td className="py-3 px-4 text-gray-700">{report.totalAligned}</td>
+          <td className="py-3 px-4 text-gray-700">{report.totalJoined}</td>
+          <td className="py-3 px-4 text-gray-700">{report.totalOnboarded}</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
+
       </div>
 
       {/* Team Summary Section */}
@@ -241,83 +260,45 @@ const MeetingReport = () => {
             <FaUser className="h-5 w-5 mr-2 text-orange-500" />
             Team’s Meeting Summary
           </h3>
-          <div className="overflow-x-auto">
-            <table className="w-full border border-gray-200 text-sm text-left">
-              <thead className="bg-gray-200 text-black-700">
-                <tr>
-                  <th className="py-2 px-4">Category</th>
-                  <th className="py-2 px-4">Team Member</th>
-                  <th className="py-2 px-4">Details</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr className="hover:bg-orange-50">
-                  <td className="py-2 px-4 flex items-center">
-                    <FaUser className="h-5 w-5 mr-2 text-orange-500" />
-                    Top Aligner
-                  </td>
-                  <td className="py-2 px-4">RP Singh</td>
-                  <td className="py-2 px-4">{teamSummary.topAligner}</td>
-                </tr>
-                <tr className="hover:bg-orange-50">
-                  <td className="py-2 px-4 flex items-center">
-                    <FaUser className="h-5 w-5 mr-2 text-orange-500" />
-                    Top Joiner
-                  </td>
-                  <td className="py-2 px-4">RP Singh</td>
-                  <td className="py-2 px-4">{teamSummary.topJoiner}</td>
-                </tr>
-                <tr className="hover:bg-orange-50">
-                  <td className="py-2 px-4 flex items-center">
-                    <FaUser className="h-5 w-5 mr-2 text-orange-500" />
-                    Top On-boarder
-                  </td>
-                  <td className="py-2 px-4">RP Singh</td>
-                  <td className="py-2 px-4">{teamSummary.topOnboarder}</td>
-                </tr>
-                <tr className="hover:bg-orange-50">
-                  <td className="py-2 px-4 flex items-center">
-                    <FaUser className="h-5 w-5 mr-2 text-orange-500" />
-                    Top Team Builder
-                  </td>
-                  <td className="py-2 px-4">RP Singh</td>
-                  <td className="py-2 px-4">{teamSummary.topTeamBuilder}</td>
-                </tr>
-                <tr className="hover:bg-orange-50">
-                  <td className="py-2 px-4 flex items-center">
-                    <FaUser className="h-5 w-5 mr-2 text-orange-500" />
-                    Lowest Aligner
-                  </td>
-                  <td className="py-2 px-4">RP Singh</td>
-                  <td className="py-2 px-4">{teamSummary.lowestAligner}</td>
-                </tr>
-                <tr className="hover:bg-orange-50">
-                  <td className="py-2 px-4 flex items-center">
-                    <FaUser className="h-5 w-5 mr-2 text-orange-500" />
-                    Lowest Joiner
-                  </td>
-                  <td className="py-2 px-4">RP Singh</td>
-                  <td className="py-2 px-4">{teamSummary.lowestJoiner}</td>
-                </tr>
-                <tr className="hover:bg-orange-50">
-                  <td className="py-2 px-4 flex items-center">
-                    <FaUser className="h-5 w-5 mr-2 text-orange-500" />
-                    Lowest On-boarder
-                  </td>
-                  <td className="py-2 px-4">RP Singh</td>
-                  <td className="py-2 px-4">{teamSummary.lowestOnboarder}</td>
-                </tr>
-                <tr className="hover:bg-orange-50">
-                  <td className="py-2 px-4 flex items-center">
-                    <FaUser className="h-5 w-5 mr-2 text-orange-500" />
-                    Lowest Team Builder
-                  </td>
-                  <td className="py-2 px-4">RP Singh</td>
-                  <td className="py-2 px-4">{teamSummary.lowestTeamBuilder}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+
+          <div className="overflow-x-auto rounded-lg shadow-md">
+  <table className="w-full border-collapse bg-white">
+    <thead>
+      <tr className="bg-gradient-to-r from-orange-400 to-orange-500 text-white">
+        <th className="py-3 px-4 text-left font-semibold">Category</th>
+        <th className="py-3 px-4 text-left font-semibold">Team Member</th>
+        <th className="py-3 px-4 text-left font-semibold">Details</th>
+      </tr>
+    </thead>
+    <tbody>
+      {[
+        { icon: FaUser, color: "orange-500", label: "Top Aligner", detail: teamSummary.topAligner },
+        { icon: FaUser, color: "orange-500", label: "Top Joiner", detail: teamSummary.topJoiner },
+        { icon: FaUser, color: "orange-500", label: "Top On-boarder", detail: teamSummary.topOnboarder },
+        { icon: FaUser, color: "orange-500", label: "Top Team Builder", detail: teamSummary.topTeamBuilder },
+        { icon: FaUser, color: "orange-500", label: "Lowest Aligner", detail: teamSummary.lowestAligner },
+        { icon: FaUser, color: "orange-500", label: "Lowest Joiner", detail: teamSummary.lowestJoiner },
+        { icon: FaUser, color: "orange-500", label: "Lowest On-boarder", detail: teamSummary.lowestOnboarder },
+        { icon: FaUser, color: "orange-500", label: "Lowest Team Builder", detail: teamSummary.lowestTeamBuilder },
+      ].map((item, index) => (
+        <tr
+          key={index}
+          className={`border-b border-gray-100 ${
+            index % 2 === 0 ? "bg-gray-50" : "bg-white"
+          } hover:bg-orange-50 transition-colors duration-200`}
+        >
+          <td className="py-3 px-4 flex items-center text-gray-700">
+            <item.icon className={`h-5 w-5 mr-2 text-${item.color}`} />
+            {item.label}
+          </td>
+          <td className="py-3 px-4 text-gray-700">RP Singh</td>
+          <td className="py-3 px-4 text-gray-700">{item.detail}</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
+
         </div>
       </section>
     </div>

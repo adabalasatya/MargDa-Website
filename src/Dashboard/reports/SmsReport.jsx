@@ -106,32 +106,39 @@ const SMSReport = () => {
         </div>
 
         {/* Table for SMS Messages */}
-        <table className="w-full border-collapse border border-orange-300">
-          <thead>
-            <tr className="bg-gray-200">
-              <th className="border border-orange-300 p-2">Task</th>
-              <th className="border border-orange-300 p-2">Name</th>
-              <th className="border border-orange-300 p-2">Mobile</th>
-              <th className="border border-orange-300 p-2">Message</th>
-              <th className="border border-orange-300 p-2">Date + Time Stamp</th>
-              <th className="border border-orange-300 p-2">SIM/API</th>
-              <th className="border border-orange-300 p-2">CRM+</th>
-            </tr>
-          </thead>
-          <tbody>
-            {messages.map((message, index) => (
-              <tr key={index} className="hover:bg-orange-50">
-                <td className="border border-orange-300 p-2">{message.task}</td>
-                <td className="border border-orange-300 p-2">{message.name}</td>
-                <td className="border border-orange-300 p-2">{message.mobile}</td>
-                <td className="border border-orange-300 p-2">{message.message}</td>
-                <td className="border border-orange-300 p-2">{message.dateTime}</td>
-                <td className="border border-orange-300 p-2">{message.simApi}</td>
-                <td className="border border-orange-300 p-2">{message.crm}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <div className="overflow-x-auto rounded-lg shadow-md">
+  <table className="w-full border-collapse bg-white">
+    <thead>
+      <tr className="bg-gradient-to-r from-orange-400 to-orange-500 text-white">
+        <th className="py-3 px-4 text-left font-semibold">Task</th>
+        <th className="py-3 px-4 text-left font-semibold">Name</th>
+        <th className="py-3 px-4 text-left font-semibold">Mobile</th>
+        <th className="py-3 px-4 text-left font-semibold">Message</th>
+        <th className="py-3 px-4 text-left font-semibold">Date + Time Stamp</th>
+        <th className="py-3 px-4 text-left font-semibold">SIM/API</th>
+        <th className="py-3 px-4 text-left font-semibold">CRM+</th>
+      </tr>
+    </thead>
+    <tbody>
+      {messages.map((message, index) => (
+        <tr
+          key={index}
+          className={`border-b border-gray-100 ${
+            index % 2 === 0 ? "bg-gray-50" : "bg-white"
+          } hover:bg-orange-50 transition-colors duration-200`}
+        >
+          <td className="py-3 px-4 text-gray-700">{message.task}</td>
+          <td className="py-3 px-4 text-gray-700">{message.name}</td>
+          <td className="py-3 px-4 text-gray-700">{message.mobile}</td>
+          <td className="py-3 px-4 text-gray-700">{message.message}</td>
+          <td className="py-3 px-4 text-gray-700">{message.dateTime}</td>
+          <td className="py-3 px-4 text-gray-700">{message.simApi}</td>
+          <td className="py-3 px-4 text-gray-700">{message.crm}</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
 
         {/* Pagination */}
         <div className="mt-4">
@@ -178,28 +185,37 @@ const SMSReport = () => {
               <span className="text-lg font-semibold text-gray-700">To Date</span>
             </div>
           </div>
-        <table className="w-full border-collapse border border-orange-300">
-          <thead>
-            <tr className="bg-gray-200">
-              <th className="border border-orange-300 p-2">
-                <FaUser className="inline mr-2 text-orange-500" />Associates
-              </th>
-              <th className="border border-orange-300 p-2">Total Sent</th>
-              <th className="border border-orange-300 p-2">Total Un-replied</th>
-              <th className="border border-orange-300 p-2">Maximum Delays</th>
-            </tr>
-          </thead>
-          <tbody>
-            {teamReport.map((report, index) => (
-              <tr key={index} className="hover:bg-orange-50">
-                <td className="border border-orange-300 p-2">{report.associate}</td>
-                <td className="border border-orange-300 p-2">{report.totalSent}</td>
-                <td className="border border-orange-300 p-2">{report.totalUnreplied}</td>
-                <td className="border border-orange-300 p-2">{report.maxDelay}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+
+          <div className="overflow-x-auto rounded-lg shadow-md">
+  <table className="w-full border-collapse bg-white">
+    <thead>
+      <tr className="bg-gradient-to-r from-orange-400 to-orange-500 text-white">
+        <th className="py-3 px-4 text-left font-semibold">
+          <FaUser className="inline mr-2" />Associates
+        </th>
+        <th className="py-3 px-4 text-left font-semibold">Total Sent</th>
+        <th className="py-3 px-4 text-left font-semibold">Total Un-replied</th>
+        <th className="py-3 px-4 text-left font-semibold">Maximum Delays</th>
+      </tr>
+    </thead>
+    <tbody>
+      {teamReport.map((report, index) => (
+        <tr
+          key={index}
+          className={`border-b border-gray-100 ${
+            index % 2 === 0 ? "bg-gray-50" : "bg-white"
+          } hover:bg-orange-50 transition-colors duration-200`}
+        >
+          <td className="py-3 px-4 text-gray-700">{report.associate}</td>
+          <td className="py-3 px-4 text-gray-700">{report.totalSent}</td>
+          <td className="py-3 px-4 text-gray-700">{report.totalUnreplied}</td>
+          <td className="py-3 px-4 text-gray-700">{report.maxDelay}</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
+
       </div>
 
       {/* Team Summary Section */}
@@ -221,59 +237,42 @@ const SMSReport = () => {
             <FaUser className="h-5 w-5 mr-2 text-orange-500" />
             Team’s SMS Summary
           </h3>
-          <div className="overflow-x-auto">
-            <table className="w-full border border-gray-200 text-sm text-left">
-              <thead className="bg-gray-200 text-black-700">
-                <tr>
-                  <th className="py-2 px-4">Category</th>
-                  <th className="py-2 px-4">Team Member</th>
-                  <th className="py-2 px-4">Details</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr className="hover:bg-orange-50">
-                  <td className="py-2 px-4 flex items-center">
-                    <FaPaperPlane className="h-5 w-5 mr-2 text-green-500" />
-                    Top Sender
-                  </td>
-                  <td className="py-2 px-4">RP Singh</td>
-                  <td className="py-2 px-4">{teamSummary.topSender}</td>
-                </tr>
-                <tr className="hover:bg-orange-50">
-                  <td className="py-2 px-4 flex items-center">
-                    <FaReply className="h-5 w-5 mr-2 text-blue-500" />
-                    Top Replier
-                  </td>
-                  <td className="py-2 px-4">RP Singh</td>
-                  <td className="py-2 px-4">{teamSummary.topReplier}</td>
-                </tr>
-                <tr className="hover:bg-orange-50">
-                  <td className="py-2 px-4 flex items-center">
-                    <FaTimesCircle className="h-5 w-5 mr-2 text-red-500" />
-                    Top Neglecter
-                  </td>
-                  <td className="py-2 px-4">RP Singh</td>
-                  <td className="py-2 px-4">{teamSummary.topNeglecter}</td>
-                </tr>
-                <tr className="hover:bg-orange-50">
-                  <td className="py-2 px-4 flex items-center">
-                    <FaClock className="h-5 w-5 mr-2 text-yellow-500" />
-                    Top Delayer
-                  </td>
-                  <td className="py-2 px-4">RP Singh</td>
-                  <td className="py-2 px-4">{teamSummary.topDelayer}</td>
-                </tr>
-                <tr className="hover:bg-orange-50">
-                  <td className="py-2 px-4 flex items-center">
-                    <FaPaperPlane className="h-5 w-5 mr-2 text-gray-500" />
-                    Lowest Sender
-                  </td>
-                  <td className="py-2 px-4">RP Singh</td>
-                  <td className="py-2 px-4">{teamSummary.lowestSender}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+
+          <div className="overflow-x-auto rounded-lg shadow-md">
+  <table className="w-full border-collapse bg-white">
+    <thead>
+      <tr className="bg-gradient-to-r from-orange-400 to-orange-500 text-white">
+        <th className="py-3 px-4 text-left font-semibold">Category</th>
+        <th className="py-3 px-4 text-left font-semibold">Team Member</th>
+        <th className="py-3 px-4 text-left font-semibold">Details</th>
+      </tr>
+    </thead>
+    <tbody>
+      {[
+        { icon: FaPaperPlane, color: "green-500", label: "Top Sender", detail: teamSummary.topSender },
+        { icon: FaReply, color: "blue-500", label: "Top Replier", detail: teamSummary.topReplier },
+        { icon: FaTimesCircle, color: "red-500", label: "Top Neglecter", detail: teamSummary.topNeglecter },
+        { icon: FaClock, color: "yellow-500", label: "Top Delayer", detail: teamSummary.topDelayer },
+        { icon: FaPaperPlane, color: "gray-500", label: "Lowest Sender", detail: teamSummary.lowestSender },
+      ].map((item, index) => (
+        <tr
+          key={index}
+          className={`border-b border-gray-100 ${
+            index % 2 === 0 ? "bg-gray-50" : "bg-white"
+          } hover:bg-orange-50 transition-colors duration-200`}
+        >
+          <td className="py-3 px-4 flex items-center text-gray-700">
+            <item.icon className={`h-5 w-5 mr-2 text-${item.color}`} />
+            {item.label}
+          </td>
+          <td className="py-3 px-4 text-gray-700">RP Singh</td>
+          <td className="py-3 px-4 text-gray-700">{item.detail}</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
+
         </div>
       </section>
     </div>
