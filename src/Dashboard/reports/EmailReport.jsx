@@ -160,6 +160,7 @@ const EmailReport = () => {
       {/* Team Report Section */}
 <div className="mb-8">
   <h2 className="text-xl font-bold mb-4 text-orange-500">Your Team's Email Report</h2>
+  
   {/* Header with all elements in the same line */}
   <div className="flex items-center mb-4">
     {/* Associates */}

@@ -7,6 +7,8 @@ import {
   FaSms,
   FaUsers,
   FaCalendarAlt,
+  FaUser,
+
 } from 'react-icons/fa';
 
 const ClientTimeline = () => {
@@ -99,12 +101,21 @@ const ClientTimeline = () => {
       <div className="max-w-7xl mx-auto">
         <h2 className="text-2xl font-bold mb-6 text-orange-500">Client Timeline</h2>
         <div className="flex items-center mb-6 bg-white p-3 rounded-lg shadow-sm">
-          <FaSearch className="mr-2 text-orange-500" />
-          <input
-            type="text"
-            placeholder="Search timeline events..."
-            className="flex-grow p-2 rounded focus:outline-none focus:ring-2 focus:ring-orange-500"
-          />
+          <div className="flex items-center mr-4">
+                <FaUser className="mr-2 text-orange-500" />
+                <span className="text-lg font-semibold text-gray-700">Client</span>
+              </div>
+          {/* List */}
+             <span className="text-lg font-semibold text-gray-700 mr-4 ml-2">&lt;List&gt;</span>
+             {/* Search Bar */} 
+             <div className="flex items-center mr-4 ml-8">
+               <FaSearch className="mr-2 text-orange-500" />
+               <input
+                 type="text"
+                 placeholder="Search"
+                 className="border p-2 rounded focus:border-orange-500 focus:ring-orange-500"
+               />
+             </div>
         </div>
 
         {/* Horizontal Timeline */}
