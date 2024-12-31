@@ -18,13 +18,18 @@ import EmailAuthPage from './Pages/ProfilePages/EmailPage';
 import DataSharePage from './Pages/ProfilePages/DataSharePage';
 import QrScanPage from "./Pages/ProfilePages/QrScanPage";
 
-//AdminSection
+{/* AdminSection
 import UserLinkPage from './Pages/AdminPages/UserLinkPage';
 import VariablePage from './Pages/AdminPages/VariablePage';
 import TeamPage from './Pages/AdminPages/TeamPage'
 import TemplateApprovalPage from './Pages/AdminPages/TemplateApprovalPage'
 import UserKycPage from './Pages/AdminPages/UserKycPage'
 import WhatsappScanPage from './Pages/AdminPages/WhatsappScanPage'
+*/}
+
+//Admin Section
+import AdminDataPage from './Pages/AdminPages/AdminDataPage';
+import AdminUserPage from './Pages/AdminPages/AdminUserPage';
 
 //ReportSection
 import CallReport from "./Pages/ReportPages/CallReportPage";
@@ -71,13 +76,16 @@ function App() {
         <Route path="/data-share" element={<DataSharePage />} />
         <Route path="/qr-scan" element={<QrScanPage />} />
 
-        {/* Admin Section with drop-down menu */}
+        <Route path="/admin" element={<AdminDataPage />} />
+        <Route path="/user" element={<AdminUserPage />} />
+
+        {/* Admin Section with drop-down menu 
         <Route path="/user-link" element={<UserLinkPage />} />
         <Route path="/variable" element={<VariablePage />} />
         <Route path="/team" element={<TeamPage />} />
         <Route path="/template-approval" element={<TemplateApprovalPage />} />
         <Route path="/user-kyc" element={<UserKycPage />} />
-        <Route path="/whatsapp-scan" element={<WhatsappScanPage />} />
+        <Route path="/whatsapp-scan" element={<WhatsappScanPage />} /> */}
          
          {/* Report Section with drop-down menu */}
          <Route path="/email-report" element={<EmailReport />} />

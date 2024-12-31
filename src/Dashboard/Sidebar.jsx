@@ -9,12 +9,13 @@ import {
   FaSms,
   FaEnvelope,
   FaChartBar,
-  FaUsers, 
-  FaRegFileAlt, 
-  FaIdCard, 
+  FaUsers,
+  FaRegFileAlt,
+  FaIdCard,
   FaCogs,
   FaComments,
   FaTasks,
+  FaHome, // Added FaHome for Dashboard icon
 } from "react-icons/fa";
 import { useMediaQuery } from "react-responsive"; // Import useMediaQuery
 import Logo from "../assets/margdarshakendra-logo.webp";
@@ -24,11 +25,6 @@ const Sidebar = ({ toggleSidebar }) => {
   const isMobile = useMediaQuery({ query: "(max-width: 768px)" }); // Detect mobile screen size
   const [isOpen, setIsOpen] = useState(!isMobile); // Default to closed on mobile
 
-  const [isUserMenuOpen, setUserMenuOpen] = useState(() => {
-    const saved = localStorage.getItem("userMenuOpen");
-    return saved ? JSON.parse(saved) : false;
-  });
-
   const [isReportMenuOpen, setReportMenuOpen] = useState(() => {
     const saved = localStorage.getItem("reportMenuOpen");
     return saved ? JSON.parse(saved) : false;
@@ -37,17 +33,12 @@ const Sidebar = ({ toggleSidebar }) => {
   const [isAdminMenuOpen, setAdminMenuOpen] = useState(false);
 
   useEffect(() => {
-    localStorage.setItem("userMenuOpen", JSON.stringify(isUserMenuOpen));
-  }, [isUserMenuOpen]);
-
-  useEffect(() => {
     localStorage.setItem("reportMenuOpen", JSON.stringify(isReportMenuOpen));
   }, [isReportMenuOpen]);
 
   useEffect(() => {
     const handleOutsideClick = (e) => {
       if (!e.target.closest("aside")) {
-        setUserMenuOpen(false);
         setReportMenuOpen(false);
         setAdminMenuOpen(false);
       }
@@ -56,11 +47,6 @@ const Sidebar = ({ toggleSidebar }) => {
     document.addEventListener("click", handleOutsideClick);
     return () => document.removeEventListener("click", handleOutsideClick);
   }, []);
-
-  const toggleUserMenu = (e) => {
-    e.stopPropagation();
-    setUserMenuOpen(!isUserMenuOpen);
-  };
 
   const toggleReportMenu = (e) => {
     e.stopPropagation();
@@ -112,118 +98,32 @@ const Sidebar = ({ toggleSidebar }) => {
           </div>
 
           <div className="p-1 space-y-4">
-            {/* User Profile Card */}
+            {/* Dashboard Button */}
             <div className="bg-white rounded-lg shadow-md">
-              <div className="p-4 flex items-center justify-between">
-                <div className={`flex items-center ${isOpen ? "space-x-2" : "justify-center"}`}>
-                  <div
-                    className="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center text-white font-bold text-lg cursor-pointer"
-                    onClick={toggleUserMenu}
-                  >
-                    S
-                  </div>
-                  {isOpen && <h2 className="text-lg font-semibold">Satya</h2>}
-                </div>
-                {isOpen && (
-                  <button
-                    onClick={toggleUserMenu}
-                    className="text-gray-600 hover:text-orange-500 focus:outline-none"
-                    title="Toggle Menu"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className={`w-5 h-5 transition-transform ${
-                        isUserMenuOpen ? "rotate-180" : ""
-                      }`}
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </button>
-                )}
-              </div>
-              {isUserMenuOpen && (
-                <div className="border-t border-gray-100">
-                  {[
-                    { title: "Profile", icon: "👤", link: "/profile" },
-                    { title: "Credential", icon: "🔑", link: "/credential" },
-                    { title: "Email Auth", icon: "📧", link: "/email-auth" },
-                    { title: "Data Share", icon: "📤", link: "/data-share" },
-                    { title: "Qr Scan", icon: <FaQrcode />, link: "/qr-scan" },
-                  ].map((item, index) => (
-                    <Link
-                      key={index}
-                      to={item.link}
-                      onClick={handleLinkClick}
-                      className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg text-balck-600 hover:bg-orange-500 ${
-                        !isOpen ? "justify-center" : ""
-                      }`}
-                    >
-                      <span className="text-lg">{item.icon}</span>
-                      {isOpen && <span className="ml-2">{item.title}</span>}
-                    </Link>
-                  ))}
-                </div>
-              )}
+              <Link
+                to="/data" // Redirect to home
+                onClick={handleLinkClick}
+                className={`flex items-center px-4 py-3 text-lg font-medium rounded-lg text-black-700 hover:bg-orange-500 ${
+                  !isOpen ? "justify-center" : ""
+                }`}
+              >
+                <FaHome className="text-lg" /> {/* Dashboard icon */}
+                {isOpen && <span className="ml-4">Dashboard</span>}
+              </Link>
             </div>
 
-            {/* Admin Section Card */}
+            {/* Admin Button */}
             <div className="bg-white rounded-lg shadow-md">
-              <div className="p-4 flex items-center justify-between">
-                <div className={`flex items-center ${isOpen ? "space-x-2" : "justify-center"}`}>
-                  <div
-                    className="w-10 h-10 bg-gray-500 rounded-full flex items-center justify-center text-white font-bold text-lg cursor-pointer"
-                    onClick={toggleAdminMenu}
-                  >
-                    A
-                  </div>
-                  {isOpen && <h2 className="text-lg font-semibold">Admin</h2>}
-                </div>
-                {isOpen && (
-                  <button
-                    onClick={toggleAdminMenu}
-                    className="text-gray-600 hover:text-orange-500 focus:outline-none"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className={`w-5 h-5 transition-transform ${
-                        isAdminMenuOpen ? "rotate-180" : ""
-                      }`}
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </button>
-                )}
-              </div>
-              {isAdminMenuOpen && (
-                <div className="border-t border-gray-100">
-                  {[
-                    { title: "User Link", icon: <FaIdCard />, link: "/user-link" },
-                    { title: "Variable", icon: <FaCogs />, link: "/variable" },
-                    { title: "Team", icon: <FaUsers />, link: "/team" },
-                    { title: "Template Approval", icon: <FaRegFileAlt />, link: "/template-approval" },
-                    { title: "User KYC", icon: <FaIdCard />, link: "/user-kyc" },
-                    { title: "WhatsApp Scan", icon: <FaQrcode />, link: "/whatsapp-scan" },
-                  ].map((item, index) => (
-                    <Link
-                      key={index}
-                      to={item.link}
-                      onClick={handleLinkClick}
-                      className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg text-balck-600 hover:bg-orange-500 ${
-                        !isOpen ? "justify-center" : ""
-                      }`}
-                    >
-                      <span className="text-lg">{item.icon}</span>
-                      {isOpen && <span className="ml-2">{item.title}</span>}
-                    </Link>
-                  ))}
-                </div>
-              )}
+              <Link
+                to="/admin"
+                onClick={handleLinkClick}
+                className={`flex items-center px-4 py-3 text-lg font-medium rounded-lg text-black-700 hover:bg-orange-500 ${
+                  !isOpen ? "justify-center" : ""
+                }`}
+              >
+                <FaUsers className="text-lg" /> {/* Changed Admin icon */}
+                {isOpen && <span className="ml-4">Admin</span>}
+              </Link>
             </div>
 
             {/* Stats Card */}
