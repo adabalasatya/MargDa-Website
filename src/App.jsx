@@ -10,6 +10,8 @@ import  Dashboard  from './Pages/Dashboard'
 //Nav-Data-Leads
 import LeadPage from './Pages/NavPages/LeadPage';
 import DataPage from './Pages/NavPages/DataPage';
+import TeamSupportPage from './Pages/NavPages/TeamSupportPage'
+import SupportTicketPage from './Pages/NavPages/SupportTicketPage'
 
 //ProfileSection
 import ProfilePage from "./Pages/ProfilePages/ProfilePage";
@@ -68,6 +70,8 @@ function App() {
         {/* Nav - Data, Leads */}
         <Route path="/lead" element={<LeadPage />} />
         <Route path="/data" element={<DataPage />} />
+        <Route path="/team-support" element={<TeamSupportPage />} />
+        <Route path="/support-ticket" element={<SupportTicketPage />} />
 
         {/* Profile Section with drop-down menu */}
         <Route path="/profile" element={<ProfilePage />} />

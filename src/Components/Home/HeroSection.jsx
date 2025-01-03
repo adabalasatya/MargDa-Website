@@ -1,44 +1,78 @@
-import React from "react";
-import heroImage from "../../assets/heroImage.webp";
+import React, { useEffect, useRef } from "react";
+import HeroImage from "../../assets/herosection0.webp";
 
-const HeroSection = () => {
+function HeroSection() {
+  const textRef = useRef(null);
+  const imageRef = useRef(null);
+
+  useEffect(() => {
+    const textElement = textRef.current;
+    const imageElement = imageRef.current;
+
+    if (textElement) {
+      textElement.classList.add("animate-slide-in-left");
+    }
+    if (imageElement) {
+      imageElement.classList.add("animate-slide-in-right");
+    }
+  }, []);
+
   return (
-    <section className="relative flex flex-col md:flex-row items-center justify-between px-8 md:px-20 py-16 bg-gradient-to-r from-blue-50 to-blue-100">
-      {/* Left Content */}
-      <div className="md:w-1/2 mb-8 md:mb-0 text-center md:text-left animate-fadeIn z-10">
-      <h1 className="text-5xl font-bold leading-tight mb-6">
-  <span className="text-orange-500">Margdarshak</span>
- 
-</h1>
-        <p className="text-gray-600 mb-4 sm:mb-6 text-sm sm:text-base leading-relaxed">
-          Marg means "path" and "darshak" means "guide". Margdarshak offers Smart
-          Business Solutions that are helpful for new start-ups or boosting
-          existing ones.
-        </p>
-        <div>
-          <button className="px-6 py-3 bg-orange-500 text-white font-semibold rounded-lg shadow-md hover:bg-orange-600 transition duration-300 ease-in-out">
-            Get Started
-          </button>
-          <button className="ml-4 px-6 py-3 bg-white border-2 border-white-600 text-orange-600 font-semibold rounded-lg shadow-md hover:bg-orange-600 hover:text-white transition duration-300 ease-in-out">
-            Learn More
-          </button>
+    <div className="bg-white text-muted overflow-hidden">
+      {/* Hero Section */}
+      <section className="relative px-6 md:px-12 py-20 bg-gradient-to-r from-blue-50 to-purple-50">
+        {/* Decorative Shapes */}
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute top-0 left-0 w-32 h-32 bg-blue-200 rounded-full opacity-20 animate-float"></div>
+          <div className="absolute bottom-0 right-0 w-48 h-48 bg-purple-200 rounded-full opacity-20 animate-float delay-1000"></div>
+          <div className="absolute top-1/4 right-1/4 w-24 h-24 bg-pink-200 rounded-full opacity-20 animate-float delay-2000"></div>
         </div>
-      </div>
 
-      {/* Image Section */}
-      <div className="md:w-1/2 flex justify-center md:justify-end ">
-  <div className="relative w-full max-w-lg md:max-w-xl">
-    <img
-      src={heroImage}
-      alt="Hero Illustration"
-      className="w-[130%] md:w-[130%] h-auto object-contain drop-shadow-2xl relative z-0 rounded-2xl"  
-    />
-    <div className="absolute -top-10 -right-10 w-[120%] h-[120%] bg-gradient-to-r from-blue-200 to-blue-100 rounded-full blur-3xl opacity-50 z-[-1]"></div>
-  </div>
-</div>
+        <div className="container mx-auto flex flex-col md:flex-row items-center justify-between relative z-10">
+          {/* Left Side: Text Content */}
+          <div
+            ref={textRef}
+            className="w-full md:w-1/2 text-center md:text-left transform opacity-0"
+          >
+            <h1 className="text-4xl md:text-5xl font-bold leading-snug mb-6 text-primary">
+              Margdarshak: Your Path to Success
+            </h1>
+            <p className="text-lg mb-8 text-secondary">
+              <span className="font-bold text-highlight">Marg (मार्ग)</span> means "path",{" "}
+              <span className="font-bold text-highlight">Darshak (दर्शक)</span> means "guide". Margdarshak provides expert advice, personalized solutions, and support to help individuals navigate through the complexities of life, overcome challenges, and achieve goals.
+            </p>
+            <div className="flex flex-wrap justify-center md:justify-start gap-4">
+              <button className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-6 py-3 rounded-full font-semibold transform transition-transform hover:scale-105 shadow-lg hover:shadow-xl">
+                Explore Our Services
+              </button>
+            </div>
+          </div>
 
-    </section>
+          {/* Right Side: Image */}
+          <div
+            ref={imageRef}
+            className="w-full md:w-1/2 relative mt-12 md:mt-0 transform opacity-0"
+          >
+            <img
+              src={HeroImage}
+              alt="Illustration"
+              className="w-full h-auto rounded-lg shadow-lg transform hover:scale-105 transition-transform duration-300"
+            />
+            {/* Floating Labels */}
+            <div className="absolute top-12 left-10 bg-pink-600 text-white px-3 py-1 rounded-full text-sm shadow-lg animate-float">
+              Education
+            </div>
+            <div className="absolute top-32 right-10 bg-pink-600 text-white px-3 py-1 rounded-full text-sm shadow-lg animate-float">
+              Work
+            </div>
+            <div className="absolute bottom-12 right-16 bg-pink-600 text-white px-3 py-1 rounded-full text-sm shadow-lg animate-float">
+              Business
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
   );
-};
+}
 
 export default HeroSection;

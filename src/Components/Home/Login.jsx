@@ -6,7 +6,7 @@ import { NavLink, useNavigate } from "react-router-dom";
 import Navbar from './navbar';
 
 const Login = () => {
-  const navigate = useNavigate(); // For navigation
+  const navigate = useNavigate();
   const [formValues, setFormValues] = useState({
     login: "",
     password: "",
@@ -32,7 +32,7 @@ const Login = () => {
     return newErrors;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const newErrors = validateForm();
     if (Object.keys(newErrors).length > 0) {
@@ -41,20 +41,43 @@ const Login = () => {
       return;
     }
 
-    // Simulate a successful login (Replace with actual logic)
-    toast.success("Login successful!");
+    try {
+      const response = await fetch("https://margda.in:7000/api/userlogin", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          login: formValues.login,
+          password: formValues.password,
+        }),
+      });
 
-    // Reset form values
-    setFormValues({
-      login: "",
-      password: "",
-      terms: true,
-    });
+      if (response.status === 404) {
+        toast.error("Invalid login ID.");
+      } else if (response.status === 401) {
+        toast.error("Invalid password.");
+      } else if (response.status === 200) {
+        const userData = await response.json();
+        toast.success("Login successful!");
 
-    // Navigate to dashboard
-    setTimeout(() => {
-      navigate("/data");
-    }, 2000); // Delay for user to see the toast
+        // Reset form values
+        setFormValues({
+          login: "",
+          password: "",
+          terms: true,
+        });
+
+        // Navigate to dashboard or handle user details
+        setTimeout(() => {
+          navigate("/data", { state: { user: userData } });
+        }, 2000);
+      } else {
+        toast.error("An unexpected error occurred.");
+      }
+    } catch (error) {
+      toast.error("Failed to connect to the server. Please try again later.");
+    }
   };
 
   return (
@@ -79,7 +102,6 @@ const Login = () => {
             <h1 className="text-4xl font-bold ml-4 mb-6 mt-3">Sign In</h1>
           </div>
 
-          {/* Email Input with Icon */}
           <div className="flex items-center space-x-3 mb-4 relative">
             <FaEnvelope className="absolute left-5 top-1/2 transform -translate-y-1/2 text-black-500" />
             <input
@@ -93,7 +115,6 @@ const Login = () => {
             />
           </div>
 
-          {/* Password Input with Icon */}
           <div className="flex items-center space-x-3 mb-4 relative">
             <FaLock className="absolute left-5 top-1/2 transform -translate-y-1/2 text-black-500" />
             <input
@@ -107,7 +128,6 @@ const Login = () => {
             />
           </div>
 
-          {/* Terms and Conditions Checkbox */}
           <div className="flex items-center mb-6">
             <input
               type="checkbox"
@@ -126,7 +146,6 @@ const Login = () => {
             </label>
           </div>
 
-          {/* Submit Button */}
           <button
             className="text-white py-2 rounded-lg mb-2 font-semibold"
             style={{ backgroundColor: "#eb5223" }}
