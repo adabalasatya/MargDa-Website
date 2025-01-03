@@ -157,17 +157,19 @@ const Login = () => {
           </div>
 
           <button
-            className="text-white py-2 rounded-lg mb-2 font-semibold"
-            style={{ backgroundColor: "#eb5223" }}
-            onClick={handleSubmit}
-          >
-            SIGN IN
-          </button>
+  className="text-white py-2 rounded-lg mb-2 font-semibold bg-[#eb5223] hover:bg-green-600 transition-colors duration-300"
+  onClick={handleSubmit}
+>
+  SIGN IN
+</button>
 
           <p className="flex items-center justify-center gap-4 text-sm mt-4">
-            <span className="flex items-center gap-2 text-orange-600 font-medium hover:text-gray-800 transition duration-300 cursor-pointer">
-              Forget Password?
-            </span>
+          <NavLink
+              to="/forgotpassword"
+              className="flex items-center gap-2 text-orange-600 font-medium hover:text-gray-800 transition duration-300"
+            >
+              Forget Password
+            </NavLink>
             <span className="text-gray-400">|</span>
             <NavLink
               to="/signup"

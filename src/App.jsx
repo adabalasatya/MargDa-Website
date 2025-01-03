@@ -5,6 +5,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from './Pages/Home'
 import  Login  from './Components/Home/Login';
 import  Sign   from './Components/Home/Signup'
+import ForgotPassword from './Components/Home/ForgetPassword';
 import  Dashboard  from './Pages/Dashboard'
 import Explore from './Pages/ExplorePage';
 
@@ -21,14 +22,7 @@ import EmailAuthPage from './Pages/ProfilePages/EmailPage';
 import DataSharePage from './Pages/ProfilePages/DataSharePage';
 import QrScanPage from "./Pages/ProfilePages/QrScanPage";
 
-{/* AdminSection
-import UserLinkPage from './Pages/AdminPages/UserLinkPage';
-import VariablePage from './Pages/AdminPages/VariablePage';
-import TeamPage from './Pages/AdminPages/TeamPage'
-import TemplateApprovalPage from './Pages/AdminPages/TemplateApprovalPage'
-import UserKycPage from './Pages/AdminPages/UserKycPage'
-import WhatsappScanPage from './Pages/AdminPages/WhatsappScanPage'
-*/}
+
 
 //Admin Section
 import AdminDataPage from './Pages/AdminPages/AdminDataPage';
@@ -66,6 +60,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Sign />} />
+        <Route path="/forgotpassword" element={<ForgotPassword />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/explore" element={<Explore />} />
 
@@ -85,13 +80,6 @@ function App() {
         <Route path="/admin" element={<AdminDataPage />} />
         <Route path="/user" element={<AdminUserPage />} />
 
-        {/* Admin Section with drop-down menu 
-        <Route path="/user-link" element={<UserLinkPage />} />
-        <Route path="/variable" element={<VariablePage />} />
-        <Route path="/team" element={<TeamPage />} />
-        <Route path="/template-approval" element={<TemplateApprovalPage />} />
-        <Route path="/user-kyc" element={<UserKycPage />} />
-        <Route path="/whatsapp-scan" element={<WhatsappScanPage />} /> */}
          
          {/* Report Section with drop-down menu */}
          <Route path="/email-report" element={<EmailReport />} />

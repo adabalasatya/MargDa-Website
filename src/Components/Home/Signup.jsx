@@ -352,7 +352,7 @@ export const Sign = () => {
           {/* Sign Up Button */}
           <div className="mt-6">
             <button
-              className="w-full bg-orange-500 text-white text-lg font-medium py-3 rounded-lg hover:bg-orange-600 focus:ring focus:ring-blue-300"
+              className="w-full bg-orange-500 text-white text-lg font-medium py-3 rounded-lg hover:bg-green-500 focus:ring focus:ring-blue-300"
               onClick={handleSubmit}
             >
               Sign Up
@@ -365,7 +365,7 @@ export const Sign = () => {
               Already have an account?{" "}
               <NavLink
                 to="/login"
-                className="text-orange-400 font-medium hover:text-orange-600 transition duration-300"
+                className="text-orange-500 font-medium hover:text-green-500 transition duration-300"
               >
                 Sign In
               </NavLink>
