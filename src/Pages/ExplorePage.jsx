@@ -1,5 +1,5 @@
 import React from 'react';
-import { FaBook, FaBriefcase, FaBuilding, FaDollarSign, FaHome, FaHeart, FaPlane, FaShieldAlt, FaStore, FaDatabase } from 'react-icons/fa';
+import { FaBook, FaBriefcase, FaBuilding, FaRupeeSign , FaUsers, FaHome, FaHeart, FaPlane, FaShieldAlt, FaStore, FaDatabase } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 
 const Explore = () => {
@@ -13,10 +13,10 @@ const Explore = () => {
     { name: 'Education', icon: <FaBook className="text-red-500" />, bgColor: 'bg-red-50' },
     { name: 'Work', icon: <FaBriefcase className="text-green-500" />, bgColor: 'bg-green-50' },
     { name: 'Business', icon: <FaBuilding className="text-blue-500" />, bgColor: 'bg-blue-50' },
-    { name: 'Finance', icon: <FaDollarSign className="text-yellow-500" />, bgColor: 'bg-yellow-50' },
+    { name: 'Finance', icon: <FaRupeeSign className="text-yellow-500" />, bgColor: 'bg-yellow-50' },
     { name: 'Accommodation', icon: <FaHome className="text-purple-500" />, bgColor: 'bg-purple-50', smallText: true },
     { name: 'Health', icon: <FaHeart className="text-pink-500" />, bgColor: 'bg-pink-50' },
-    { name: 'Matrimony', icon: <FaHeart className="text-indigo-500" />, bgColor: 'bg-indigo-50' },
+    { name: 'Matri', icon: <FaUsers className="text-indigo-500" />, bgColor: 'bg-indigo-50' },
     { name: 'Travel', icon: <FaPlane className="text-teal-500" />, bgColor: 'bg-teal-50' },
     { name: 'Protection', icon: <FaShieldAlt className="text-gray-500" />, bgColor: 'bg-gray-50' },
     { name: 'Mart', icon: <FaStore className="text-orange-500" />, bgColor: 'bg-orange-50' },
