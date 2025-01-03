@@ -6,6 +6,7 @@ import Home from './Pages/Home'
 import  Login  from './Components/Home/Login';
 import  Sign   from './Components/Home/Signup'
 import  Dashboard  from './Pages/Dashboard'
+import Explore from './Pages/ExplorePage';
 
 //Nav-Data-Leads
 import LeadPage from './Pages/NavPages/LeadPage';
@@ -66,6 +67,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Sign />} />
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/explore" element={<Explore />} />
 
         {/* Nav - Data, Leads */}
         <Route path="/lead" element={<LeadPage />} />

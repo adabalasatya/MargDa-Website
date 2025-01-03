@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { FaEnvelope, FaLock } from "react-icons/fa";
+import { FaEnvelope, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { NavLink, useNavigate } from "react-router-dom";
@@ -10,9 +10,14 @@ const Login = () => {
   const [formValues, setFormValues] = useState({
     login: "",
     password: "",
-    terms: true,
+    terms: false, // Default to false to ensure user checks it
   });
   const [errors, setErrors] = useState({});
+  const [showPassword, setShowPassword] = useState(false);
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -25,10 +30,8 @@ const Login = () => {
   const validateForm = () => {
     const newErrors = {};
     if (!formValues.login) newErrors.login = "Please input your Login Id.";
-    if (!formValues.password)
-      newErrors.password = "Please input your Password.";
-    if (!formValues.terms)
-      newErrors.terms = "Please check Terms of Use and Privacy Policy.";
+    if (!formValues.password) newErrors.password = "Please input your Password.";
+    if (!formValues.terms) newErrors.terms = "Please agree to the Terms of Use and Privacy Policy.";
     return newErrors;
   };
 
@@ -65,12 +68,12 @@ const Login = () => {
         setFormValues({
           login: "",
           password: "",
-          terms: true,
+          terms: false,
         });
 
         // Navigate to dashboard or handle user details
         setTimeout(() => {
-          navigate("/data", { state: { user: userData } });
+          navigate("/explore", { state: { user: userData } });
         }, 2000);
       } else {
         toast.error("An unexpected error occurred.");
@@ -92,7 +95,7 @@ const Login = () => {
           />
         </div>
 
-        <div className="flex flex-col p-6 -mt-20 w-1/2" style={{ width: "400px" }}>
+        <div className="flex flex-col p-6 -mt-20" style={{ width: "400px" }}>
           <div className="flex items-center mb-4">
             <img
               src="https://margdarshak.in/img/Mlogo.png"
@@ -120,12 +123,19 @@ const Login = () => {
             <input
               id="password"
               name="password"
-              type="password"
+              type={showPassword ? "text" : "password"}
               placeholder="Password"
               value={formValues.password}
               onChange={handleInputChange}
-              className="border border-gray-400 p-2.5 pl-10 pr-2 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-100 hover:border-orange-500"
+              className="border border-gray-400 p-2.5 pl-10 pr-10 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-100 hover:border-orange-500"
             />
+            <button
+              type="button"
+              onClick={togglePasswordVisibility}
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-black-500 focus:outline-none"
+            >
+              {showPassword ? <FaEyeSlash /> : <FaEye />}
+            </button>
           </div>
 
           <div className="flex items-center mb-6">
