@@ -3,19 +3,16 @@ import { Menu } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import {
   FaWhatsapp,
-  FaQrcode,
+  FaBuilding,
   FaVideo,
   FaPhone,
   FaSms,
   FaEnvelope,
   FaChartBar,
   FaUsers,
-  FaRegFileAlt,
-  FaIdCard,
-  FaCogs,
   FaComments,
   FaTasks,
-  FaHome, // Added FaHome for Dashboard icon
+  
 } from "react-icons/fa";
 import { useMediaQuery } from "react-responsive"; // Import useMediaQuery
 import Logo from "../assets/margdarshakendra-logo.webp";
@@ -107,22 +104,8 @@ const Sidebar = ({ toggleSidebar }) => {
                   !isOpen ? "justify-center" : ""
                 }`}
               >
-                <FaHome className="text-lg" /> {/* Dashboard icon */}
-                {isOpen && <span className="ml-4">Dashboard</span>}
-              </Link>
-            </div>
-
-            {/* Admin Button */}
-            <div className="bg-white rounded-lg shadow-md">
-              <Link
-                to="/admin"
-                onClick={handleLinkClick}
-                className={`flex items-center px-4 py-3 text-lg font-medium rounded-lg text-black-700 hover:bg-orange-500 ${
-                  !isOpen ? "justify-center" : ""
-                }`}
-              >
-                <FaUsers className="text-lg" /> {/* Changed Admin icon */}
-                {isOpen && <span className="ml-4">Admin</span>}
+                <FaBuilding className="text-lg" /> {/* Dashboard icon */}
+                {isOpen && <span className="ml-4">Workplace</span>}
               </Link>
             </div>
 

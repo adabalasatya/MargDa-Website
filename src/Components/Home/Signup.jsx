@@ -13,10 +13,10 @@ export const Sign = () => {
     name: "",
     mobile: "",
     terms: true,
-    opt1: true,
-    opt2: true,
-    opt3: true,
-    opt4: true,
+    optW: true,
+    optE: true,
+    optC: true,
+    optS: true,
   });
   const [otpValues, setOtpValues] = useState({
     emailOtp: "",
@@ -145,6 +145,10 @@ export const Sign = () => {
           name: formValues.name,
           emailOtp: otpValues.emailOtp,
           mobileOtp: otpValues.mobileOtp,
+          optW:formValues.optW,
+          otpE:formValues.optE,
+          otpC:formValues.optC,
+          otpS:formValues.optS
         }),
       });
 
@@ -367,7 +371,7 @@ export const Sign = () => {
                 to="/login"
                 className="text-orange-500 font-medium hover:text-green-500 transition duration-300"
               >
-                Sign In
+                Login
               </NavLink>
             </p>
           </div>

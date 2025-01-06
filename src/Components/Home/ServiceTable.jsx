@@ -6,7 +6,7 @@ const ServicesTable = () => {
     <div className="container mx-auto px-4 py-12">
       {/* Centered Table with Animation */}
       <div className="flex justify-center">
-        <div className="bg-white border border-gray-200 rounded-lg shadow-xl overflow-hidden w-full max-w-4xl h-96 flex transform transition-all hover:scale-105 animate-fade-in-up">
+        <div className="bg-white border border-gray-200 rounded-lg shadow-xl overflow-hidden w-full max-w-4xl h-74 flex transform transition-all hover:scale-105 animate-fade-in-up">
           {/* Column 1: Verified Data as a Service */}
           <div className="flex-1 p-8">
             <div className="flex items-center mb-6">
@@ -32,11 +32,11 @@ const ServicesTable = () => {
               <h3 className="text-gray-800 font-bold text-xl">Unified Communication CRM</h3>
             </div>
             <p className="text-gray-600 leading-relaxed">
-              Unified secured communication system to connect with people safely. You can Call, Email, SMS, WhatsApp, or Meet virtually.
+            CRM with Unified secured communication system to to Call, Email, SMS, WhatsApp, or Meet virtually.  
             </p>
             <br />
             <p className="text-gray-600 leading-relaxed">
-              CRM is integrated with smart innovative tools to manage various functions of your business. Also, it includes masking customers' contact details to protect them from misuse of sensitive data, maintaining logs of every interaction, and task reminders.
+            CRM is integrated with smart innovative tools to manage various functions of your business. Also, it includes maintaining logs and task reminders.
             </p>
           </div>
         </div>

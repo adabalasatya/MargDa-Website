@@ -9,6 +9,12 @@ import {
   FaTrash,
   FaSearch,
   FaChevronDown,
+  FaUserCog,
+  FaDatabase,
+  FaMapMarkerAlt,
+  FaClipboardList,
+  FaStickyNote,
+  FaUpload,
 } from "react-icons/fa";
 
 const initialFormState = {
@@ -17,7 +23,7 @@ const initialFormState = {
   phone: "",
   gender: "Female",
   whatsapp: "",
-  remarks: ""
+  remarks: "",
 };
 
 const Data = () => {
@@ -38,9 +44,14 @@ const Data = () => {
       phone: "91970777717",
       gender: "Female",
       whatsapp: "91970777717",
-      place: "Mumbai",
-      log: "Logged in: 2024-12-24",
-      remarks: "Pending response",
+      location: {
+        city: "Mumbai",
+        state: "Maharashtra",
+        country: "India",
+        pincode: "400001",
+      },
+      log: "Logged In: 2024-12-24 10:30 AM | Last Update: 2024-12-234",
+      remarks: "Follow-up scheduled for 2024-12-26 | Pending response from use",
     },
     {
       id: 2,
@@ -49,12 +60,17 @@ const Data = () => {
       phone: "919876543210",
       gender: "Male",
       whatsapp: "919876543210",
-      place: "Mumbai",
-      log: "Logged in: 2024-12-23",
-      remarks: "Follow-up required",
+      location: {
+        city: "New York",
+        state: "NY",
+        country: "USA",
+        pincode: "10001",
+      },
+      log: "Logged In: 2024-12-24 09:15 AM | Last Update: 2024-12-22",
+      remarks: "Follow-up scheduled for 2024-12-27 | Awaiting confirmation",
     },
   ]);
-  
+
   const dropdownRef = useRef(null);
 
   // Effects
@@ -72,37 +88,42 @@ const Data = () => {
   // Form handlers
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       [name]: value,
-      whatsapp: name === 'phone' ? value : prev.whatsapp
+      whatsapp: name === "phone" ? value : prev.whatsapp,
     }));
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    
+
     const newRecord = {
       id: dataDetails.length + 1,
       ...formData,
-      log: `Logged in: ${new Date().toISOString().split('T')[0]}`,
+      location: {
+        city: "",
+        state: "",
+        country: "",
+        pincode: "",
+      },
+      log: `Logged in: ${new Date().toISOString().split("T")[0]}`,
     };
 
-    setDataDetails(prev => [...prev, newRecord]);
+    setDataDetails((prev) => [...prev, newRecord]);
     setFormData(initialFormState);
     setIsAddFormOpen(false);
   };
 
   // Data handlers
   const handleDelete = (id) => {
-    setDataDetails(prev => prev.filter(item => item.id !== id));
+    setDataDetails((prev) => prev.filter((item) => item.id !== id));
   };
 
   const handleFileUpload = (e) => {
     const uploadedFile = e.target.files[0];
     if (uploadedFile) {
       setFile(uploadedFile);
-      // Here you would typically handle CSV parsing and data import
       console.log("File selected:", uploadedFile);
     }
   };
@@ -115,8 +136,8 @@ const Data = () => {
   };
 
   // Filtering and pagination
-  const filteredData = dataDetails.filter(item => 
-    Object.values(item).some(value => 
+  const filteredData = dataDetails.filter((item) =>
+    Object.values(item).some((value) =>
       value.toString().toLowerCase().includes(searchQuery.toLowerCase())
     )
   );
@@ -139,7 +160,7 @@ const Data = () => {
   };
 
   return (
-    <div className="p-8 bg-gray-100 min-h-screen">
+    <div className="p-8 min-h-screen">
       {/* Header Section */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center space-x-4">
@@ -161,6 +182,7 @@ const Data = () => {
             onClick={() => document.getElementById("csv-upload").click()}
             className="flex items-center px-5 py-2 bg-gray-200 text-gray-700 rounded-full shadow hover:bg-gray-300 transition"
           >
+            <FaUpload className="mr-2" />
             Upload CSV
           </button>
           <input
@@ -260,15 +282,15 @@ const Data = () => {
       )}
 
       {/* Search and Filter Section */}
-      <div className="bg-white p-4 shadow rounded-lg mb-6">
-        <div className="flex flex-wrap items-center justify-between space-y-4 md:space-y-0">
+      <div className="bg-white p-2 shadow rounded-lg mb-6">
+        <div className="flex flex-wrap items-center justify-between space-y-4 md:space-y-2">
           {/* Show Records */}
           <label className="flex items-center">
             <span className="text-sm font-semibold mr-2">Show</span>
             <input
               type="number"
               value={recordsPerPage}
-              onChange={(e) => setRecordsPerPage(Number(e.target.value))}
+              onChange={(e) => setRecordsPerPage(e.target.value)}
               className="border border-gray-300 p-2 rounded w-20"
               min="1"
             />
@@ -276,7 +298,7 @@ const Data = () => {
           </label>
 
           {/* Search Input */}
-          <div className="relative w-full md:w-56">
+          <div className="relative w-full md:w-48">
             <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
             <input
               type="text"
@@ -288,7 +310,7 @@ const Data = () => {
           </div>
 
           {/* Filters */}
-          <div className="flex flex-wrap items-center space-x-4">
+          <div className="flex flex-wrap items-center space-x-3">
             <select className="border border-gray-300 p-2 rounded">
               <option>Data Type</option>
               <option>Lead</option>
@@ -314,7 +336,7 @@ const Data = () => {
               <option>Westminster</option>
             </select>
 
-            {/* Pincode Dropdown */}
+            {/* New Pincode Dropdown */}
             <div className="relative" ref={dropdownRef}>
               <button
                 onClick={() => setIsPincodeDropdownOpen(!isPincodeDropdownOpen)}
@@ -361,81 +383,168 @@ const Data = () => {
 
       {/* Data Table */}
       <div className="bg-white rounded-lg shadow-md p-6">
-        <table className="table-auto w-full text-sm text-left">
-          <thead className="bg-gray-200">
-            <tr>
-              <th className="px-4 py-3 text-gray-600">#</th>
-              <th className="px-4 py-3 text-gray-600">Data</th>
-              <th className="px-4 py-3 text-gray-600">Place</th>
-              <th className="px-4 py-3 text-gray-600">Log</th>
-              <th className="px-4 py-3 text-gray-600">Remarks</th>
-              <th className="px-4 py-3 text-gray-600">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-200">
-            {dataDetails.map((item) => (
-              <tr key={item.id} className="hover:bg-gray-100 transition">
-                <td className="px-4 py-3">{item.id}</td>
-                <td className="px-4 py-3">
-                  <div className="space-y-2">
-                    <div className="flex items-center space-x-2">
-                      <FaUser className="text-gray-500" />
-                      <span className="font-medium text-gray-800">{item.name}</span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <FaEnvelope className="text-gray-500" />
-                      <span className="text-gray-600">{item.email}</span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <FaPhone className="text-gray-500" />
-                      <span className="text-gray-600">{item.phone}</span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <FaVenusMars className="text-gray-500" />
-                      <span className="text-gray-600">{item.gender}</span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <FaWhatsapp className="text-green-500" />
-                      <span className="text-gray-600">{item.whatsapp}</span>
-                    </div>
-                  </div>
-                </td>
-                <td className="px-4 py-3 text-gray-600">{item.place}</td>
-                <td className="px-4 py-3 text-gray-700">{item.log}</td>
-                <td className="px-4 py-3 text-gray-700">{item.remarks}</td>
-                <td className="px-4 py-3">
+        <div className="max-h-[400px] overflow-y-auto">
+          <table className="w-full text-sm text-left border-spacing-x-4">
+            <thead>
+              <tr className="text-gray-600 sticky top-0 bg-white z-10">
+                <th className="px-4 py-3">
                   <div className="flex items-center space-x-2">
-                    <button
-                      title="Edit"
-                      className="p-2 bg-blue-500 text-white rounded-full shadow hover:bg-blue-600 transition"
-                    >
-                      <FaEdit />
-                    </button>
-                    <button
-                      title="Delete"
-                      className="p-2 bg-red-500 text-white rounded-full shadow hover:bg-red-600 transition"
-                    >
-                      <FaTrash />
-                    </button>
+                    <FaUserCog className="text-blue-600 w-4 h-4" />
+                    <span>Action</span>
                   </div>
-                </td>
+                </th>
+                <th className="px-4 py-3">
+                  <div className="flex items-center space-x-2">
+                    <FaDatabase className="text-purple-600 w-4 h-4" />
+                    <span>Data</span>
+                  </div>
+                </th>
+                <th className="px-4 py-3">
+                  <div className="flex items-center space-x-2">
+                    <FaMapMarkerAlt className="text-green-600 w-4 h-4" />
+                    <span>Location</span>
+                  </div>
+                </th>
+                <th className="px-4 py-3">
+                  <div className="flex items-center space-x-2">
+                    <FaClipboardList className="text-yellow-600 w-4 h-4" />
+                    <span>Log</span>
+                  </div>
+                </th>
+                <th className="px-4 py-3">
+                  <div className="flex items-center space-x-2">
+                    <FaStickyNote className="text-red-600 w-4 h-4" />
+                    <span>Remarks</span>
+                  </div>
+                </th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-        <div className="mt-4 flex justify-between items-center">
-          <span className="text-gray-600 text-sm">
-            Showing 1 to {dataDetails.length} of {dataDetails.length} entries
-          </span>
-          <div className="flex space-x-2">
-            <button className="px-4 py-2 bg-gray-200 rounded shadow hover:bg-gray-300">
-              Previous
-            </button>
-            <button className="px-4 py-2 bg-gray-200 rounded shadow hover:bg-gray-300">
-              Next
-            </button>
-          </div>
+            </thead>
+            <tbody className="divide-y divide-gray-200">
+              {currentRecords.map((item) => (
+                <tr key={item.id} className="hover:bg-gray-50 transition-colors duration-200">
+                  <td className="px-4 py-3">
+                    <div className="flex items-center space-x-2">
+                      <button
+                        title="Edit"
+                        className="p-2 bg-blue-500 text-white rounded-full shadow hover:bg-blue-600 transition"
+                      >
+                        <FaEdit className="w-4 h-4" />
+                      </button>
+                      <button
+                        title="Delete"
+                        className="p-2 bg-red-500 text-white rounded-full shadow hover:bg-red-600 transition"
+                        onClick={() => handleDelete(item.id)}
+                      >
+                        <FaTrash className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </td>
+                  <td className="px-4 py-3">
+                    <div className="space-y-2">
+                      <div className="flex items-center space-x-2">
+                        <FaUser className="text-blue-400 w-4 h-4" />
+                        <span className="font-medium text-black">{item.name}</span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <FaEnvelope className="text-purple-400 w-4 h-4" />
+                        <span className="text-black">{item.email}</span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <FaPhone className="text-green-400 w-4 h-4" />
+                        <span className="text-black">{item.phone}</span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <FaWhatsapp className="text-green-500 w-4 h-4" />
+                        <span className="text-black">{item.whatsapp}</span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <FaVenusMars className="text-pink-400 w-4 h-4" />
+                        <span className="text-black">{item.gender}</span>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-8 py-2">
+                    <div className="flex flex-col space-y-1">
+                      <div className="flex items-center space-x-2">
+                        <FaMapMarkerAlt className="text-green-400 w-4 h-4" />
+                        <p className="text-xs text-black">City: {item.location.city}</p>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <FaMapMarkerAlt className="text-green-400 w-4 h-4" />
+                        <p className="text-xs text-black">State: {item.location.state}</p>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <FaMapMarkerAlt className="text-green-400 w-4 h-4" />
+                        <p className="text-xs text-black">Country: {item.location.country}</p>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <FaMapMarkerAlt className="text-green-400 w-4 h-4" />
+                        <p className="text-xs text-black">Pincode: {item.location.pincode}</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-4 py-3">
+                    <div className="flex items-center space-x-2">
+                      <FaSearch className="text-yellow-500 w-4 h-4" />
+                      <span className="text-black">{item.log}</span>
+                    </div>
+                  </td>
+                  <td className="px-4 py-3">
+                    <div className="flex items-center space-x-2">
+                      <FaStickyNote className="text-red-400 w-4 h-4" />
+                      <span className="text-black">{item.remarks}</span>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
+      </div>
+
+      {/* Pagination Footer */}
+      <div className="flex items-center justify-between mt-6">
+        <div className="text-sm text-gray-600">
+          Showing {indexOfFirstRecord + 1} to {Math.min(indexOfLastRecord, filteredData.length)} of {filteredData.length} records
+        </div>
+        <div className="flex items-center space-x-2">
+          <button
+            onClick={handlePreviousPage}
+            disabled={currentPage === 1}
+            className={`px-4 py-2 bg-gray-200 text-gray-700 rounded ${
+              currentPage === 1 ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-300"
+            }`}
+          >
+            {"<<"} Previous
+          </button>
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+            <button
+              key={page}
+              onClick={() => setCurrentPage(page)}
+              className={`px-4 py-2 ${
+                currentPage === page
+                  ? "bg-orange-500 text-white"
+                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+              } rounded`}
+            >
+              {page}
+            </button>
+          ))}
+          <button
+            onClick={handleNextPage}
+            disabled={currentPage === totalPages}
+            className={`px-4 py-2 bg-gray-200 text-gray-700 rounded ${
+              currentPage === totalPages ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-300"
+            }`}
+          >
+            Next {">>"}
+          </button>
+        </div>
+      </div>
+
+      {/* Copyright Footer */}
+      <div className="text-center text-sm text-gray-500 mt-8">
+        <p>(c) Copyright 2024 Margdarshak Media</p>
       </div>
     </div>
   );

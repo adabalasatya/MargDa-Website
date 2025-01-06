@@ -10,21 +10,21 @@ const Explore = () => {
   };
 
   const sections = [
-    { name: 'Education', icon: <FaBook className="text-red-500" />, bgColor: 'bg-red-50' },
-    { name: 'Work', icon: <FaBriefcase className="text-green-500" />, bgColor: 'bg-green-50' },
-    { name: 'Business', icon: <FaBuilding className="text-blue-500" />, bgColor: 'bg-blue-50' },
-    { name: 'Finance', icon: <FaRupeeSign className="text-yellow-500" />, bgColor: 'bg-yellow-50' },
-    { name: 'Accommodation', icon: <FaHome className="text-purple-500" />, bgColor: 'bg-purple-50', smallText: true },
-    { name: 'Health', icon: <FaHeart className="text-pink-500" />, bgColor: 'bg-pink-50' },
-    { name: 'Matri', icon: <FaUsers className="text-indigo-500" />, bgColor: 'bg-indigo-50' },
-    { name: 'Travel', icon: <FaPlane className="text-teal-500" />, bgColor: 'bg-teal-50' },
-    { name: 'Protection', icon: <FaShieldAlt className="text-gray-500" />, bgColor: 'bg-gray-50' },
-    { name: 'Mart', icon: <FaStore className="text-orange-500" />, bgColor: 'bg-orange-50' },
-    { name: 'Data', icon: <FaDatabase className="text-cyan-500" />, bgColor: 'bg-cyan-50', onClick: handleDataClick }
+    { name: 'Education', icon: <FaBook className="text-red-500" />, bgColor: 'bg-gray-100' },
+    { name: 'Work', icon: <FaBriefcase className="text-green-500" />, bgColor: 'bg-gray-100' },
+    { name: 'Business', icon: <FaBuilding className="text-blue-500" />, bgColor: 'bg-gray-100' },
+    { name: 'Finance', icon: <FaRupeeSign className="text-yellow-500" />, bgColor: 'bg-gray-100' },
+    { name: 'Accommodation', icon: <FaHome className="text-purple-500" />, bgColor: 'bg-gray-100', smallText: true },
+    { name: 'Health', icon: <FaHeart className="text-pink-500" />, bgColor: 'bg-gray-100' },
+    { name: 'Matri', icon: <FaUsers className="text-indigo-500" />, bgColor: 'bg-gray-100' },
+    { name: 'Travel', icon: <FaPlane className="text-teal-500" />, bgColor: 'bg-gray-100' },
+    { name: 'Protection', icon: <FaShieldAlt className="text-gray-500" />, bgColor: 'bg-gray-100' },
+    { name: 'Mart', icon: <FaStore className="text-orange-500" />, bgColor: 'bg-gray-100' },
+    { name: 'Data', icon: <FaDatabase className="text-cyan-500" />, bgColor: 'bg-gray-100', onClick: handleDataClick }
   ];
 
   return (
-    <div className="font-sans p-8 bg-gradient-to-br from-white via-gray-50 to-gray-100 min-h-screen">
+    <div className="font-sans p-8 bg-white min-h-screen">
       {/* Header with enhanced styling */}
       <header className="text-center mb-12 space-y-4">
         <h1 className="text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
@@ -36,7 +36,7 @@ const Explore = () => {
       </header>
 
       {/* Enhanced Sections Grid */}
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-xl mx-auto">
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 justify-items-center">
           {sections.map((section, index) => (
             <div

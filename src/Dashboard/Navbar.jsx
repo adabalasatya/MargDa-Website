@@ -45,10 +45,7 @@ const Navbar = () => {
       {/* Buttons (Visible on larger screens) */}
       <div className="hidden sm:flex items-center w-full ml-10">
         {/* Centered Nav Items */}
-        <div className="flex justify-start w-full space-x-4 sm:space-x-8">
-          <button className="flex items-center px-3 py-2 text-xs font-medium text-gray-800 bg-white border-2 border-gray-300 rounded-lg shadow-md hover:bg-orange-500 hover:text-white transition-colors duration-300 ease-in-out sm:px-4 sm:py-2 sm:text-sm">
-            <FaBuilding className="mr-2" /> Workplace
-          </button>
+        <div className="flex justify-start w-full space-x-4 sm:space-x-8">  
           <Link
             to="/data"
             className="flex items-center px-3 py-2 text-xs font-medium text-gray-800 bg-white border-2 border-gray-300 rounded-lg shadow-md hover:bg-orange-500 hover:text-white transition-colors duration-300 ease-in-out sm:px-4 sm:py-2 sm:text-sm"
@@ -64,21 +61,21 @@ const Navbar = () => {
         </div>
 
         {/* Right Side Buttons */}
-        <div className="flex space-x-4 sm:space-x-8 ml-auto mr-16">
-        <Link
-            to="/ddmart"
-            className="flex items-center px-3 py-2 text-xs font-medium text-gray-800 bg-white border-2 border-gray-300 rounded-lg shadow-md hover:bg-orange-500 hover:text-white transition-colors duration-300 ease-in-out sm:px-4 sm:py-2 sm:text-sm"
-          >
-            <FaShoppingCart className="mr-2" /> DDMart
-          </Link>
-          <Link
-            to="/team-support"
-            className="flex items-center px-3 py-2 text-xs font-medium text-gray-800 bg-white border-2 border-gray-300 rounded-lg shadow-md hover:bg-orange-500 hover:text-white transition-colors duration-300 ease-in-out sm:px-4 sm:py-2 sm:text-sm"
-          >
-            <FaUsers className="mr-2" />Team.Support
-          </Link>
+        <div className="flex space-x-4 sm:space-x-8 ml-auto mr-16 whitespace-nowrap">
+  <Link
+    to="/ddmart"
+    className="flex items-center px-3 py-2 text-xs font-medium text-gray-800 bg-white border-2 border-gray-300 rounded-lg shadow-md hover:bg-orange-500 hover:text-white transition-colors duration-300 ease-in-out sm:px-4 sm:py-2 sm:text-sm"
+  >
+    <FaShoppingCart className="mr-2" /> Mart
+  </Link>
+  <Link
+    to="/team-support"
+    className="flex items-center px-3 py-2 text-xs font-medium text-gray-800 bg-white border-2 border-gray-300 rounded-lg shadow-md hover:bg-orange-500 hover:text-white transition-colors duration-300 ease-in-out sm:px-4 sm:py-2 sm:text-sm"
+  >
+    <FaUsers className="mr-2" /> Team-Support
+  </Link>
+</div>
 
-        </div>
 
         {/* Profile Section */}
         <div className="relative">

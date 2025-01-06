@@ -66,28 +66,12 @@ const Admindata = () => {
       {/* Navbar */}
       <div className="relative flex items-center justify-between px-6 py-3 bg-white text-gray-800 shadow-md rounded-lg">
         {/* Mobile Buttons (Visible only on mobile screens) */}
-        <div className="sm:hidden flex space-x-4">
-          <Link
-            to="/data"
-            className="flex items-center px-3 py-2 text-xs font-medium text-gray-800 bg-white border-2 border-gray-300 rounded-lg shadow-md hover:bg-orange-500 hover:text-white transition-colors duration-300 ease-in-out"
-          >
-            <FaDatabase className="mr-2" /> Data
-          </Link>
-          <Link
-            to="/lead"
-            className="flex items-center px-3 py-2 text-xs font-medium text-gray-800 bg-white border-2 border-gray-300 rounded-lg shadow-md hover:bg-orange-500 hover:text-white transition-colors duration-300 ease-in-out"
-          >
-            <FaUserTie className="mr-2" /> Lead
-          </Link>
-        </div>
+        
 
         {/* Buttons (Visible on larger screens) */}
         <div className="hidden sm:flex items-center w-full ml-10">
           {/* Centered Nav Items */}
           <div className="flex justify-start w-full space-x-4 sm:space-x-8">
-            <button className="flex items-center px-3 py-2 text-xs font-medium text-gray-800 bg-white border-2 border-gray-300 rounded-lg shadow-md hover:bg-orange-500 hover:text-white transition-colors duration-300 ease-in-out sm:px-4 sm:py-2 sm:text-sm">
-              <FaBuilding className="mr-2" /> Workplace
-            </button>
             <Link
               to="/admin"
               className="flex items-center px-3 py-2 text-xs font-medium text-gray-800 bg-white border-2 border-gray-300 rounded-lg shadow-md hover:bg-orange-500 hover:text-white transition-colors duration-300 ease-in-out sm:px-4 sm:py-2 sm:text-sm"
@@ -102,21 +86,21 @@ const Admindata = () => {
             </Link>
           </div>
 
-          {/* Right Side Buttons */}
-          <div className="flex space-x-4 sm:space-x-8 ml-auto mr-16">
-            <Link
-              to="/ddmart"
-              className="flex items-center px-3 py-2 text-xs font-medium text-gray-800 bg-white border-2 border-gray-300 rounded-lg shadow-md hover:bg-orange-500 hover:text-white transition-colors duration-300 ease-in-out sm:px-4 sm:py-2 sm:text-sm"
-            >
-              <FaShoppingCart className="mr-2" /> DDMart
-            </Link>
-            <Link
-              to="/team"
-              className="flex items-center px-3 py-2 text-xs font-medium text-gray-800 bg-white border-2 border-gray-300 rounded-lg shadow-md hover:bg-orange-500 hover:text-white transition-colors duration-300 ease-in-out sm:px-4 sm:py-2 sm:text-sm"
-            >
-              <FaUsers className="mr-2" /> Team
-            </Link>
-          </div>
+  {/* Right Side Buttons */}
+        <div className="flex space-x-4 sm:space-x-8 ml-auto mr-16 whitespace-nowrap">
+  <Link
+    to=""
+    className="flex items-center px-3 py-2 text-xs font-medium text-gray-800 bg-white border-2 border-gray-300 rounded-lg shadow-md hover:bg-orange-500 hover:text-white transition-colors duration-300 ease-in-out sm:px-4 sm:py-2 sm:text-sm"
+  >
+    <FaShoppingCart className="mr-2" /> Mart
+  </Link>
+  <Link
+    to=""
+    className="flex items-center px-3 py-2 text-xs font-medium text-gray-800 bg-white border-2 border-gray-300 rounded-lg shadow-md hover:bg-orange-500 hover:text-white transition-colors duration-300 ease-in-out sm:px-4 sm:py-2 sm:text-sm"
+  >
+    <FaUsers className="mr-2" /> Team-Support
+  </Link>
+</div>
 
           {/* Profile Section */}
           <div className="relative">

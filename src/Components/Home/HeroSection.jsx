@@ -35,15 +35,18 @@ function HeroSection() {
             className="w-full md:w-1/2 text-center md:text-left transform opacity-0"
           >
             <h1 className="text-4xl md:text-5xl font-bold leading-snug mb-6 text-primary">
-              Margdarshak: Your Path to Success
+            Margdarshak - Your Path to Success
             </h1>
             <p className="text-lg mb-8 text-secondary">
-              <span className="font-bold text-highlight">Marg (मार्ग)</span> means "path",{" "}
-              <span className="font-bold text-highlight">Darshak (दर्शक)</span> means "guide". Margdarshak provides expert advice, personalized solutions, and support to help individuals navigate through the complexities of life, overcome challenges, and achieve goals.
+              <span className="font-bold text-highlight">Marg </span> means "path",{" "}
+              <span className="font-bold text-highlight">Darshak </span> means "guide".Margdarshak provides expert advice, personalised solutions, and support to help individuals navigate through the complexities of life, overcome challenges, and achieve their goals.
             </p>
             <div className="flex flex-wrap justify-center md:justify-start gap-4">
               <button className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-6 py-3 rounded-full font-semibold transform transition-transform hover:scale-105 shadow-lg hover:shadow-xl">
-                Explore Our Services
+              Get a demo	
+              </button>
+              <button className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-6 py-3 rounded-full font-semibold transform transition-transform hover:scale-105 shadow-lg hover:shadow-xl">
+              Know more	
               </button>
             </div>
           </div>

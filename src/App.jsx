@@ -8,6 +8,7 @@ import  Sign   from './Components/Home/Signup'
 import ForgotPassword from './Components/Home/ForgetPassword';
 import  Dashboard  from './Pages/Dashboard'
 import Explore from './Pages/ExplorePage';
+import AdminPage from './Pages/AdminPage';
 
 //Nav-Data-Leads
 import LeadPage from './Pages/NavPages/LeadPage';
@@ -63,6 +64,7 @@ function App() {
         <Route path="/forgotpassword" element={<ForgotPassword />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/explore" element={<Explore />} />
+        <Route path="/admin-dashboard" element={<AdminPage />} />
 
         {/* Nav - Data, Leads */}
         <Route path="/lead" element={<LeadPage />} />

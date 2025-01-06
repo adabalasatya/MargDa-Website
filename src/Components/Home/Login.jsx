@@ -3,14 +3,14 @@ import { FaEnvelope, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { NavLink, useNavigate } from "react-router-dom";
-import Navbar from './navbar';
+import Navbar from "./navbar";
 
 const Login = () => {
   const navigate = useNavigate();
   const [formValues, setFormValues] = useState({
     login: "",
     password: "",
-    terms: false, // Default to false to ensure user checks it
+    terms: true,
   });
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
@@ -31,7 +31,8 @@ const Login = () => {
     const newErrors = {};
     if (!formValues.login) newErrors.login = "Please input your Login Id.";
     if (!formValues.password) newErrors.password = "Please input your Password.";
-    if (!formValues.terms) newErrors.terms = "Please agree to the Terms of Use and Privacy Policy.";
+    if (!formValues.terms)
+      newErrors.terms = "Please agree to the Terms of Use and Privacy Policy.";
     return newErrors;
   };
 
@@ -44,6 +45,16 @@ const Login = () => {
       return;
     }
 
+    // Check for admin credentials
+    if (formValues.login === "admin" && formValues.password === "admin") {
+      toast.success("Admin login successful!");
+      setTimeout(() => {
+        navigate("/admin-dashboard");
+      }, 2000);
+      return;
+    }
+
+    // Handle regular login
     try {
       const response = await fetch("https://margda.in:7000/api/userlogin", {
         method: "POST",
@@ -71,7 +82,7 @@ const Login = () => {
           terms: false,
         });
 
-        // Navigate to dashboard or handle user details
+        // Navigate to user dashboard
         setTimeout(() => {
           navigate("/explore", { state: { user: userData } });
         }, 2000);
@@ -157,14 +168,14 @@ const Login = () => {
           </div>
 
           <button
-  className="text-white py-2 rounded-lg mb-2 font-semibold bg-[#eb5223] hover:bg-green-600 transition-colors duration-300"
-  onClick={handleSubmit}
->
-  SIGN IN
-</button>
+            className="text-white py-2 rounded-lg mb-2 font-semibold bg-[#eb5223] hover:bg-green-600 transition-colors duration-300"
+            onClick={handleSubmit}
+          >
+            SIGN IN
+          </button>
 
           <p className="flex items-center justify-center gap-4 text-sm mt-4">
-          <NavLink
+            <NavLink
               to="/forgotpassword"
               className="flex items-center gap-2 text-orange-600 font-medium hover:text-gray-800 transition duration-300"
             >
