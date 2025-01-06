@@ -67,27 +67,6 @@ const Dashboard = () => {
             </div>
           </div>
 
-          {/* Dashboard Stats or Quick Actions */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-            {/* Stat Card 1 */}
-            <div className="bg-white p-6 rounded-lg shadow-md hover:shadow-xl transition duration-300 ease-in-out">
-              <h3 className="text-xl font-semibold text-gray-800 mb-2">Total Sales</h3>
-              <p className="text-2xl font-bold text-gray-800">$12,345</p>
-            </div>
-            
-            {/* Stat Card 2 */}
-            <div className="bg-white p-6 rounded-lg shadow-md hover:shadow-xl transition duration-300 ease-in-out">
-              <h3 className="text-xl font-semibold text-gray-800 mb-2">Active Users</h3>
-              <p className="text-2xl font-bold text-gray-800">543</p>
-            </div>
-            
-            {/* Stat Card 3 */}
-            <div className="bg-white p-6 rounded-lg shadow-md hover:shadow-xl transition duration-300 ease-in-out">
-              <h3 className="text-xl font-semibold text-gray-800 mb-2">Support Tickets</h3>
-              <p className="text-2xl font-bold text-gray-800">18</p>
-            </div>
-          </div>
-
           {/* Action Buttons */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {/* Quick Action 1 */}

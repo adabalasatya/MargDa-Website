@@ -18,7 +18,7 @@ import {
   FaStickyNote,
   FaUserCog,
   FaDatabase,
-  FaUserPlus
+  FaUserPlus,
 } from "react-icons/fa";
 
 const Leads = () => {
@@ -27,67 +27,48 @@ const Leads = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [recordsPerPage, setRecordsPerPage] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
-  const [userData, setUserData] = useState([
-    {
-      id: 1,
-      name: "Dhruti",
-      email: "dhrua@gmail.com",
-      phone: "91970777717",
-      gender: "Female",
-      whatsapp: "91970777717",
-      dob: "1990-05-15",
-      age: 33,
-      language: "Hindi",
-      location: {
-        city: "Mumbai",
-        state: "Maharashtra",
-        country: "India",
-        pincode: "400001",
-      },
-      log: "Logged In: 2024-12-24 10:30 AM | Last Update: 2024-12-23",
-      remarks: "Follow-up scheduled for 2024-12-26 | Pending response from user",
-    },
-    {
-      id: 2,
-      name: "John",
-      email: "john@example.com",
-      phone: "91970777718",
-      gender: "Male",
-      whatsapp: "91970777718",
-      dob: "1985-10-22",
-      age: 38,
-      language: "English",
-      location: {
-        city: "New York",
-        state: "NY",
-        country: "USA",
-        pincode: "10001",
-      },
-      log: "Logged In: 2024-12-24 09:15 AM | Last Update: 2024-12-22",
-      remarks: "Follow-up scheduled for 2024-12-27 | Awaiting confirmation",
-    },
-    {
-      id: 3,
-      name: "Sara",
-      email: "sara@example.com",
-      phone: "91970777719",
-      gender: "Female",
-      whatsapp: "91970777719",
-      dob: "1995-03-30",
-      age: 28,
-      language: "Spanish",
-      location: {
-        city: "London",
-        state: "England",
-        country: "UK",
-        pincode: "SW1A 1AA",
-      },
-      log: "Logged In: 2024-12-24 11:45 AM | Last Update: 2024-12-21",
-      remarks: "Follow-up scheduled for 2024-12-28 | No response yet",
-    },
-  ]);
+  const [userData, setUserData] = useState([]); // Initialize as an empty array
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const dropdownRef = useRef(null);
+
+  // Fetch data from API
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const userID = 8;
+        const response = await fetch("https://margda.in:7000/api/margda.org/get-leads", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ userID }),
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch data");
+        }
+
+        const data = await response.json();
+        console.log("API Response:", data);
+
+        // If the response is an object with a `Leads` property
+        if (data.Leads && Array.isArray(data.Leads)) {
+          setUserData(data.Leads); // Set the array of leads
+        } else {
+          setUserData([]); // Fallback to an empty array
+        }
+
+        setLoading(false);
+      } catch (error) {
+        setError(error.message);
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -114,13 +95,13 @@ const Leads = () => {
 
   // Handle delete
   const handleDelete = (id) => {
-    setUserData((prev) => prev.filter((item) => item.id !== id));
+    setUserData((prev) => prev.filter((item) => item.dataID !== id));
   };
 
   // Filter data based on search query
   const filteredData = userData.filter((item) =>
     Object.values(item).some((value) =>
-      value.toString().toLowerCase().includes(searchQuery.toLowerCase())
+      value && value.toString().toLowerCase().includes(searchQuery.toLowerCase())
     )
   );
 
@@ -144,20 +125,26 @@ const Leads = () => {
     }
   };
 
+  if (loading) {
+    return <div className="p-6 text-center">Loading...</div>;
+  }
+
+  if (error) {
+    return <div className="p-6 text-center text-red-500">Error: {error}</div>;
+  }
+
   return (
     <div className="p-6 min-h-screen flex flex-col relative">
       <div>
-      <button
-    className="flex items-center px-5 py-2 bg-blue-600 text-white rounded-full shadow hover:bg-orange-600 transition"
-  >
-    <FaUserPlus className="mr-2" /> 
-     Lead
-  </button>
-        </div>
+        <button className="flex items-center px-5 py-2 bg-blue-600 text-white rounded-full shadow hover:bg-orange-600 transition">
+          <FaUserPlus className="mr-2" />
+          Lead
+        </button>
+      </div>
+
       {/* Navbar with Buttons */}
       <div className="flex justify-end mb-6">
         <div className="flex space-x-2">
-        
           <button
             onClick={() => handleBulkAction("email")}
             className="flex items-center bg-gray-500 text-white px-4 py-2 rounded shadow hover:bg-gray-600"
@@ -356,7 +343,7 @@ const Leads = () => {
                     <button
                       title="Delete"
                       className="p-2 bg-red-500 text-white rounded-full shadow hover:bg-red-600 transition"
-                      onClick={() => handleDelete(item.id)}
+                      onClick={() => handleDelete(item.dataID)}
                     >
                       <FaTrash />
                     </button>
@@ -373,7 +360,7 @@ const Leads = () => {
                         </div>
                         <div className="flex items-center space-x-2">
                           <FaPhone className="text-green-500 w-4 h-4" />
-                          <span className="text-xs text-gray-600">{item.phone}</span>
+                          <span className="text-xs text-gray-600">{item.mobile}</span>
                         </div>
                         <div className="flex items-center space-x-2">
                           <FaVenusMars className="text-pink-500 w-4 h-4" />
@@ -401,40 +388,39 @@ const Leads = () => {
                 </td>
 
                 <td className="px-8 py-2">
-                <div className="flex flex-col space-y-1">
-                <div className="flex items-center space-x-2">
-               <FaMapMarkerAlt className="text-green-400 w-4 h-4" />
-              <p className="text-xs text-black">City: {item.location.city}</p>
-               </div>
-              <div className="flex items-center space-x-2">
-              <FaMapMarkerAlt className="text-green-400 w-4 h-4" />
-               <p className="text-xs text-black">State: {item.location.state}</p>
-                   </div>
-           <div className="flex items-center space-x-2">
-             <FaMapMarkerAlt className="text-green-400 w-4 h-4" />
-                  <p className="text-xs text-black">Country: {item.location.country}</p>
-               </div>
-                 <div className="flex items-center space-x-2">
-                       <FaMapMarkerAlt className="text-green-400 w-4 h-4" />
-                 <p className="text-xs text-black">Pincode: {item.location.pincode}</p>
-             </div>
+                  <div className="flex flex-col space-y-1">
+                    <div className="flex items-center space-x-2">
+                      <FaMapMarkerAlt className="text-green-400 w-4 h-4" />
+                      <p className="text-xs text-black">City: {item.city}</p>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <FaMapMarkerAlt className="text-green-400 w-4 h-4" />
+                      <p className="text-xs text-black">State: {item.state}</p>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <FaMapMarkerAlt className="text-green-400 w-4 h-4" />
+                      <p className="text-xs text-black">Country: {item.country}</p>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <FaMapMarkerAlt className="text-green-400 w-4 h-4" />
+                      <p className="text-xs text-black">Pincode: {item.pincode}</p>
+                    </div>
                   </div>
-                 </td>
+                </td>
 
-             <td className="px-4 py-3">
-          <div className="flex items-center space-x-2">
-         <FaSearch className="text-yellow-500 w-4 h-4" />
-        <span className="text-black">{item.log}</span>
-         </div>
-         </td>
+                <td className="px-4 py-3">
+                  <div className="flex items-center space-x-2">
+                    <FaSearch className="text-yellow-500 w-4 h-4" />
+                    <span className="text-black">{item.log}</span>
+                  </div>
+                </td>
 
-        <td className="px-4 py-3">
-         <div className="flex items-center space-x-2">
-               <FaStickyNote className="text-red-400 w-4 h-4" />
-                     <span className="text-black">{item.remarks}</span>
-                            </div>
-                        </td>  
-              
+                <td className="px-4 py-3">
+                  <div className="flex items-center space-x-2">
+                    <FaStickyNote className="text-red-400 w-4 h-4" />
+                    <span className="text-black">{item.remarks}</span>
+                  </div>
+                </td>
               </tr>
             ))}
           </tbody>

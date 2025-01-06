@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
-import Logo from '../../assets/margdarshakendra-logo.webp'; 
-import Pic from '../../assets/m.jpeg'; 
+import React, { useState, useEffect } from 'react';
+import Logo from '../../assets/margdarshakendra-logo.webp';
+import Pic from '../../assets/m.jpeg';
 
 const ProfilePage = () => {
+  // State to manage form values
   const [formValues, setFormValues] = useState({
     name: '',
     gender: '',
@@ -15,11 +16,32 @@ const ProfilePage = () => {
     pic_url: 'https://cdn.pixabay.com/photo/2016/04/01/10/11/avatar-1299805_1280.png',
   });
 
+  // Load user data from localStorage on component mount
+  useEffect(() => {
+    const storedUserData = localStorage.getItem('userData');
+    if (storedUserData) {
+      const userData = JSON.parse(storedUserData);
+      setFormValues({
+        name: userData.data.name || '',
+        gender: userData.data.gender || '',
+        mobile: userData.data.mobile || '9876543210',
+        whatsap: userData.data.whatsapp || '',
+        email: userData.data.email || '',
+        dob: userData.data.dob || '',
+        address: userData.data.address || '',
+        placeID: userData.data.placeID || '',
+        pic_url: userData.data.pic_url || 'https://cdn.pixabay.com/photo/2016/04/01/10/11/avatar-1299805_1280.png',
+      });
+    }
+  }, []);
+
+  // Handle input changes
   const handleOnInputChange = (e) => {
     const { name, value } = e.target;
     setFormValues({ ...formValues, [name]: value });
   };
 
+  // Handle profile picture change
   const handleProfilePicChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -31,9 +53,21 @@ const ProfilePage = () => {
     }
   };
 
+  // Handle form submission
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log('Form Submitted:', formValues);
+
+    // Save updated user data to localStorage
+    const updatedUserData = {
+      data: {
+        ...formValues,
+        whatsapp: formValues.whatsap, // Ensure consistent key naming
+      },
+    };
+    localStorage.setItem('userData', JSON.stringify(updatedUserData));
+
+    console.log('Form Submitted:', updatedUserData);
+    alert('Profile updated successfully!');
   };
 
   return (
@@ -56,7 +90,7 @@ const ProfilePage = () => {
               {/* Profile Picture Section */}
               <div className="flex flex-col items-center mb-2 sm:mb-6">
                 <img
-                  src={Pic}
+                  src={formValues.pic_url}
                   alt="Profile Picture"
                   className="w-16 h-16 sm:w-24 sm:h-24 rounded-full border-2 sm:border-4 border-blue-500 shadow-md mb-1 sm:mb-4"
                 />

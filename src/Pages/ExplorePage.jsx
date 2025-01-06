@@ -66,7 +66,7 @@ const Explore = () => {
               <div className="absolute bottom-3 left-1/2 transform -translate-x-1/2 
                             opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                 <span className="text-xs text-gray-500">
-                  {section.name === 'Data' ? 'Click to view data' : 'Click to explore'}
+                  {section.name === 'Data' }
                 </span>
               </div>
             </div>
