@@ -23,7 +23,7 @@ const initialFormState = {
   name: "",
   email: "",
   phone: "",
-  gender: "Female",
+  gender: "",
   whatsapp: "",
   remarks: "",
 };
@@ -50,7 +50,7 @@ const Data = () => {
 
   // Retrieve userID and AccessToken from localStorage
   const userData = JSON.parse(localStorage.getItem("userData"));
-  const userID = userData ? userData.user_data.userID : null;
+  const loginUserID = userData ? userData.user_data.userID : null;
   const accessToken = userData ? userData.access_token : null;
 
   console.log("Fetching data from API...", accessToken);
@@ -140,7 +140,7 @@ const Data = () => {
       gender: formData.gender === "Male" ? "M" : formData.gender === "Female" ? "F" : "O",
       whatsapp: formData.whatsapp,
       remarks: formData.remarks,
-      userID: userID, // Use the logged-in user's ID
+      userID: loginUserID, // Use the logged-in user's ID
     };
 
     try {
@@ -188,7 +188,7 @@ const Data = () => {
         gender: editingData.gender === "Male" ? "M" : editingData.gender === "Female" ? "F" : "O",
         whatsapp: editingData.whatsapp || recordToUpdate.whatsapp,
         remarks: editingData.remarks || recordToUpdate.remarks,
-        userID: userID, // Use the logged-in user's ID
+        userID: loginUserID, // Use the logged-in user's ID
       };
 
       const response = await fetch("https://margda.in:7000/api/margda.org/edit-data", {
@@ -244,7 +244,7 @@ const Data = () => {
           Authorization: `Bearer ${accessToken}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ dataID: id, userID: userID }), // Include the dataID and userID
+        body: JSON.stringify({ dataID: id, userID: loginUserID }), // Include the dataID and userID
       });
 
       if (!response.ok) {
@@ -340,45 +340,70 @@ const Data = () => {
       setError("Please select at least one record to shortlist.");
       return;
     }
-
+  
     setIsLoading(true);
     setError(null);
-
+  
     try {
-      const response = await fetch("https://margda.in:7000/api/margda.org/shortlist", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          dataIDs: Array.from(selectedRows), // Convert Set to Array
-          userID: userID, // Include the logged-in user's ID
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
+      // Convert the Set of selected row IDs to an array
+      const selectedIDs = Array.from(selectedRows).map(id => parseInt(id, 10));
+      console.log("Selected IDs for shortlisting:", selectedIDs);
+  
+      // Loop through each ID and make an individual API call
+      for (const id of selectedIDs) {
+        const payload = {
+          dataID: id,
+          userID: id
+        };
+        console.log("Request Payload for ID:", id, JSON.stringify(payload, null, 2));
+  
+        // Make the API call
+        console.log("Making API call to shortlist record with ID:", id);
+        const response = await fetch("https://margda.in:7000/api/margda.org/shortlist", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        });
+  
+        // Log the response status
+        console.log("API Response Status for ID:", id, response.status);
+  
+        if (!response.ok) {
+          // Log the error details
+          const errorResponse = await response.json().catch(() => null);
+          console.error("API Error Response for ID:", id, errorResponse);
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+  
+        // Log the successful response
+        const result = await response.json();
+        console.log("API Response Data for ID:", id, result);
+  
+        // Update local state to reflect the shortlisted status for this ID
+        setDataDetails((prev) =>
+          prev.map((item) =>
+            item.id === id ? { ...item, isShortlisted: true } : item
+          )
+        );
       }
-
-      const result = await response.json();
-      console.log("API response after shortlisting:", result);
-
-      // Update local state to reflect the shortlisted status
-      setDataDetails((prev) =>
-        prev.map((item) =>
-          selectedRows.has(item.id) ? { ...item, isShortlisted: true } : item
-        )
-      );
-
+  
       // Clear the selected rows after shortlisting
+      console.log("Clearing selected rows...");
       setSelectedRows(new Set());
-
+  
+      // Log success message
+      console.log("Records shortlisted successfully!");
       setError("Records shortlisted successfully!");
     } catch (error) {
-      console.error("Error shortlisting records:", error);
+      // Log the error details
+      console.error("Error during shortlisting:", error);
       setError("Failed to shortlist records. Please try again.");
     } finally {
+      // Log the end of the process
+      console.log("Shortlisting process completed.");
       setIsLoading(false);
     }
   };
@@ -695,7 +720,7 @@ const Data = () => {
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center space-x-2">
-                      {item.euser === userID ? (
+                      {item.euser === loginUserID ? (
                         editingId === item.id ? (
                           <>
                             <button

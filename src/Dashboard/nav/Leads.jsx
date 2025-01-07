@@ -30,6 +30,8 @@ const Leads = () => {
   const [userData, setUserData] = useState([]); // Initialize as an empty array
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [selectedRows, setSelectedRows] = useState([]); // Track selected rows
+  const [selectAll, setSelectAll] = useState(false); // Track "Select All" state
 
   const dropdownRef = useRef(null);
 
@@ -55,10 +57,10 @@ const Leads = () => {
         if (!response.ok) {
           throw new Error("Failed to fetch data");
         }
-    
+
         const data = await response.json();
         console.log("API Response:", data);
-    
+
         // Check if the response contains a "message" indicating no leads were found
         if (data.message && data.message === "Leads not found") {
           setUserData([]); // Set userData to an empty array
@@ -102,12 +104,61 @@ const Leads = () => {
 
   // Handle bulk actions
   const handleBulkAction = (action) => {
-    console.log(`Bulk ${action} action triggered`);
+    console.log(`Bulk ${action} action triggered for selected rows:`, selectedRows);
+    // Perform bulk action logic here
   };
 
   // Handle delete
-  const handleDelete = (id) => {
-    setUserData((prev) => prev.filter((item) => item.dataID !== id));
+  const handleDelete = async (id) => {
+    try {
+      const response = await fetch("https://margda.in:7000/api/margda.org/delete-lead", {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ dataID: id }), // Send the dataID to delete
+      });
+
+      console.log("Delete API Response status:", response.status);
+
+      if (!response.ok) {
+        throw new Error("Failed to delete lead");
+      }
+
+      const data = await response.json();
+      console.log("Delete API Response:", data);
+
+      if (data.message === "Lead deleted successfully") {
+        // Remove the deleted lead from the UI
+        setUserData((prev) => prev.filter((item) => item.dataID !== id));
+        setSelectedRows((prev) => prev.filter((rowId) => rowId !== id)); // Remove from selected rows if applicable
+      } else {
+        throw new Error(data.message || "Failed to delete lead");
+      }
+    } catch (error) {
+      console.error("Error deleting lead:", error);
+      setError(error.message);
+    }
+  };
+
+  // Handle row selection
+  const handleRowSelect = (id) => {
+    if (selectedRows.includes(id)) {
+      setSelectedRows(selectedRows.filter((rowId) => rowId !== id));
+    } else {
+      setSelectedRows([...selectedRows, id]);
+    }
+  };
+
+  // Handle "Select All" checkbox
+  const handleSelectAll = () => {
+    if (selectAll) {
+      setSelectedRows([]);
+    } else {
+      setSelectedRows(currentRecords.map((item) => item.dataID));
+    }
+    setSelectAll(!selectAll);
   };
 
   // Filter data based on search query
@@ -144,7 +195,6 @@ const Leads = () => {
   if (error) {
     return <div className="p-6 text-center text-red-500">Error: {error}</div>;
   }
-  
 
   return (
     <div className="p-6 min-h-screen flex flex-col relative">
@@ -308,6 +358,17 @@ const Leads = () => {
             <tr>
               <th className="px-6 py-4">
                 <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    checked={selectAll}
+                    onChange={handleSelectAll}
+                    className="form-checkbox h-4 w-4 text-blue-600 rounded"
+                  />
+                  <span className="font-medium text-gray-700">Select All</span>
+                </div>
+              </th>
+              <th className="px-6 py-4">
+                <div className="flex items-center space-x-2">
                   <FaUserCog className="text-blue-500 w-4 h-4" />
                   <span className="font-medium text-gray-700">Actions</span>
                 </div>
@@ -340,6 +401,14 @@ const Leads = () => {
                 className="border-b hover:bg-gray-50 transition-colors duration-200"
               >
                 <td className="px-6 py-4">
+                  <input
+                    type="checkbox"
+                    checked={selectedRows.includes(item.dataID)}
+                    onChange={() => handleRowSelect(item.dataID)}
+                    className="form-checkbox h-4 w-4 text-blue-600 rounded"
+                  />
+                </td>
+                <td className="px-6 py-4">
                   <div className="flex items-center space-x-2">
                     <button
                       title="Edit"
@@ -350,7 +419,7 @@ const Leads = () => {
                     <button
                       title="Delete"
                       className="p-2 bg-red-500 text-white rounded-full shadow hover:bg-red-600 transition"
-                      onClick={() => handleDelete(item.dataID)}
+                      onClick={() => handleDelete(item.dataID || item.userID)} // Call handleDelete with dataID
                     >
                       <FaTrash />
                     </button>
