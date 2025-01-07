@@ -1,36 +1,28 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FaQrcode, FaSignOutAlt } from "react-icons/fa";
 
 const UserProfile = () => {
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
-  const [userData, setUserData] = useState(null); // State to store user data
   const navigate = useNavigate();
 
-  // Fetch user data from localStorage on component mount
-  useEffect(() => {
-    const storedUserData = localStorage.getItem("userData");
-    if (storedUserData) {
-      setUserData(JSON.parse(storedUserData));
-    }
-  }, []);
+  // Retrieve user data from localStorage
+  const userData = JSON.parse(localStorage.getItem("userData"));
+  const userName = userData ? userData.user_data.name : "User"; // Access user name
+  const profilePicUrl = userData ? userData.user_data.pic_url : null; // Access profile picture URL
+  const userInitial = userData ? userData.user_data.name.charAt(0).toUpperCase() : "U"; // Get user initial
 
   const toggleProfileMenu = () => {
     setIsProfileMenuOpen(!isProfileMenuOpen);
   };
 
   const handleLogout = () => {
-    // Remove user data and authentication tokens
+    // Remove user data from localStorage
     localStorage.removeItem("userData");
 
     // Redirect to the home page
     navigate("/");
   };
-
-  // Extract user initials and name from userData
-  const userName = userData ? userData.data.name : "User";
-  const profilePicUrl = userData ? userData.data.pic_url : null;
-  const userInitial = userData ? userData.data.name.charAt(0).toUpperCase() : "U";
 
   return (
     <div className="relative">
@@ -38,7 +30,7 @@ const UserProfile = () => {
         onClick={toggleProfileMenu}
         className="flex items-center space-x-2 px-4 py-2 bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 focus:outline-none"
       >
-        {/* User Avatar with Initials */}
+        {/* User Avatar with Profile Picture or Initials */}
         <div className="w-8 h-8 rounded-full overflow-hidden border-2 border-orange-500 flex items-center justify-center bg-gradient-to-r from-orange-400 to-orange-500">
           {profilePicUrl ? (
             <img
@@ -74,14 +66,20 @@ const UserProfile = () => {
             {userData && (
               <div className="px-3 py-2">
                 <div className="flex items-center space-x-2">
-                  <img
-                    src={userData.data.pic_url}
-                    alt="Profile"
-                    className="w-8 h-8 rounded-full"
-                  />
+                  <div className="w-8 h-8 rounded-full overflow-hidden border-2 border-orange-500 flex items-center justify-center bg-gradient-to-r from-orange-400 to-orange-500">
+                    {profilePicUrl ? (
+                      <img
+                        src={profilePicUrl}
+                        alt="Profile"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <span className="text-white font-bold text-sm">{userInitial}</span>
+                    )}
+                  </div>
                   <div>
-                    <p className="text-sm font-medium text-gray-700">{userData.data.name}</p>
-                    <p className="text-xs text-gray-500">{userData.data.email}</p>
+                    <p className="text-sm font-medium text-gray-700">{userData.user_data.name}</p>
+                    <p className="text-xs text-gray-500">{userData.user_data.email}</p>
                   </div>
                 </div>
               </div>

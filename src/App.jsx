@@ -3,6 +3,10 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 //Home
 import Home from './Pages/Home'
+import PrivacyStatement from './Pages/FooterPages/PrivacyStatement';
+import TermsofService from './Pages/FooterPages/TermsofService'
+import RefundPolicy from './Pages/FooterPages/RefundPolicy'
+
 import  Login  from './Components/Home/Login';
 import  Sign   from './Components/Home/Signup'
 import ForgotPassword from './Components/Home/ForgetPassword';
@@ -10,9 +14,11 @@ import  Dashboard  from './Pages/Dashboard'
 import Explore from './Pages/ExplorePage';
 import AdminPage from './Pages/AdminPage';
 
+
 //Nav-Data-Leads
 import LeadPage from './Pages/NavPages/LeadPage';
 import DataPage from './Pages/NavPages/DataPage';
+import PaymentPage from './Pages/NavPages/PaymentPage'
 import TeamSupportPage from './Pages/NavPages/TeamSupportPage'
 import SupportTicketPage from './Pages/NavPages/SupportTicketPage'
 
@@ -59,6 +65,10 @@ function App() {
 
         {/* Home */}
         <Route path="/" element={<Home />} />
+        <Route path="/privacy-statement" element={<PrivacyStatement />} />
+        <Route path="/terms-of-service" element={<TermsofService />} />
+        <Route path="/refund-policy" element={<RefundPolicy />} />
+
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Sign />} />
         <Route path="/forgotpassword" element={<ForgotPassword />} />
@@ -69,6 +79,7 @@ function App() {
         {/* Nav - Data, Leads */}
         <Route path="/lead" element={<LeadPage />} />
         <Route path="/data" element={<DataPage />} />
+        <Route path="/payment" element={<PaymentPage />} />
         <Route path="/team-support" element={<TeamSupportPage />} />
         <Route path="/support-ticket" element={<SupportTicketPage />} />
 

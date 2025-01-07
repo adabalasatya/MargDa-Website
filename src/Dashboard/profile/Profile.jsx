@@ -18,19 +18,19 @@ const ProfilePage = () => {
 
   // Load user data from localStorage on component mount
   useEffect(() => {
-    const storedUserData = localStorage.getItem('userData');
+    const storedUserData = localStorage.getItem("userData");
     if (storedUserData) {
       const userData = JSON.parse(storedUserData);
       setFormValues({
-        name: userData.data.name || '',
-        gender: userData.data.gender || '',
-        mobile: userData.data.mobile || '9876543210',
-        whatsap: userData.data.whatsapp || '',
-        email: userData.data.email || '',
-        dob: userData.data.dob || '',
-        address: userData.data.address || '',
-        placeID: userData.data.placeID || '',
-        pic_url: userData.data.pic_url || 'https://cdn.pixabay.com/photo/2016/04/01/10/11/avatar-1299805_1280.png',
+        name: userData.user_data.name || '',
+        gender: userData.user_data.gender || '',
+        mobile: userData.user_data.mobile || '9876543210',
+        whatsap: userData.user_data.whatsapp || '',
+        email: userData.user_data.email || '',
+        dob: userData.user_data.dob || '',
+        address: userData.user_data.address || '',
+        placeID: userData.user_data.placeID || '',
+        pic_url: userData.user_data.pic_url || 'https://cdn.pixabay.com/photo/2016/04/01/10/11/avatar-1299805_1280.png',
       });
     }
   }, []);
@@ -64,7 +64,7 @@ const ProfilePage = () => {
         whatsapp: formValues.whatsap, // Ensure consistent key naming
       },
     };
-    localStorage.setItem('userData', JSON.stringify(updatedUserData));
+    localStorage.setItem("userData", JSON.stringify(updatedUserData));
 
     console.log('Form Submitted:', updatedUserData);
     alert('Profile updated successfully!');

@@ -2,6 +2,7 @@ import React from 'react';
 import { FaFacebookF, FaTwitter, FaInstagram, FaWhatsapp } from 'react-icons/fa';
 import { AiOutlineMail } from 'react-icons/ai';
 import { HiOutlineArrowNarrowRight } from 'react-icons/hi';
+import { Link } from 'react-router-dom'; // Import Link for internal navigation
 import logo from '../../assets/margdarshakendra-logo.webp';
 
 const Footer = () => {
@@ -30,10 +31,38 @@ const Footer = () => {
           <div className="w-full md:w-auto mb-8 md:mb-0">
             <h3 className="text-lg font-semibold py-4 text-gray-800 mb-4">About Us</h3>
             <ul className="text-gray-600 space-y-3">
-              <li><a href="#" className="flex items-center hover:text-orange-500 transition transform hover:translate-x-2 duration-300"><HiOutlineArrowNarrowRight className="mr-2" /> About Margdarshak</a></li>
-              <li><a href="#" className="flex items-center hover:text-orange-500 transition transform hover:translate-x-2 duration-300"><HiOutlineArrowNarrowRight className="mr-2" /> Management Team</a></li>
-              <li><a href="#" className="flex items-center hover:text-orange-500 transition transform hover:translate-x-2 duration-300"><HiOutlineArrowNarrowRight className="mr-2" /> Advisors and Associates</a></li>
-              <li><a href="#" className="flex items-center hover:text-orange-500 transition transform hover:translate-x-2 duration-300"><HiOutlineArrowNarrowRight className="mr-2" /> Feedback and Complaints</a></li>
+              <li>
+                <Link
+                  to="/about-margdarshak"
+                  className="flex items-center hover:text-orange-500 transition transform hover:translate-x-2 duration-300"
+                >
+                  <HiOutlineArrowNarrowRight className="mr-2" /> About Margdarshak
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/management-team"
+                  className="flex items-center hover:text-orange-500 transition transform hover:translate-x-2 duration-300"
+                >
+                  <HiOutlineArrowNarrowRight className="mr-2" /> Management Team
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/advisors-and-associates"
+                  className="flex items-center hover:text-orange-500 transition transform hover:translate-x-2 duration-300"
+                >
+                  <HiOutlineArrowNarrowRight className="mr-2" /> Advisors and Associates
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/feedback-and-complaints"
+                  className="flex items-center hover:text-orange-500 transition transform hover:translate-x-2 duration-300"
+                >
+                  <HiOutlineArrowNarrowRight className="mr-2" /> Feedback and Complaints
+                </Link>
+              </li>
             </ul>
           </div>
 
@@ -41,11 +70,46 @@ const Footer = () => {
           <div className="w-full md:w-auto mb-8 md:mb-0">
             <h3 className="text-lg font-semibold py-4 text-gray-800 mb-4">Smart Tools</h3>
             <ul className="text-gray-600 space-y-3">
-              <li><a href="#" className="flex items-center hover:text-orange-500 transition transform hover:translate-x-2 duration-300"><HiOutlineArrowNarrowRight className="mr-2" /> Data and Contacts</a></li>
-              <li><a href="#" className="flex items-center hover:text-orange-500 transition transform hover:translate-x-2 duration-300"><HiOutlineArrowNarrowRight className="mr-2" /> Unified Communication</a></li>
-              <li><a href="#" className="flex items-center hover:text-orange-500 transition transform hover:translate-x-2 duration-300"><HiOutlineArrowNarrowRight className="mr-2" /> Career Counselling</a></li>
-              <li><a href="#" className="flex items-center hover:text-orange-500 transition transform hover:translate-x-2 duration-300"><HiOutlineArrowNarrowRight className="mr-2" /> Recruitment and HR</a></li>
-              <li><a href="#" className="flex items-center hover:text-orange-500 transition transform hover:translate-x-2 duration-300"><HiOutlineArrowNarrowRight className="mr-2" /> Marketing and Sales</a></li>
+              <li>
+                <Link
+                  to="/data-and-contacts"
+                  className="flex items-center hover:text-orange-500 transition transform hover:translate-x-2 duration-300"
+                >
+                  <HiOutlineArrowNarrowRight className="mr-2" /> Data and Contacts
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/unified-communication"
+                  className="flex items-center hover:text-orange-500 transition transform hover:translate-x-2 duration-300"
+                >
+                  <HiOutlineArrowNarrowRight className="mr-2" /> Unified Communication
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/career-counselling"
+                  className="flex items-center hover:text-orange-500 transition transform hover:translate-x-2 duration-300"
+                >
+                  <HiOutlineArrowNarrowRight className="mr-2" /> Career Counselling
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/recruitment-and-hr"
+                  className="flex items-center hover:text-orange-500 transition transform hover:translate-x-2 duration-300"
+                >
+                  <HiOutlineArrowNarrowRight className="mr-2" /> Recruitment and HR
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/marketing-and-sales"
+                  className="flex items-center hover:text-orange-500 transition transform hover:translate-x-2 duration-300"
+                >
+                  <HiOutlineArrowNarrowRight className="mr-2" /> Marketing and Sales
+                </Link>
+              </li>
             </ul>
           </div>
 
@@ -53,11 +117,46 @@ const Footer = () => {
           <div className="w-full md:w-auto mb-8 md:mb-0">
             <h3 className="text-lg font-semibold py-4 text-gray-800 mb-4">Get Associated</h3>
             <ul className="text-gray-600 space-y-3">
-              <li><a href="#" className="flex items-center hover:text-orange-500 transition transform hover:translate-x-2 duration-300"><HiOutlineArrowNarrowRight className="mr-2" /> Business Proposal</a></li>
-              <li><a href="#" className="flex items-center hover:text-orange-500 transition transform hover:translate-x-2 duration-300"><HiOutlineArrowNarrowRight className="mr-2" /> Knowledge Royalty</a></li>
-              <li><a href="#" className="flex items-center hover:text-orange-500 transition transform hover:translate-x-2 duration-300"><HiOutlineArrowNarrowRight className="mr-2" /> Career Counsellor</a></li>
-              <li><a href="#" className="flex items-center hover:text-orange-500 transition transform hover:translate-x-2 duration-300"><HiOutlineArrowNarrowRight className="mr-2" /> HR Consultant</a></li>
-              <li><a href="#" className="flex items-center hover:text-orange-500 transition transform hover:translate-x-2 duration-300"><HiOutlineArrowNarrowRight className="mr-2" /> Income Calculator</a></li>
+              <li>
+                <Link
+                  to="/business-proposal"
+                  className="flex items-center hover:text-orange-500 transition transform hover:translate-x-2 duration-300"
+                >
+                  <HiOutlineArrowNarrowRight className="mr-2" /> Business Proposal
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/knowledge-royalty"
+                  className="flex items-center hover:text-orange-500 transition transform hover:translate-x-2 duration-300"
+                >
+                  <HiOutlineArrowNarrowRight className="mr-2" /> Knowledge Royalty
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/career-counsellor"
+                  className="flex items-center hover:text-orange-500 transition transform hover:translate-x-2 duration-300"
+                >
+                  <HiOutlineArrowNarrowRight className="mr-2" /> Career Counsellor
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/hr-consultant"
+                  className="flex items-center hover:text-orange-500 transition transform hover:translate-x-2 duration-300"
+                >
+                  <HiOutlineArrowNarrowRight className="mr-2" /> HR Consultant
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/income-calculator"
+                  className="flex items-center hover:text-orange-500 transition transform hover:translate-x-2 duration-300"
+                >
+                  <HiOutlineArrowNarrowRight className="mr-2" /> Income Calculator
+                </Link>
+              </li>
             </ul>
           </div>
 
@@ -65,30 +164,93 @@ const Footer = () => {
           <div className="w-full md:w-auto mb-8 md:mb-0">
             <h3 className="text-lg font-semibold py-3 text-gray-800 mb-4">Be Informed</h3>
             <ul className="text-gray-600 space-y-3">
-              <li><a href="#" className="flex items-center hover:text-orange-500 transition transform hover:translate-x-2 duration-300"><HiOutlineArrowNarrowRight className="mr-2" /> Statutory Documents</a></li>
-              <li><a href="#" className="flex items-center hover:text-orange-500 transition transform hover:translate-x-2 duration-300"><HiOutlineArrowNarrowRight className="mr-2" /> Privacy Statement</a></li>
-              <li><a href="#" className="flex items-center hover:text-orange-500 transition transform hover:translate-x-2 duration-300"><HiOutlineArrowNarrowRight className="mr-2" /> Terms of Service</a></li>
-              <li><a href="#" className="flex items-center hover:text-orange-500 transition transform hover:translate-x-2 duration-300"><HiOutlineArrowNarrowRight className="mr-2" /> Refund Policy</a></li>
-              <li><a href="#" className="flex items-center hover:text-orange-500 transition transform hover:translate-x-2 duration-300"><HiOutlineArrowNarrowRight className="mr-2" /> Pay Online</a></li>
+              <li>
+                <Link
+                  to=""
+                  className="flex items-center hover:text-orange-500 transition transform hover:translate-x-2 duration-300"
+                >
+                  <HiOutlineArrowNarrowRight className="mr-2" /> Statutory Documents
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/privacy-statement"
+                  className="flex items-center hover:text-orange-500 transition transform hover:translate-x-2 duration-300"
+                >
+                  <HiOutlineArrowNarrowRight className="mr-2" /> Privacy Statement
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/terms-of-service"
+                  className="flex items-center hover:text-orange-500 transition transform hover:translate-x-2 duration-300"
+                >
+                  <HiOutlineArrowNarrowRight className="mr-2" /> Terms of Service
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/refund-policy"
+                  className="flex items-center hover:text-orange-500 transition transform hover:translate-x-2 duration-300"
+                >
+                  <HiOutlineArrowNarrowRight className="mr-2" /> Refund Policy
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to=""
+                  className="flex items-center hover:text-orange-500 transition transform hover:translate-x-2 duration-300"
+                >
+                  <HiOutlineArrowNarrowRight className="mr-2" /> Pay Online
+                </Link>
+              </li>
             </ul>
           </div>
         </div>
 
         {/* Social Media Icons */}
         <div className="mt-8 flex justify-center space-x-6">
-          <a href="#" className="text-gray-600 hover:text-orange-500 transition transform hover:scale-110 duration-300">
+          <a
+            href="https://facebook.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Facebook"
+            className="text-gray-600 hover:text-orange-500 transition transform hover:scale-110 duration-300"
+          >
             <FaFacebookF className="w-6 h-6" />
           </a>
-          <a href="#" className="text-gray-600 hover:text-orange-500 transition transform hover:scale-110 duration-300">
+          <a
+            href="https://twitter.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Twitter"
+            className="text-gray-600 hover:text-orange-500 transition transform hover:scale-110 duration-300"
+          >
             <FaTwitter className="w-6 h-6" />
           </a>
-          <a href="#" className="text-gray-600 hover:text-orange-500 transition transform hover:scale-110 duration-300">
+          <a
+            href="https://instagram.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Instagram"
+            className="text-gray-600 hover:text-orange-500 transition transform hover:scale-110 duration-300"
+          >
             <FaInstagram className="w-6 h-6" />
           </a>
-          <a href="tel:+918130960040" className="text-gray-600 hover:text-orange-500 transition transform hover:scale-110 duration-300">
+          <a
+            href="https://wa.me/918130960040"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="WhatsApp"
+            className="text-gray-600 hover:text-orange-500 transition transform hover:scale-110 duration-300"
+          >
             <FaWhatsapp className="w-6 h-6" />
           </a>
-          <a href="mailto:mail@margda.com" className="text-gray-600 hover:text-orange-500 transition transform hover:scale-110 duration-300">
+          <a
+            href="mailto:mail@margda.com"
+            aria-label="Email"
+            className="text-gray-600 hover:text-orange-500 transition transform hover:scale-110 duration-300"
+          >
             <AiOutlineMail className="w-6 h-6" />
           </a>
         </div>

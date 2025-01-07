@@ -56,7 +56,7 @@ const Login = () => {
 
     // Handle regular login
     try {
-      const response = await fetch("https://margda.in:7000/api/userlogin", {
+      const response = await fetch("https://margda.in:7000/api/android/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -47,13 +47,13 @@ const Data = () => {
   const [error, setError] = useState(null); // Error state
 
   const dropdownRef = useRef(null);
- 
+
   // Retrieve userID and AccessToken from localStorage
   const userData = JSON.parse(localStorage.getItem("userData"));
-  const userID = userData ? userData.data.userID : null;
-  const AccessToken = userData ? userData.message : null;
-  
- console.log("Fetching data from API...",AccessToken);
+  const userID = userData ? userData.user_data.userID : null;
+  const accessToken = userData ? userData.access_token : null;
+
+  console.log("Fetching data from API...", accessToken);
 
   // Fetch data from API
   const fetchData = async () => {
@@ -63,7 +63,7 @@ const Data = () => {
       const response = await fetch("https://margda.in:7000/api/margda.org/get-all-data", {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${AccessToken}`,
+          Authorization: `Bearer ${accessToken}`,
           "Content-Type": "application/json",
         },
       });
@@ -92,6 +92,7 @@ const Data = () => {
         log: `Logged in: ${new Date(item.edate || Date.now()).toLocaleString()}`,
         remarks: item.remarks || "No remarks",
         euser: item.euser || null, // Include the euser field
+        isShortlisted: item.isShortlisted || false, // Add shortlisted status
       }));
 
       console.log("Transformed data:", transformedData);
@@ -193,7 +194,7 @@ const Data = () => {
       const response = await fetch("https://margda.in:7000/api/margda.org/edit-data", {
         method: "PUT",
         headers: {
-          Authorization: `Bearer ${AccessToken}`,
+          Authorization: `Bearer ${accessToken}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify(updatedData),
@@ -240,7 +241,7 @@ const Data = () => {
       const response = await fetch(`https://margda.in:7000/api/margda.org/delete-data`, {
         method: "DELETE",
         headers: {
-          Authorization: `Bearer ${AccessToken}`,
+          Authorization: `Bearer ${accessToken}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ dataID: id, userID: userID }), // Include the dataID and userID
@@ -276,7 +277,7 @@ const Data = () => {
       fetch("https://margda.in:7000/api/upload-csv", {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${AccessToken}`,
+          Authorization: `Bearer ${accessToken}`,
         },
         body: formData,
       })
@@ -333,6 +334,55 @@ const Data = () => {
     }
   };
 
+  // Handle Shortlist
+  const handleShortlist = async () => {
+    if (selectedRows.size === 0) {
+      setError("Please select at least one record to shortlist.");
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const response = await fetch("https://margda.in:7000/api/margda.org/shortlist", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          dataIDs: Array.from(selectedRows), // Convert Set to Array
+          userID: userID, // Include the logged-in user's ID
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      console.log("API response after shortlisting:", result);
+
+      // Update local state to reflect the shortlisted status
+      setDataDetails((prev) =>
+        prev.map((item) =>
+          selectedRows.has(item.id) ? { ...item, isShortlisted: true } : item
+        )
+      );
+
+      // Clear the selected rows after shortlisting
+      setSelectedRows(new Set());
+
+      setError("Records shortlisted successfully!");
+    } catch (error) {
+      console.error("Error shortlisting records:", error);
+      setError("Failed to shortlist records. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   // Filtering and pagination
   const filteredData = dataDetails.filter((item) =>
     Object.values(item).some((value) =>
@@ -366,9 +416,13 @@ const Data = () => {
             <FaUser className="mr-2" />
             Data
           </button>
-          <button className="flex items-center px-5 py-2 bg-green-600 text-white rounded-full shadow hover:bg-green-700 transition">
+          <button
+            onClick={handleShortlist}
+            className="flex items-center px-5 py-2 bg-green-600 text-white rounded-full shadow hover:bg-green-700 transition"
+            disabled={isLoading}
+          >
             <FaUser className="mr-2" />
-            Shortlist
+            {isLoading ? "Shortlisting..." : "Shortlist"}
           </button>
           <button
             onClick={() => setIsAddFormOpen(true)}
@@ -563,7 +617,7 @@ const Data = () => {
                       />
                     </div>
                     <button
-                      onClick={handlePincodeSearch}
+                      onClick={() => setIsPincodeDropdownOpen(false)}
                       className="w-full bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600"
                     >
                       Search
@@ -618,12 +672,6 @@ const Data = () => {
                   <div className="flex items-center space-x-2">
                     <FaClipboardList className="text-yellow-600 w-4 h-4" />
                     <span>Log</span>
-                  </div>
-                </th>
-                <th className="px-4 py-3">
-                  <div className="flex items-center space-x-2">
-                    <FaStickyNote className="text-red-600 w-4 h-4" />
-                    <span>Remarks</span>
                   </div>
                 </th>
               </tr>
@@ -782,24 +830,24 @@ const Data = () => {
                     </div>
                   </td>
                   <td className="px-4 py-3">
-                    <div className="flex items-center space-x-2">
-                      <FaSearch className="text-yellow-500 w-4 h-4" />
-                      <span className="text-black">{item.log || "N/A"}</span>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex items-center space-x-2">
-                      <FaStickyNote className="text-red-400 w-4 h-4" />
-                      {editingId === item.id ? (
-                        <input
-                          type="text"
-                          value={editingData.remarks || ""}
-                          onChange={(e) => handleEditInputChange(e, "remarks")}
-                          className="border border-gray-300 p-1 rounded"
-                        />
-                      ) : (
-                        <span className="text-black">{item.remarks || "No remarks"}</span>
-                      )}
+                    <div className="flex flex-col space-y-2">
+                      <div className="flex items-center space-x-2">
+                        <FaClipboardList className="text-yellow-500 w-4 h-4" />
+                        <span className="text-black">{item.log || "N/A"}</span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <FaStickyNote className="text-red-400 w-4 h-4" />
+                        {editingId === item.id ? (
+                          <input
+                            type="text"
+                            value={editingData.remarks || ""}
+                            onChange={(e) => handleEditInputChange(e, "remarks")}
+                            className="border border-gray-300 p-1 rounded"
+                          />
+                        ) : (
+                          <span className="text-black">{item.remarks || "No remarks"}</span>
+                        )}
+                      </div>
                     </div>
                   </td>
                 </tr>

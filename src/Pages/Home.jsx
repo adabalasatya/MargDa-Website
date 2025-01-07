@@ -6,6 +6,7 @@ import Footer from '../Components/Home/Footer'
 import ServicesTable from '../Components/Home/ServiceTable'
 import ServicesSection from '../Components/Home/ServicesSection'
 import TestimonialsSection from '../Components/Home/TestimonialsSection'
+//import MainFooter from '../Components/Home/MainFooter'
 
 const Home = () => {
   return (
@@ -15,7 +16,9 @@ const Home = () => {
       <ServicesTable/>
       <ServicesSection/>
       <TestimonialsSection/>
+      
       <Footer/>
+      
     </div>
   )
 }

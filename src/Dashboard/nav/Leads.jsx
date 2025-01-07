@@ -33,35 +33,47 @@ const Leads = () => {
 
   const dropdownRef = useRef(null);
 
+  // Retrieve userID and AccessToken from localStorage
+  const userLocalData = JSON.parse(localStorage.getItem("userData"));
+  const accessToken = userLocalData ? userLocalData.access_token : null;
+
   // Fetch data from API
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const userID = 8;
         const response = await fetch("https://margda.in:7000/api/margda.org/get-leads", {
           method: "POST",
           headers: {
+            Authorization: `Bearer ${accessToken}`,
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ userID }),
         });
 
+        console.log("Response status:", response.status); // Log the status code for debugging
+
+        // Handle non-OK responses
         if (!response.ok) {
           throw new Error("Failed to fetch data");
         }
-
+    
         const data = await response.json();
         console.log("API Response:", data);
-
-        // If the response is an object with a `Leads` property
-        if (data.Leads && Array.isArray(data.Leads)) {
+    
+        // Check if the response contains a "message" indicating no leads were found
+        if (data.message && data.message === "Leads not found") {
+          setUserData([]); // Set userData to an empty array
+          setError("Leads not found"); // Set a user-friendly error message
+        } else if (data.Leads && Array.isArray(data.Leads)) {
           setUserData(data.Leads); // Set the array of leads
+          setError(null); // Clear any previous error messages
         } else {
           setUserData([]); // Fallback to an empty array
+          setError("Invalid data format received from the server");
         }
 
         setLoading(false);
       } catch (error) {
+        console.error("Error fetching data:", error);
         setError(error.message);
         setLoading(false);
       }
@@ -132,11 +144,12 @@ const Leads = () => {
   if (error) {
     return <div className="p-6 text-center text-red-500">Error: {error}</div>;
   }
+  
 
   return (
     <div className="p-6 min-h-screen flex flex-col relative">
       <div>
-        <button className="flex items-center px-5 py-2 bg-blue-600 text-white rounded-full shadow hover:bg-orange-600 transition">
+        <button className="flex items-center px-5 py-2 bg-blue-600 text-white rounded-full shadow hover:bg-blue-700 transition">
           <FaUserPlus className="mr-2" />
           Lead
         </button>
@@ -317,12 +330,6 @@ const Leads = () => {
                   <span className="font-medium text-gray-700">Logs</span>
                 </div>
               </th>
-              <th className="px-6 py-4">
-                <div className="flex items-center space-x-2">
-                  <FaStickyNote className="text-red-500 w-4 h-4" />
-                  <span className="font-medium text-gray-700">Remarks</span>
-                </div>
-              </th>
             </tr>
           </thead>
           {/* Table Body */}
@@ -409,16 +416,15 @@ const Leads = () => {
                 </td>
 
                 <td className="px-4 py-3">
-                  <div className="flex items-center space-x-2">
-                    <FaSearch className="text-yellow-500 w-4 h-4" />
-                    <span className="text-black">{item.log}</span>
-                  </div>
-                </td>
-
-                <td className="px-4 py-3">
-                  <div className="flex items-center space-x-2">
-                    <FaStickyNote className="text-red-400 w-4 h-4" />
-                    <span className="text-black">{item.remarks}</span>
+                  <div className="flex flex-col space-y-2">
+                    <div className="flex items-center space-x-2">
+                      <FaCalendarAlt className="text-yellow-500 w-4 h-4" />
+                      <span className="text-black">{item.log}</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <FaStickyNote className="text-red-400 w-4 h-4" />
+                      <span className="text-black">{item.remarks}</span>
+                    </div>
                   </div>
                 </td>
               </tr>
