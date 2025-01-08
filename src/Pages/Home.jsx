@@ -6,6 +6,7 @@ import Footer from '../Components/Home/Footer'
 import ServicesTable from '../Components/Home/ServiceTable'
 import ServicesSection from '../Components/Home/ServicesSection'
 import TestimonialsSection from '../Components/Home/TestimonialsSection'
+import PricingSection from '../Components/Home/PricingSection'
 
 
 const Home = () => {
@@ -16,7 +17,7 @@ const Home = () => {
       <ServicesTable/>
       <ServicesSection/>
       <TestimonialsSection/>
-      
+      <PricingSection/>
       <Footer/>
       
     </div>

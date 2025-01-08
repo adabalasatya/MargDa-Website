@@ -30,6 +30,21 @@ const SendEmailCon = ({ setSendEmail, selectedLeads, setSelectedLeads }) => {
     fetchTemplates();
   }, []);
 
+  useEffect(() => {
+    if (selectedLeads.length > 0) {
+      const firstLeadEmail = selectedLeads[0]?.email || "";
+      setEmailDetails((prevState) => ({
+        ...prevState,
+        replyToEmail: firstLeadEmail,
+      }));
+    } else {
+      setEmailDetails((prevState) => ({
+        ...prevState,
+        replyToEmail: "",
+      }));
+    }
+  }, [selectedLeads]);
+
   const fetchTemplates = async () => {
     try {
       const response = await fetch(
@@ -47,7 +62,6 @@ const SendEmailCon = ({ setSendEmail, selectedLeads, setSelectedLeads }) => {
       const data = await response.json();
       console.log("API Response:", data);
 
-      // Filter templates where `temptype` is "E" (email templates)
       const filterTemplates = data.Templates.filter(
         (template) => template.temptype === "E "
       );
@@ -153,7 +167,6 @@ const SendEmailCon = ({ setSendEmail, selectedLeads, setSelectedLeads }) => {
       const data = await response.json();
       alert(data.message || "Email sent successfully!");
 
-      // Clear form and reset state
       setEmailDetails({
         recipientEmails: [],
         subject: "",
@@ -252,6 +265,18 @@ const SendEmailCon = ({ setSendEmail, selectedLeads, setSelectedLeads }) => {
               rows="5"
               placeholder={selectedTemplate ? "Body from template" : "Enter email body"}
               disabled={!!selectedTemplate}
+            />
+          </div>
+
+          {/* Preview Section */}
+          <div className="flex flex-col">
+            <label htmlFor="preview" className="font-bold mb-2">
+              Preview
+            </label>
+            <div
+              id="preview"
+              className="px-4 py-2 border border-gray-300 rounded-lg"
+              dangerouslySetInnerHTML={{ __html: emailDetails.body }}
             />
           </div>
 

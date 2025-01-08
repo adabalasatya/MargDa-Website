@@ -21,27 +21,32 @@ import {
   FaUserPlus,
 } from "react-icons/fa";
 import WhatsAppCon from "../../Components/Dashboard/SendWhatsappCon";
-import EmailCon from "../../Components/Dashboard/SendEmailCon"; // Import the EmailCon component
+import EmailCon from "../../Components/Dashboard/SendEmailCon";
+import SendSmsCon from "../../Components/Dashboard/SendSmsCon";
+import CallCon from "../../Components/Dashboard/SendCallCon";
 
 const Leads = () => {
+  // State variables
   const [isPincodeDropdownOpen, setIsPincodeDropdownOpen] = useState(false);
   const [pincodeSearch, setPincodeSearch] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [recordsPerPage, setRecordsPerPage] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
-  const [userData, setUserData] = useState([]); // Initialize as an empty array
+  const [userData, setUserData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [selectedRows, setSelectedRows] = useState([]); // Track selected rows
-  const [selectAll, setSelectAll] = useState(false); // Track "Select All" state
+  const [selectedRows, setSelectedRows] = useState([]);
+  const [selectAll, setSelectAll] = useState(false);
   const [showWhatsAppSend, setShowWhatsAppSend] = useState(false);
-  const [showEmailSend, setShowEmailSend] = useState(false); // State for email modal
+  const [showEmailSend, setShowEmailSend] = useState(false);
+  const [showSmsSend, setShowSmsSend] = useState(false);
+  const [showCallCon, setShowCallCon] = useState(false);
 
   const dropdownRef = useRef(null);
 
   // Retrieve userID and AccessToken from localStorage
-  const userLocalData = JSON.parse(localStorage.getItem("userData"));
-  const accessToken = userLocalData ? userLocalData.access_token : null;
+  const userLocalData = JSON.parse(localStorage.getItem("userData")) || {};
+  const accessToken = userLocalData.access_token || null;
 
   // Fetch data from API
   useEffect(() => {
@@ -58,25 +63,20 @@ const Leads = () => {
           }
         );
 
-        console.log("Response status:", response.status); // Log the status code for debugging
-
-        // Handle non-OK responses
         if (!response.ok) {
           throw new Error("Failed to fetch data");
         }
 
         const data = await response.json();
-        console.log("API Response:", data);
 
-        // Check if the response contains a "message" indicating no leads were found
         if (data.message && data.message === "Leads not found") {
-          setUserData([]); // Set userData to an empty array
-          setError("Leads not found"); // Set a user-friendly error message
+          setUserData([]);
+          setError("Leads not found");
         } else if (data.Leads && Array.isArray(data.Leads)) {
-          setUserData(data.Leads); // Set the array of leads
-          setError(null); // Clear any previous error messages
+          setUserData(data.Leads);
+          setError(null);
         } else {
-          setUserData([]); // Fallback to an empty array
+          setUserData([]);
           setError("Invalid data format received from the server");
         }
 
@@ -89,7 +89,7 @@ const Leads = () => {
     };
 
     fetchData();
-  }, []);
+  }, [accessToken]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -111,10 +111,6 @@ const Leads = () => {
 
   // Handle bulk actions
   const handleBulkAction = (action) => {
-    console.log(
-      `Bulk ${action} action triggered for selected rows:`,
-      selectedRows
-    );
     if (selectedRows.length === 0) {
       alert("Select at least one lead");
       return;
@@ -125,7 +121,13 @@ const Leads = () => {
         setShowWhatsAppSend(true);
         break;
       case "email":
-        setShowEmailSend(true); // Show the email modal
+        setShowEmailSend(true);
+        break;
+      case "sms":
+        setShowSmsSend(true);
+        break;
+      case "phone":
+        setShowCallCon(true);
         break;
       default:
         console.log(`Bulk action "${action}" not implemented`);
@@ -134,6 +136,11 @@ const Leads = () => {
 
   // Handle delete
   const handleDelete = async (id) => {
+    if (!id) {
+      console.error("No ID provided for deletion");
+      return;
+    }
+
     try {
       const response = await fetch(
         "https://margda.in:7000/api/margda.org/delete-lead",
@@ -143,23 +150,19 @@ const Leads = () => {
             Authorization: `Bearer ${accessToken}`,
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ dataID: id }), // Send the dataID to delete
+          body: JSON.stringify({ dataID: id }),
         }
       );
-
-      console.log("Delete API Response status:", response.status);
 
       if (!response.ok) {
         throw new Error("Failed to delete lead");
       }
 
       const data = await response.json();
-      console.log("Delete API Response:", data);
 
       if (data.message === "Lead deleted successfully") {
-        // Remove the deleted lead from the UI
         setUserData((prev) => prev.filter((item) => item.dataID !== id));
-        setSelectedRows((prev) => prev.filter((rowId) => rowId !== id)); // Remove from selected rows if applicable
+        setSelectedRows((prev) => prev.filter((rowId) => rowId !== id));
       } else {
         throw new Error(data.message || "Failed to delete lead");
       }
@@ -171,7 +174,7 @@ const Leads = () => {
 
   // Handle row selection
   const handleRowSelect = (lead) => {
-    if (lead.mobile.includes("**")) {
+    if (!lead.mobile || lead.mobile.includes("**")) {
       return alert("You can't select this lead");
     }
     if (selectedRows.includes(lead)) {
@@ -186,7 +189,7 @@ const Leads = () => {
     if (selectAll) {
       setSelectedRows([]);
     } else {
-      setSelectedRows(currentRecords.map((item) => item));
+      setSelectedRows(filteredData.map((item) => item));
     }
     setSelectAll(!selectAll);
   };
@@ -223,6 +226,16 @@ const Leads = () => {
     }
   };
 
+  // Handle records per page change
+  const handleRecordsPerPageChange = (e) => {
+    const value = parseInt(e.target.value, 10);
+    if (isNaN(value) || value < 1) {
+      setRecordsPerPage(1);
+    } else {
+      setRecordsPerPage(value);
+    }
+  };
+
   if (loading) {
     return <div className="p-6 text-center">Loading...</div>;
   }
@@ -231,17 +244,9 @@ const Leads = () => {
     return <div className="p-6 text-center text-red-500">Error: {error}</div>;
   }
 
-  const handleRecordsPerPageChange = (e) => {
-    const value = parseInt(e.target.value, 10); // Parse the input value as an integer
-    if (value < 1) {
-      setRecordsPerPage(1); // Set to 1 if the value is less than 1
-    } else {
-      setRecordsPerPage(value); // Otherwise, set the value
-    }
-  };
-
   return (
     <div className="p-6 min-h-screen flex flex-col relative">
+      {/* Add Lead Button */}
       <div>
         <button className="flex items-center px-5 py-2 bg-blue-600 text-white rounded-full shadow hover:bg-blue-700 transition">
           <FaUserPlus className="mr-2" />
@@ -255,6 +260,7 @@ const Leads = () => {
           <button
             onClick={() => handleBulkAction("email")}
             className="flex items-center bg-gray-500 text-white px-4 py-2 rounded shadow hover:bg-gray-600"
+            aria-label="Send Email"
           >
             <FaEnvelope className="mr-2" />
             Email
@@ -263,6 +269,7 @@ const Leads = () => {
           <button
             onClick={() => handleBulkAction("whatsapp")}
             className="flex items-center bg-green-500 text-white px-4 py-2 rounded shadow hover:bg-green-600"
+            aria-label="Send WhatsApp"
           >
             <FaWhatsapp className="mr-2" />
             WhatsApp
@@ -271,6 +278,7 @@ const Leads = () => {
           <button
             onClick={() => handleBulkAction("meet")}
             className="flex items-center bg-purple-500 text-white px-4 py-2 rounded shadow hover:bg-purple-600"
+            aria-label="Schedule Meet"
           >
             <FaVideo className="mr-2" />
             Meet
@@ -279,6 +287,7 @@ const Leads = () => {
           <button
             onClick={() => handleBulkAction("sms")}
             className="flex items-center bg-orange-500 text-white px-4 py-2 rounded shadow hover:bg-orange-600"
+            aria-label="Send SMS"
           >
             <FaSms className="mr-2" />
             SMS
@@ -287,6 +296,7 @@ const Leads = () => {
           <button
             onClick={() => handleBulkAction("phone")}
             className="flex items-center bg-blue-500 text-white px-4 py-2 rounded shadow hover:bg-blue-600"
+            aria-label="Make Call"
           >
             <FaPhone className="mr-2" />
             Call
@@ -349,7 +359,7 @@ const Leads = () => {
               <option>Westminster</option>
             </select>
 
-            {/* New Pincode Dropdown */}
+            {/* Pincode Dropdown */}
             <div className="relative" ref={dropdownRef}>
               <button
                 onClick={() => setIsPincodeDropdownOpen(!isPincodeDropdownOpen)}
@@ -441,7 +451,7 @@ const Leads = () => {
           <tbody>
             {currentRecords.map((item, index) => (
               <tr
-                key={index}
+                key={item.dataID || item.userID || index}
                 className="border-b hover:bg-gray-50 transition-colors duration-200"
               >
                 <td className="px-6 py-4">
@@ -463,7 +473,7 @@ const Leads = () => {
                     <button
                       title="Delete"
                       className="p-2 bg-red-500 text-white rounded-full shadow hover:bg-red-600 transition"
-                      onClick={() => handleDelete(item.dataID || item.userID)} // Call handleDelete with dataID
+                      onClick={() => handleDelete(item.dataID || item.userID)}
                     >
                       <FaTrash />
                     </button>
@@ -626,6 +636,22 @@ const Leads = () => {
           setSelectedLeads={setSelectedRows}
           selectedLeads={selectedRows}
           setSendEmail={setShowEmailSend}
+        />
+      )}
+
+      {/* SMS Modal */}
+      {showSmsSend && (
+        <SendSmsCon
+          selectedLeads={selectedRows}
+          setSendSms={setShowSmsSend}
+        />
+      )}
+
+      {/* Call Modal */}
+      {showCallCon && (
+        <CallCon
+          selectedLeads={selectedRows}
+          setSendCall={setShowCallCon}
         />
       )}
 

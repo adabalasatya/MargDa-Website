@@ -18,6 +18,8 @@ import {
   FaSave,
   FaTimes,
 } from "react-icons/fa";
+import PhoneInput from 'react-phone-number-input';
+import 'react-phone-number-input/style.css'; // Import the styles
 
 const initialFormState = {
   name: "",
@@ -52,8 +54,6 @@ const Data = () => {
   const userData = JSON.parse(localStorage.getItem("userData"));
   const loginUserID = userData ? userData.user_data.userID : null;
   const accessToken = userData ? userData.access_token : null;
-
-  // console.log("Fetching data from API...", accessToken);
 
   // Fetch data from API
   const fetchData = async () => {
@@ -128,6 +128,13 @@ const Data = () => {
       ...prev,
       [name]: value,
       whatsapp: name === "phone" ? value : prev.whatsapp,
+    }));
+  };
+
+  const handlePhoneChange = (value, name) => {
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
     }));
   };
 
@@ -514,11 +521,11 @@ const Data = () => {
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">Phone</label>
-                  <input
-                    type="text"
-                    name="phone"
+                  <PhoneInput
+                    international
+                    defaultCountry="IN"
                     value={formData.phone}
-                    onChange={handleInputChange}
+                    onChange={(value) => handlePhoneChange(value, "phone")}
                     className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all placeholder-gray-400"
                     placeholder="Enter phone number"
                     required
@@ -526,11 +533,11 @@ const Data = () => {
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">WhatsApp Number</label>
-                  <input
-                    type="text"
-                    name="whatsapp"
+                  <PhoneInput
+                    international
+                    defaultCountry="IN"
                     value={formData.whatsapp}
-                    onChange={handleInputChange}
+                    onChange={(value) => handlePhoneChange(value, "whatsapp")}
                     className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all placeholder-gray-400"
                     placeholder="Enter WhatsApp number"
                     required

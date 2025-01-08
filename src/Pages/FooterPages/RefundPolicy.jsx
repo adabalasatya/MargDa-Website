@@ -37,7 +37,7 @@ const RefundPolicy = () => {
             In case of complaints regarding the products that come with a warranty from the manufacturers, please refer the issue to them.
           </p>
           <p className="text-gray-700 mb-4">
-            In case of any refunds approved by Margdarshak Media, it will take 15 days for the refund to be processed to you.
+            In case of any refunds approved by Margdarshak Media, it will take 15 days for the refund to be Credited to you.
           </p>
         </section>
 
@@ -67,9 +67,9 @@ const RefundPolicy = () => {
           <h3 className="text-2xl font-semibold mb-6 flex items-center">
             <FaTruck className="mr-2" /> Shipping Policy
           </h3>
-          <p className="text-gray-700 mb-4">
+          {/* <p className="text-gray-700 mb-4">
             The orders for the user are shipped through registered domestic courier companies and/or speed post only. Orders are shipped within one day from the date of the order and/or payment or as per the delivery date agreed at the time of order confirmation and delivering of the shipment, subject to courier company / post office norms. Platform Owner shall not be liable for any delay in delivery by the courier company / postal authority. Delivery of all orders will be made to the address provided by the buyer at the time of purchase. Delivery of our services will be confirmed on your email ID as specified at the time of registration. If there are any shipping cost(s) levied by the seller or the Platform Owner (as the case may be), the same is not refundable.
-          </p>
+          </p> */}
         </section>
       </main>
 
