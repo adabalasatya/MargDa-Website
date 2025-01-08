@@ -29,7 +29,10 @@ import EmailAuthPage from './Pages/ProfilePages/EmailPage';
 import DataSharePage from './Pages/ProfilePages/DataSharePage';
 import QrScanPage from "./Pages/ProfilePages/QrScanPage";
 
-
+//Template Section
+import Template from "./Pages/TemplatesPages/TemplateListPage";
+import AddTemplatePage from './Pages/TemplatesPages/AddTemplatePage';
+import AddFooterPage from './Pages/TemplatesPages/TemplateFooterPage';
 
 //Admin Section
 import AdminDataPage from './Pages/AdminPages/AdminDataPage';
@@ -45,7 +48,6 @@ import MyWorkTimelinePage from './Pages/ReportPages/WorkTimeLinePage';
 import ClientTimePage from './Pages/ReportPages/ClientTimelinePage'
 
 //OutsideSection
-import Template from "./Pages/OutSidebarPages/TemplatePage";
 import MasterData from "./Pages/OutSidebarPages/MasterDataPage";
 import SettingPage from './Pages/OutSidebarPages/SettingPage'
 import Logout from './Pages/OutSidebarPages/LogoutPage';
@@ -92,6 +94,11 @@ function App() {
 
         <Route path="/admin" element={<AdminDataPage />} />
         <Route path="/user" element={<AdminUserPage />} />
+
+        {/* Template Section */}
+        <Route path="/templates-list" element={<Template />} />
+        <Route path="/add-template" element={<AddTemplatePage />} />
+        <Route path="/add-footer" element={<AddFooterPage />} />
 
          
          {/* Report Section with drop-down menu */}

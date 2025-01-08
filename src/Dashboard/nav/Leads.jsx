@@ -20,6 +20,8 @@ import {
   FaDatabase,
   FaUserPlus,
 } from "react-icons/fa";
+import WhatsAppCon from "../../Components/Dashboard/SendWhatsappCon";
+import EmailCon from "../../Components/Dashboard/SendEmailCon"; // Import the EmailCon component
 
 const Leads = () => {
   const [isPincodeDropdownOpen, setIsPincodeDropdownOpen] = useState(false);
@@ -32,6 +34,8 @@ const Leads = () => {
   const [error, setError] = useState(null);
   const [selectedRows, setSelectedRows] = useState([]); // Track selected rows
   const [selectAll, setSelectAll] = useState(false); // Track "Select All" state
+  const [showWhatsAppSend, setShowWhatsAppSend] = useState(false);
+  const [showEmailSend, setShowEmailSend] = useState(false); // State for email modal
 
   const dropdownRef = useRef(null);
 
@@ -43,13 +47,16 @@ const Leads = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch("https://margda.in:7000/api/margda.org/get-leads", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-            "Content-Type": "application/json",
-          },
-        });
+        const response = await fetch(
+          "https://margda.in:7000/api/margda.org/get-leads",
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
 
         console.log("Response status:", response.status); // Log the status code for debugging
 
@@ -104,21 +111,41 @@ const Leads = () => {
 
   // Handle bulk actions
   const handleBulkAction = (action) => {
-    console.log(`Bulk ${action} action triggered for selected rows:`, selectedRows);
-    // Perform bulk action logic here
+    console.log(
+      `Bulk ${action} action triggered for selected rows:`,
+      selectedRows
+    );
+    if (selectedRows.length === 0) {
+      alert("Select at least one lead");
+      return;
+    }
+
+    switch (action) {
+      case "whatsapp":
+        setShowWhatsAppSend(true);
+        break;
+      case "email":
+        setShowEmailSend(true); // Show the email modal
+        break;
+      default:
+        console.log(`Bulk action "${action}" not implemented`);
+    }
   };
 
   // Handle delete
   const handleDelete = async (id) => {
     try {
-      const response = await fetch("https://margda.in:7000/api/margda.org/delete-lead", {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ dataID: id }), // Send the dataID to delete
-      });
+      const response = await fetch(
+        "https://margda.in:7000/api/margda.org/delete-lead",
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ dataID: id }), // Send the dataID to delete
+        }
+      );
 
       console.log("Delete API Response status:", response.status);
 
@@ -143,11 +170,14 @@ const Leads = () => {
   };
 
   // Handle row selection
-  const handleRowSelect = (id) => {
-    if (selectedRows.includes(id)) {
-      setSelectedRows(selectedRows.filter((rowId) => rowId !== id));
+  const handleRowSelect = (lead) => {
+    if (lead.mobile.includes("**")) {
+      return alert("You can't select this lead");
+    }
+    if (selectedRows.includes(lead)) {
+      setSelectedRows(selectedRows.filter((item) => item !== lead));
     } else {
-      setSelectedRows([...selectedRows, id]);
+      setSelectedRows([...selectedRows, lead]);
     }
   };
 
@@ -156,22 +186,27 @@ const Leads = () => {
     if (selectAll) {
       setSelectedRows([]);
     } else {
-      setSelectedRows(currentRecords.map((item) => item.dataID));
+      setSelectedRows(currentRecords.map((item) => item));
     }
     setSelectAll(!selectAll);
   };
 
   // Filter data based on search query
   const filteredData = userData.filter((item) =>
-    Object.values(item).some((value) =>
-      value && value.toString().toLowerCase().includes(searchQuery.toLowerCase())
+    Object.values(item).some(
+      (value) =>
+        value &&
+        value.toString().toLowerCase().includes(searchQuery.toLowerCase())
     )
   );
 
   // Pagination logic
   const indexOfLastRecord = currentPage * recordsPerPage;
   const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
-  const currentRecords = filteredData.slice(indexOfFirstRecord, indexOfLastRecord);
+  const currentRecords = filteredData.slice(
+    indexOfFirstRecord,
+    indexOfLastRecord
+  );
   const totalPages = Math.ceil(filteredData.length / recordsPerPage);
 
   // Handle next page
@@ -195,6 +230,15 @@ const Leads = () => {
   if (error) {
     return <div className="p-6 text-center text-red-500">Error: {error}</div>;
   }
+
+  const handleRecordsPerPageChange = (e) => {
+    const value = parseInt(e.target.value, 10); // Parse the input value as an integer
+    if (value < 1) {
+      setRecordsPerPage(1); // Set to 1 if the value is less than 1
+    } else {
+      setRecordsPerPage(value); // Otherwise, set the value
+    }
+  };
 
   return (
     <div className="p-6 min-h-screen flex flex-col relative">
@@ -259,7 +303,7 @@ const Leads = () => {
             <input
               type="number"
               value={recordsPerPage}
-              onChange={(e) => setRecordsPerPage(Number(e.target.value))}
+              onChange={handleRecordsPerPageChange}
               className="border border-gray-300 p-2 rounded w-20"
               min="1"
             />
@@ -403,8 +447,8 @@ const Leads = () => {
                 <td className="px-6 py-4">
                   <input
                     type="checkbox"
-                    checked={selectedRows.includes(item.dataID)}
-                    onChange={() => handleRowSelect(item.dataID)}
+                    checked={selectedRows.includes(item)}
+                    onChange={() => handleRowSelect(item)}
                     className="form-checkbox h-4 w-4 text-blue-600 rounded"
                   />
                 </td>
@@ -428,35 +472,51 @@ const Leads = () => {
                 <td className="px-6 py-4">
                   <div className="flex items-center space-x-4">
                     <div className="flex flex-col space-y-2">
-                      <p className="text-sm font-semibold text-gray-800">{item.name}</p>
+                      <p className="text-sm font-semibold text-gray-800">
+                        {item.name}
+                      </p>
                       <div className="flex flex-col space-y-1">
                         <div className="flex items-center space-x-2">
                           <FaEnvelope className="text-purple-500 w-4 h-4" />
-                          <span className="text-xs text-gray-600">{item.email}</span>
+                          <span className="text-xs text-gray-600">
+                            {item.email}
+                          </span>
                         </div>
                         <div className="flex items-center space-x-2">
                           <FaPhone className="text-green-500 w-4 h-4" />
-                          <span className="text-xs text-gray-600">{item.mobile}</span>
+                          <span className="text-xs text-gray-600">
+                            {item.mobile}
+                          </span>
                         </div>
                         <div className="flex items-center space-x-2">
                           <FaVenusMars className="text-pink-500 w-4 h-4" />
-                          <span className="text-xs text-gray-600">{item.gender}</span>
+                          <span className="text-xs text-gray-600">
+                            {item.gender}
+                          </span>
                         </div>
                         <div className="flex items-center space-x-2">
                           <FaWhatsapp className="text-green-600 w-4 h-4" />
-                          <span className="text-xs text-gray-600">{item.whatsapp}</span>
+                          <span className="text-xs text-gray-600">
+                            {item.whatsapp}
+                          </span>
                         </div>
                         <div className="flex items-center space-x-2">
                           <FaBirthdayCake className="text-yellow-500 w-4 h-4" />
-                          <span className="text-xs text-gray-600">{item.dob}</span>
+                          <span className="text-xs text-gray-600">
+                            {item.dob}
+                          </span>
                         </div>
                         <div className="flex items-center space-x-2">
                           <FaUserClock className="text-blue-400 w-4 h-4" />
-                          <span className="text-xs text-gray-600">Age: {item.age}</span>
+                          <span className="text-xs text-gray-600">
+                            Age: {item.age}
+                          </span>
                         </div>
                         <div className="flex items-center space-x-2">
                           <FaLanguage className="text-orange-500 w-4 h-4" />
-                          <span className="text-xs text-gray-600">{item.language}</span>
+                          <span className="text-xs text-gray-600">
+                            {item.language}
+                          </span>
                         </div>
                       </div>
                     </div>
@@ -475,11 +535,15 @@ const Leads = () => {
                     </div>
                     <div className="flex items-center space-x-2">
                       <FaMapMarkerAlt className="text-green-400 w-4 h-4" />
-                      <p className="text-xs text-black">Country: {item.country}</p>
+                      <p className="text-xs text-black">
+                        Country: {item.country}
+                      </p>
                     </div>
                     <div className="flex items-center space-x-2">
                       <FaMapMarkerAlt className="text-green-400 w-4 h-4" />
-                      <p className="text-xs text-black">Pincode: {item.pincode}</p>
+                      <p className="text-xs text-black">
+                        Pincode: {item.pincode}
+                      </p>
                     </div>
                   </div>
                 </td>
@@ -505,14 +569,18 @@ const Leads = () => {
       {/* Pagination Footer */}
       <div className="flex items-center justify-between mt-6">
         <div className="text-sm text-gray-600">
-          Showing {indexOfFirstRecord + 1} to {Math.min(indexOfLastRecord, filteredData.length)} of {filteredData.length} records
+          Showing {indexOfFirstRecord + 1} to{" "}
+          {Math.min(indexOfLastRecord, filteredData.length)} of{" "}
+          {filteredData.length} records
         </div>
         <div className="flex items-center space-x-2">
           <button
             onClick={handlePreviousPage}
             disabled={currentPage === 1}
             className={`px-4 py-2 bg-gray-200 text-gray-700 rounded ${
-              currentPage === 1 ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-300"
+              currentPage === 1
+                ? "opacity-50 cursor-not-allowed"
+                : "hover:bg-gray-300"
             }`}
           >
             {"<<"} Previous
@@ -534,13 +602,32 @@ const Leads = () => {
             onClick={handleNextPage}
             disabled={currentPage === totalPages}
             className={`px-4 py-2 bg-gray-200 text-gray-700 rounded ${
-              currentPage === totalPages ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-300"
+              currentPage === totalPages
+                ? "opacity-50 cursor-not-allowed"
+                : "hover:bg-gray-300"
             }`}
           >
             Next {">>"}
           </button>
         </div>
       </div>
+
+      {/* WhatsApp Modal */}
+      {showWhatsAppSend && (
+        <WhatsAppCon
+          selectedLeads={selectedRows}
+          setSendWhatsApp={setShowWhatsAppSend}
+        />
+      )}
+
+      {/* Email Modal */}
+      {showEmailSend && (
+        <EmailCon
+          setSelectedLeads={setSelectedRows}
+          selectedLeads={selectedRows}
+          setSendEmail={setShowEmailSend}
+        />
+      )}
 
       {/* Copyright Footer */}
       <div className="text-center text-sm text-gray-500 mt-8">

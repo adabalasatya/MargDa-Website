@@ -53,7 +53,7 @@ const Data = () => {
   const loginUserID = userData ? userData.user_data.userID : null;
   const accessToken = userData ? userData.access_token : null;
 
-  console.log("Fetching data from API...", accessToken);
+  // console.log("Fetching data from API...", accessToken);
 
   // Fetch data from API
   const fetchData = async () => {
@@ -78,6 +78,8 @@ const Data = () => {
       // Transform API data
       const transformedData = result.Data.map((item) => ({
         id: item.dataID || item.userID,
+        dataId: item.dataID,
+        userId: item.userID,
         name: item.name || "N/A",
         email: item.email || "N/A",
         phone: item.mobile || "N/A",
@@ -244,7 +246,7 @@ const Data = () => {
           Authorization: `Bearer ${accessToken}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ dataID: id, userID: loginUserID }), // Include the dataID and userID
+        body: JSON.stringify({ dataID: id }),
       });
 
       if (!response.ok) {
@@ -346,15 +348,25 @@ const Data = () => {
   
     try {
       // Convert the Set of selected row IDs to an array
-      const selectedIDs = Array.from(selectedRows).map(id => parseInt(id, 10));
+      const selectedIDs = Array.from(selectedRows);
       console.log("Selected IDs for shortlisting:", selectedIDs);
   
       // Loop through each ID and make an individual API call
       for (const id of selectedIDs) {
+        // Find the corresponding record in the dataDetails array
+        const record = dataDetails.find((item) => item.id === id);
+  
+        if (!record) {
+          console.error("Record not found for ID:", id);
+          continue; // Skip this iteration if the record is not found
+        }
+  
+        // Construct the payload with separate userId and dataId
         const payload = {
-          dataID: id,
-          userID: id
+          dataID: record.dataId, // Use the dataId from the record
+          userID: record.userId, // Use the userId from the record
         };
+  
         console.log("Request Payload for ID:", id, JSON.stringify(payload, null, 2));
   
         // Make the API call
@@ -429,6 +441,15 @@ const Data = () => {
   const handlePreviousPage = () => {
     if (currentPage > 1) {
       setCurrentPage(currentPage - 1);
+    }
+  };
+
+  const handleRecordsPerPageChange = (e) => {
+    const value = parseInt(e.target.value, 10); // Parse the input value as an integer
+    if (value < 1) {
+      setRecordsPerPage(1); // Set to 1 if the value is less than 1
+    } else {
+      setRecordsPerPage(value); // Otherwise, set the value
     }
   };
 
@@ -575,7 +596,7 @@ const Data = () => {
             <input
               type="number"
               value={recordsPerPage}
-              onChange={(e) => setRecordsPerPage(e.target.value)}
+              onChange={handleRecordsPerPageChange}
               className="border border-gray-300 p-2 rounded w-20"
               min="1"
             />
