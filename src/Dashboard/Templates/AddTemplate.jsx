@@ -73,6 +73,8 @@ const AddTemplate = () => {
     }
     const userID = localStorage.getItem("userID");
     let payload;
+    const userLocalData = JSON.parse(localStorage.getItem("userData"));
+    const accessToken = userLocalData ? userLocalData.access_token : null;
     if (templateType !== "E") {
       payload = {
         templateType,
@@ -97,6 +99,9 @@ const AddTemplate = () => {
       formData.append("files", headerFile);
       const upload = await fetch("https://margda.in:7000/api/upload_file", {
         method: "POST",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
         body: formData,
       });
       if (upload.ok) {
@@ -115,6 +120,9 @@ const AddTemplate = () => {
       });
       const upload = await fetch("https://margda.in:7000/api/upload_file", {
         method: "POST",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
         body: formData,
       });
       if (upload.ok) {
@@ -130,6 +138,7 @@ const AddTemplate = () => {
       const response = await fetch(apiUrl, {
         method: "POST",
         headers: {
+          Authorization: `Bearer ${accessToken}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify(payload),
@@ -169,7 +178,9 @@ const AddTemplate = () => {
 
   return (
     <div className="flex flex-col bg-gray-50  min-h-screen p-2">
-      <div className="text-3xl font-blod text-center  font-sans mb-6">Template</div>
+      <div className="text-3xl font-blod text-center  font-sans mb-6">
+        Template
+      </div>
       <div className="bg-white rounded-lg shadow-md p-6 w-full max-w-4xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="flex flex-col">
@@ -258,7 +269,9 @@ const AddTemplate = () => {
                   className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
                 />
                 {errors.templateId && (
-                  <p className="text-red-500 text-sm mt-1">{errors.templateId}</p>
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.templateId}
+                  </p>
                 )}
               </div>
             )}
@@ -305,6 +318,14 @@ const AddTemplate = () => {
             <label htmlFor="template-message" className="font-bold mb-2">
               Message
             </label>
+            <input
+              type="checkbox"
+              name="switch"
+              id="switch-html"
+              checked={isHtmlContent}
+              className="w-5 h-5 hidden"
+              onChange={handleHtmlChange}
+            />
             <div className="border border-gray-300 rounded-lg overflow-hidden">
               <Editor
                 editorState={editorState}
@@ -312,6 +333,7 @@ const AddTemplate = () => {
                 wrapperClassName="wrapperClassName"
                 editorClassName="editorClassName"
                 toolbarCustomButtons={[
+                  // eslint-disable-next-line react/jsx-key
                   <label
                     htmlFor="switch-html"
                     className={`text-base font-normal p-1 ${
@@ -392,9 +414,7 @@ const AddTemplate = () => {
                   : "Add another attachment"}
               </button>
             ) : (
-              <div className="text-red-500 mt-4">
-                You can add only 4 files
-              </div>
+              <div className="text-red-500 mt-4">You can add only 4 files</div>
             )}
           </div>
         )}
@@ -421,7 +441,7 @@ const AddTemplate = () => {
             Submit
           </button>
           <Link
-            to="/dashboard/templates-list"
+            to="/templates-list"
             className="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600"
           >
             Back

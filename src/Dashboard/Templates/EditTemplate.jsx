@@ -11,7 +11,7 @@ import { Link, useLocation } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
- const EditTemplate = () => {
+const EditTemplate = () => {
   const location = useLocation();
   const { tempID } = location.state || {};
   const [templateType, setTemplateType] = useState("");
@@ -122,6 +122,8 @@ import "react-toastify/dist/ReactToastify.css";
       return;
     }
     let payload;
+    const userLocalData = JSON.parse(localStorage.getItem("userData"));
+    const accessToken = userLocalData ? userLocalData.access_token : null;
     if (templateType !== "E") {
       payload = {
         tempID,
@@ -146,6 +148,9 @@ import "react-toastify/dist/ReactToastify.css";
       formData.append("files", headerFile);
       const upload = await fetch("https://margda.in:7000/api/upload_file", {
         method: "POST",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
         body: formData,
       });
       if (upload.ok) {
@@ -167,6 +172,9 @@ import "react-toastify/dist/ReactToastify.css";
       });
       const upload = await fetch("https://margda.in:7000/api/upload_file", {
         method: "POST",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
         body: formData,
       });
       if (upload.ok) {
@@ -564,4 +572,4 @@ import "react-toastify/dist/ReactToastify.css";
   );
 };
 
-export default EditTemplate
+export default EditTemplate;

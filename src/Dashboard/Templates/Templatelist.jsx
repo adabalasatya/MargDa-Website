@@ -21,9 +21,10 @@ const TemplatesList = () => {
   }, []);
 
   const fetchTemplates = async () => {
-    const userId = localStorage.getItem("userID");
-    setUserID(userId);
-    if (!userId) return setTemplates([]);
+    const userLocalData = JSON.parse(localStorage.getItem("userData"));
+    const accessToken = userLocalData ? userLocalData.access_token : null;
+    const userID = userLocalData.user_data.userID;
+    setUserID(userID);
 
     try {
       const response = await fetch(
@@ -31,9 +32,9 @@ const TemplatesList = () => {
         {
           method: "POST",
           headers: {
+            Authorization: `Bearer ${accessToken}`,
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ userID: userId }),
         }
       );
 
@@ -51,12 +52,15 @@ const TemplatesList = () => {
     if (!window.confirm("Are you sure you want to delete this template?")) {
       return;
     }
+    const userLocalData = JSON.parse(localStorage.getItem("userData"));
+    const accessToken = userLocalData ? userLocalData.access_token : null;
     try {
       const response = await fetch(
         "https://margda.in:7000/api/margda.org/templates/delete-template",
         {
           method: "delete",
           headers: {
+            Authorization: `Bearer ${accessToken}`,
             "Content-Type": "application/json",
           },
           body: JSON.stringify({ tempID }),
@@ -202,7 +206,8 @@ const TemplatesList = () => {
                 <div
                   className="w-full p-4 border border-gray-300 rounded-lg overflow-auto"
                   dangerouslySetInnerHTML={{
-                    __html: viewedTemplateData.matter || "Preview Will be Shown Here",
+                    __html:
+                      viewedTemplateData.matter || "Preview Will be Shown Here",
                   }}
                 />
               </div>
@@ -211,7 +216,9 @@ const TemplatesList = () => {
               viewedTemplateData.attach_url.length > 0 &&
               viewedTemplateData.attach_url.map((url, index) => (
                 <div key={index} className="mt-4">
-                  <label className="font-bold mb-2">{`Attachment ${index + 1}`}</label>
+                  <label className="font-bold mb-2">{`Attachment ${
+                    index + 1
+                  }`}</label>
                   <a
                     href={url}
                     target="_blank"
@@ -260,7 +267,9 @@ const TemplatesList = () => {
           </div>
         </div>
         {currentData.length === 0 ? (
-          <div className="text-center text-gray-600 py-20">No templates found</div>
+          <div className="text-center text-gray-600 py-20">
+            No templates found
+          </div>
         ) : (
           <div>
             <div className="overflow-x-auto">
@@ -278,12 +287,14 @@ const TemplatesList = () => {
                     <tr key={index} className="hover:bg-gray-100">
                       <td className="px-6 py-4">{template.temptype}</td>
                       <td className="px-6 py-4">{template.template}</td>
-                      <td className="px-6 py-4">{template.share ? "Y" : "N"}</td>
+                      <td className="px-6 py-4">
+                        {template.share ? "Y" : "N"}
+                      </td>
                       <td className="px-6 py-4 text-right">
                         <div className="flex justify-end space-x-4">
                           {template.euser == userID && (
                             <Link
-                              to="/dashboard/edit-template"
+                              to="/edit-template"
                               state={{ tempID: template.tempID }}
                             >
                               <FaEdit className="text-blue-500 hover:text-blue-700 cursor-pointer" />
@@ -291,7 +302,9 @@ const TemplatesList = () => {
                           )}
                           {template.euser == userID && (
                             <button
-                              onClick={() => handleDeleteTemplate(template.tempID)}
+                              onClick={() =>
+                                handleDeleteTemplate(template.tempID)
+                              }
                               className="text-red-500 hover:text-red-700 cursor-pointer"
                             >
                               <FaTrash />
@@ -318,7 +331,8 @@ const TemplatesList = () => {
                 Showing {(page - 1) * entriesToShow + 1} to{" "}
                 {Math.min(page * entriesToShow, filteredTemplates.length)} of{" "}
                 {filteredTemplates.length} entries
-                {showFilteredFrom && ` (filtered from ${templates.length} entries)`}
+                {showFilteredFrom &&
+                  ` (filtered from ${templates.length} entries)`}
               </div>
               <div className="flex space-x-2">
                 <button
@@ -333,7 +347,9 @@ const TemplatesList = () => {
                     key={index}
                     onClick={() => handlePageChange(index + 1)}
                     className={`px-4 py-2 border border-gray-300 rounded-lg ${
-                      page === index + 1 ? "bg-blue-500 text-white" : "hover:bg-gray-200"
+                      page === index + 1
+                        ? "bg-blue-500 text-white"
+                        : "hover:bg-gray-200"
                     }`}
                   >
                     {index + 1}
@@ -352,8 +368,8 @@ const TemplatesList = () => {
         )}
       </div>
       <div className="mt-6 text-center text-gray-600">
-        Copyright @ 2024 <span className="text-blue-500">Margdarshak</span>. All rights
-        reserved.
+        Copyright @ 2024 <span className="text-blue-500">Margdarshak</span>. All
+        rights reserved.
       </div>
       <ToastContainer
         position="top-center"

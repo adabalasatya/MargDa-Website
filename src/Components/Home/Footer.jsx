@@ -33,7 +33,7 @@ const Footer = () => {
             <ul className="text-gray-600 space-y-3">
               <li>
                 <Link
-                  to="/about-margdarshak"
+                  to=""
                   className="flex items-center hover:text-orange-500 transition transform hover:translate-x-2 duration-300"
                 >
                   <HiOutlineArrowNarrowRight className="mr-2" /> About Margdarshak
@@ -41,7 +41,7 @@ const Footer = () => {
               </li>
               <li>
                 <Link
-                  to="/management-team"
+                  to=""
                   className="flex items-center hover:text-orange-500 transition transform hover:translate-x-2 duration-300"
                 >
                   <HiOutlineArrowNarrowRight className="mr-2" /> Management Team
@@ -49,7 +49,7 @@ const Footer = () => {
               </li>
               <li>
                 <Link
-                  to="/advisors-and-associates"
+                  to=""
                   className="flex items-center hover:text-orange-500 transition transform hover:translate-x-2 duration-300"
                 >
                   <HiOutlineArrowNarrowRight className="mr-2" /> Advisors and Associates
@@ -57,7 +57,7 @@ const Footer = () => {
               </li>
               <li>
                 <Link
-                  to="/feedback-and-complaints"
+                  to=""
                   className="flex items-center hover:text-orange-500 transition transform hover:translate-x-2 duration-300"
                 >
                   <HiOutlineArrowNarrowRight className="mr-2" /> Feedback and Complaints
@@ -72,7 +72,7 @@ const Footer = () => {
             <ul className="text-gray-600 space-y-3">
               <li>
                 <Link
-                  to="/data-and-contacts"
+                  to=""
                   className="flex items-center hover:text-orange-500 transition transform hover:translate-x-2 duration-300"
                 >
                   <HiOutlineArrowNarrowRight className="mr-2" /> Data and Contacts
@@ -80,7 +80,7 @@ const Footer = () => {
               </li>
               <li>
                 <Link
-                  to="/unified-communication"
+                  to=""
                   className="flex items-center hover:text-orange-500 transition transform hover:translate-x-2 duration-300"
                 >
                   <HiOutlineArrowNarrowRight className="mr-2" /> Unified Communication
@@ -88,7 +88,7 @@ const Footer = () => {
               </li>
               <li>
                 <Link
-                  to="/career-counselling"
+                  to=""
                   className="flex items-center hover:text-orange-500 transition transform hover:translate-x-2 duration-300"
                 >
                   <HiOutlineArrowNarrowRight className="mr-2" /> Career Counselling
@@ -96,7 +96,7 @@ const Footer = () => {
               </li>
               <li>
                 <Link
-                  to="/recruitment-and-hr"
+                  to=""
                   className="flex items-center hover:text-orange-500 transition transform hover:translate-x-2 duration-300"
                 >
                   <HiOutlineArrowNarrowRight className="mr-2" /> Recruitment and HR
@@ -104,7 +104,7 @@ const Footer = () => {
               </li>
               <li>
                 <Link
-                  to="/marketing-and-sales"
+                  to=""
                   className="flex items-center hover:text-orange-500 transition transform hover:translate-x-2 duration-300"
                 >
                   <HiOutlineArrowNarrowRight className="mr-2" /> Marketing and Sales
@@ -119,7 +119,7 @@ const Footer = () => {
             <ul className="text-gray-600 space-y-3">
               <li>
                 <Link
-                  to="/business-proposal"
+                  to=""
                   className="flex items-center hover:text-orange-500 transition transform hover:translate-x-2 duration-300"
                 >
                   <HiOutlineArrowNarrowRight className="mr-2" /> Business Proposal
@@ -127,7 +127,7 @@ const Footer = () => {
               </li>
               <li>
                 <Link
-                  to="/knowledge-royalty"
+                  to=""
                   className="flex items-center hover:text-orange-500 transition transform hover:translate-x-2 duration-300"
                 >
                   <HiOutlineArrowNarrowRight className="mr-2" /> Knowledge Royalty
@@ -135,7 +135,7 @@ const Footer = () => {
               </li>
               <li>
                 <Link
-                  to="/career-counsellor"
+                  to=""
                   className="flex items-center hover:text-orange-500 transition transform hover:translate-x-2 duration-300"
                 >
                   <HiOutlineArrowNarrowRight className="mr-2" /> Career Counsellor
@@ -143,7 +143,7 @@ const Footer = () => {
               </li>
               <li>
                 <Link
-                  to="/hr-consultant"
+                  to=""
                   className="flex items-center hover:text-orange-500 transition transform hover:translate-x-2 duration-300"
                 >
                   <HiOutlineArrowNarrowRight className="mr-2" /> HR Consultant
@@ -151,7 +151,7 @@ const Footer = () => {
               </li>
               <li>
                 <Link
-                  to="/income-calculator"
+                  to=""
                   className="flex items-center hover:text-orange-500 transition transform hover:translate-x-2 duration-300"
                 >
                   <HiOutlineArrowNarrowRight className="mr-2" /> Income Calculator
@@ -211,8 +211,6 @@ const Footer = () => {
         {/* Social Media Icons */}
         <div className="mt-8 flex justify-center space-x-6">
           <a
-            href="https://facebook.com"
-            target="_blank"
             rel="noopener noreferrer"
             aria-label="Facebook"
             className="text-gray-600 hover:text-orange-500 transition transform hover:scale-110 duration-300"
@@ -220,8 +218,6 @@ const Footer = () => {
             <FaFacebookF className="w-6 h-6" />
           </a>
           <a
-            href="https://twitter.com"
-            target="_blank"
             rel="noopener noreferrer"
             aria-label="Twitter"
             className="text-gray-600 hover:text-orange-500 transition transform hover:scale-110 duration-300"
@@ -229,8 +225,6 @@ const Footer = () => {
             <FaTwitter className="w-6 h-6" />
           </a>
           <a
-            href="https://instagram.com"
-            target="_blank"
             rel="noopener noreferrer"
             aria-label="Instagram"
             className="text-gray-600 hover:text-orange-500 transition transform hover:scale-110 duration-300"
@@ -238,8 +232,7 @@ const Footer = () => {
             <FaInstagram className="w-6 h-6" />
           </a>
           <a
-            href="https://wa.me/918130960040"
-            target="_blank"
+            
             rel="noopener noreferrer"
             aria-label="WhatsApp"
             className="text-gray-600 hover:text-orange-500 transition transform hover:scale-110 duration-300"
@@ -247,8 +240,7 @@ const Footer = () => {
             <FaWhatsapp className="w-6 h-6" />
           </a>
           <a
-            href="mailto:mail@margda.com"
-            aria-label="Email"
+           
             className="text-gray-600 hover:text-orange-500 transition transform hover:scale-110 duration-300"
           >
             <AiOutlineMail className="w-6 h-6" />

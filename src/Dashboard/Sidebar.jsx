@@ -27,7 +27,8 @@ const Sidebar = ({ toggleSidebar }) => {
   });
 
   const [isAdminMenuOpen, setAdminMenuOpen] = useState(false);
-  const [isTemplateMenuOpen, setTemplateMenuOpen] = useState(false); // New state for Template menu
+  const [isTemplateMenuOpen, setTemplateMenuOpen] = useState(false);
+  const [isAdvisorsPanelMenuOpen, setAdvisorsPanelMenuOpen] = useState(false); // New state for Advisors Panel menu
 
   useEffect(() => {
     localStorage.setItem("reportMenuOpen", JSON.stringify(isReportMenuOpen));
@@ -38,7 +39,8 @@ const Sidebar = ({ toggleSidebar }) => {
       if (!e.target.closest("aside")) {
         setReportMenuOpen(false);
         setAdminMenuOpen(false);
-        setTemplateMenuOpen(false); // Close Template menu on outside click
+        setTemplateMenuOpen(false);
+        setAdvisorsPanelMenuOpen(false); // Close Advisors Panel menu on outside click
       }
     };
 
@@ -58,7 +60,12 @@ const Sidebar = ({ toggleSidebar }) => {
 
   const toggleTemplateMenu = (e) => {
     e.stopPropagation();
-    setTemplateMenuOpen(!isTemplateMenuOpen); // Toggle Template menu
+    setTemplateMenuOpen(!isTemplateMenuOpen);
+  };
+
+  const toggleAdvisorsPanelMenu = (e) => {
+    e.stopPropagation();
+    setAdvisorsPanelMenuOpen(!isAdvisorsPanelMenuOpen); // Toggle Advisors Panel menu
   };
 
   const handleLinkClick = () => {
@@ -114,6 +121,56 @@ const Sidebar = ({ toggleSidebar }) => {
                 {isOpen && <span className="ml-4">Workplace</span>}
               </Link>
             </div>
+
+           {/* Advisors Panel Card */}
+<div className="bg-white rounded-lg shadow-md">
+  <div
+    className={`p-4 flex items-center cursor-pointer ${
+      !isOpen ? "justify-center" : "justify-between"
+    }`}
+    onClick={toggleAdvisorsPanelMenu}
+  >
+    <div className="flex items-center space-x-2">
+      <span className="text-lg">👥</span>
+      {isOpen && <span className="font-semibold">Advisors Panel</span>}
+    </div>
+    {isOpen && (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        className={`w-5 h-5 transition-transform ${
+          isAdvisorsPanelMenuOpen ? "rotate-180" : ""
+        }`}
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+      >
+        <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+      </svg>
+    )}
+  </div>
+  {isAdvisorsPanelMenuOpen && (
+    <div className="border-t border-gray-100">
+      {[
+        { title: "Teleconsultant", icon: "📞", link: "/teleconsultant" },
+        { title: "Consultants, Counsellors and Advisors Panel", icon: "👥", link: "/consultants-panel" },
+        { title: "Online Payment Option", icon: "💳", link: "/online-payment" },
+        { title: "Recharge for Talk-time", icon: "⏳", link: "/recharge-talktime" }, 
+      ].map((item, index) => (
+        <Link
+          key={index}
+          to={item.link}
+          onClick={handleLinkClick}
+          className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg text-balck-600 hover:bg-orange-500 ${
+            !isOpen ? "justify-center" : ""
+          }`}
+        >
+          <span className="text-lg">{item.icon}</span>
+          {isOpen && <span className="ml-2">{item.title}</span>}
+        </Link>
+      ))}
+    </div>
+  )}
+</div>
 
             {/* Stats Card */}
             {isOpen && (
