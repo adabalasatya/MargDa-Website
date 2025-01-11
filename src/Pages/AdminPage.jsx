@@ -1,15 +1,13 @@
-import React from 'react'
+import React from "react";
 
-import AdminDataPage from './AdminPages/AdminDataPage'
-import AdminUserPage  from './AdminPages/AdminUserPage'
+import AdminDataPage from "./AdminPages/AdminDataPage";
 
 const AdminPage = () => {
   return (
     <div>
-      <AdminDataPage/>
-      <AdminUserPage/>
+      <AdminDataPage />
     </div>
-  )
-}
+  );
+};
 
-export default AdminPage
+export default AdminPage;

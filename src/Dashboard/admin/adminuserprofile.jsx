@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { FaQrcode, FaSignOutAlt,FaCode } from "react-icons/fa";
+import { FaQrcode, FaSignOutAlt, FaCode } from "react-icons/fa"; // Import FaCode for DSC
 
 const UserProfile = () => {
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
@@ -99,7 +99,8 @@ const UserProfile = () => {
               <span className="w-5 h-5 mr-2 flex items-center justify-center">🔑</span>
               <span>Credential</span>
             </Link>
-            <Link
+             {/* New DSC Link */}
+             <Link
               to="/dsc"
               className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors duration-300"
             >
@@ -127,6 +128,7 @@ const UserProfile = () => {
               <FaQrcode className="w-5 h-5 mr-2 text-gray-700" />
               <span>WhatsApp Scan</span>
             </Link>
+           
             {/* Logout Button */}
             <button
               onClick={handleLogout}

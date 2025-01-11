@@ -14,15 +14,12 @@ import {
   FaTasks,
 } from "react-icons/fa";
 import { useMediaQuery } from "react-responsive";
-import Logo from "../assets/margdarshakendra-logo.webp";
+import Logo from "../../assets/margdarshakendra-logo.webp";
 
-const Sidebar = ({ toggleSidebar }) => {
+const AdminSidebar = ({ toggleSidebar }) => {
   const location = useLocation();
   const isMobile = useMediaQuery({ query: "(max-width: 768px)" });
   const [isOpen, setIsOpen] = useState(!isMobile);
-  const [wallet, setWallet] = useState("");
-  const localUserData = JSON.parse(localStorage.getItem("userData"));
-  const accessToken = localUserData ? localUserData.access_token : null;
 
   const [isReportMenuOpen, setReportMenuOpen] = useState(() => {
     const saved = localStorage.getItem("reportMenuOpen");
@@ -36,41 +33,6 @@ const Sidebar = ({ toggleSidebar }) => {
   useEffect(() => {
     localStorage.setItem("reportMenuOpen", JSON.stringify(isReportMenuOpen));
   }, [isReportMenuOpen]);
-
-  useEffect(() => {
-    fetch_wallet_info();
-  }, []);
-
-  const fetch_wallet_info = async () => {
-    try {
-      const response = await fetch(
-        "https://margda.in:7000/api/user_account/wallet",
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        }
-      );
-
-      if (!response.ok) {
-        if (response.status === 404) {
-          setWallet("0.00");
-        }
-      }
-
-      const result = await response.json();
-      console.log("Recharge API Response:", result);
-
-      if (result.success) {
-        setWallet(result.Data.balance / 100);
-      } else {
-        throw new Error("Invalid data format received from the API");
-      }
-    } catch (error) {
-      console.error("Error fetching wallet info:", error);
-    }
-  };
 
   useEffect(() => {
     const handleOutsideClick = (e) => {
@@ -155,7 +117,7 @@ const Sidebar = ({ toggleSidebar }) => {
             {/* Dashboard Button */}
             <div className="bg-white rounded-lg shadow-md">
               <Link
-                to="/data"
+                to="/admin"
                 onClick={handleLinkClick}
                 className={`flex items-center px-4 py-3 text-lg font-medium rounded-lg text-black-700 hover:bg-orange-500 ${
                   !isOpen ? "justify-center" : ""
@@ -251,7 +213,7 @@ const Sidebar = ({ toggleSidebar }) => {
                 </div>
                 <div className="flex items-center space-x-2">
                   <span className="text-lg">💰</span>
-                  <span className="font-semibold">Wallet: ₹{wallet}</span>
+                  <span className="font-semibold">Wallet: ₹0.00</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <span className="text-lg">📊</span>
@@ -436,4 +398,4 @@ const Sidebar = ({ toggleSidebar }) => {
   );
 };
 
-export default Sidebar;
+export default AdminSidebar;

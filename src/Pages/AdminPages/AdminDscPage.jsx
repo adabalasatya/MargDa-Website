@@ -3,9 +3,9 @@ import { Outlet } from "react-router-dom";
 
 import AdminNavbar from "../../Dashboard/admin/adminnavbar";
 import AdminSidebar from '../../Dashboard/admin/adminsidebar'
-import Admindata from "../../Dashboard/admin/admindata"
+import AdminDsc from '../../Dashboard/admin/dsc'
 
-const AdmindataPage = () => {
+const AdminDscPage = () => {
   const [isOpen, setIsOpen] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
 
@@ -31,7 +31,7 @@ const AdmindataPage = () => {
       <AdminSidebar isOpen={isOpen} toggleSidebar={toggleSidebar} isMobile={isMobile} />
       <div className="flex flex-col flex-1">
         <AdminNavbar/>
-       <Admindata/>
+       <AdminDsc/>
         <div className="flex-grow p-4 overflow-auto">
           <Outlet />
         </div>
@@ -40,4 +40,4 @@ const AdmindataPage = () => {
   );
 };
 
-export default AdmindataPage;
+export default AdminDscPage;

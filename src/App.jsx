@@ -17,6 +17,7 @@ import AdminPage from "./Pages/AdminPage";
 //Nav-Data-Leads
 import LeadPage from "./Pages/NavPages/LeadPage";
 import DataPage from "./Pages/NavPages/DataPage";
+import AllUsersPage from "./Pages/NavPages/AllUsersPage";
 import PaymentPage from "./Pages/NavPages/PaymentPage";
 import TeamSupportPage from "./Pages/NavPages/TeamSupportPage";
 import SupportTicketPage from "./Pages/NavPages/SupportTicketPage";
@@ -24,6 +25,7 @@ import SupportTicketPage from "./Pages/NavPages/SupportTicketPage";
 //ProfileSection
 import ProfilePage from "./Pages/ProfilePages/ProfilePage";
 import CredentialPage from "./Pages/ProfilePages/CredentialPage";
+import DscPage from "./Pages/ProfilePages/DscPage";
 import EmailAuthPage from "./Pages/ProfilePages/EmailPage";
 import DataSharePage from "./Pages/ProfilePages/DataSharePage";
 import QrScanPage from "./Pages/ProfilePages/QrScanPage";
@@ -79,6 +81,7 @@ function App() {
           {/* Nav - Data, Leads */}
           <Route path="/lead" element={<LeadPage />} />
           <Route path="/data" element={<DataPage />} />
+          <Route path="/allusers" element={<AllUsersPage />} />
           <Route path="/payment" element={<PaymentPage />} />
           <Route path="/team-support" element={<TeamSupportPage />} />
           <Route path="/support-ticket" element={<SupportTicketPage />} />
@@ -86,12 +89,14 @@ function App() {
           {/* Profile Section with drop-down menu */}
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/credential" element={<CredentialPage />} />
+          <Route path="/dsc" element={<DscPage />} />
           <Route path="/email-auth" element={<EmailAuthPage />} />
           <Route path="/data-share" element={<DataSharePage />} />
           <Route path="/qr-scan" element={<QrScanPage />} />
 
           <Route path="/admin" element={<AdminDataPage />} />
           <Route path="/user" element={<AdminUserPage />} />
+          
 
           {/* AdvisorsPanel Section with drop-down menu */}
           <Route path="/teleconsultant" element={<TeleconsultantPage />} />

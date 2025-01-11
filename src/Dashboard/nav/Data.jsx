@@ -18,8 +18,8 @@ import {
   FaSave,
   FaTimes,
 } from "react-icons/fa";
-import PhoneInput from 'react-phone-number-input';
-import 'react-phone-number-input/style.css'; // Import the styles
+import PhoneInput from "react-phone-number-input";
+import "react-phone-number-input/style.css"; // Import the styles
 
 const initialFormState = {
   name: "",
@@ -60,13 +60,16 @@ const Data = () => {
     try {
       console.log("Fetching data from API...");
 
-      const response = await fetch("https://margda.in:7000/api/margda.org/get-all-data", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await fetch(
+        "https://margda.in:7000/api/margda.org/get-all-data",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
@@ -83,7 +86,12 @@ const Data = () => {
         name: item.name || "N/A",
         email: item.email || "N/A",
         phone: item.mobile || "N/A",
-        gender: item.gender === "M" ? "Male" : item.gender === "F" ? "Female" : "Other",
+        gender:
+          item.gender === "M"
+            ? "Male"
+            : item.gender === "F"
+            ? "Female"
+            : "Other",
         whatsapp: item.whatsapp || item.mobile || "N/A",
         location: {
           city: item.address || "N/A",
@@ -91,7 +99,9 @@ const Data = () => {
           country: "N/A",
           pincode: item.pincode || "N/A",
         },
-        log: `Logged in: ${new Date(item.edate || Date.now()).toLocaleString()}`,
+        log: `Logged in: ${new Date(
+          item.edate || Date.now()
+        ).toLocaleString()}`,
         remarks: item.remarks || "No remarks",
         euser: item.euser || null, // Include the euser field
         isShortlisted: item.isShortlisted || false, // Add shortlisted status
@@ -146,7 +156,12 @@ const Data = () => {
       name: formData.name,
       email: formData.email,
       mobile: formData.phone,
-      gender: formData.gender === "Male" ? "M" : formData.gender === "Female" ? "F" : "O",
+      gender:
+        formData.gender === "Male"
+          ? "M"
+          : formData.gender === "Female"
+          ? "F"
+          : "O",
       whatsapp: formData.whatsapp,
       remarks: formData.remarks,
       userID: loginUserID, // Use the logged-in user's ID
@@ -162,6 +177,9 @@ const Data = () => {
       });
 
       if (!response.ok) {
+        if (response.status === 409) {
+          return alert("Email alert present");
+        }
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
 
@@ -194,27 +212,37 @@ const Data = () => {
         name: editingData.name || recordToUpdate.name,
         email: editingData.email || recordToUpdate.email,
         mobile: editingData.phone || recordToUpdate.phone,
-        gender: editingData.gender === "Male" ? "M" : editingData.gender === "Female" ? "F" : "O",
+        gender:
+          editingData.gender === "Male"
+            ? "M"
+            : editingData.gender === "Female"
+            ? "F"
+            : "O",
         whatsapp: editingData.whatsapp || recordToUpdate.whatsapp,
         remarks: editingData.remarks || recordToUpdate.remarks,
         userID: loginUserID, // Use the logged-in user's ID
       };
 
-      const response = await fetch("https://margda.in:7000/api/margda.org/edit-data", {
-        method: "PUT",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(updatedData),
-      });
+      const response = await fetch(
+        "https://margda.in:7000/api/margda.org/edit-data",
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(updatedData),
+        }
+      );
 
       if (!response.ok) {
         if (response.status === 404) {
           console.warn("API endpoint not found. Saving changes locally.");
           // Fallback: Update local state without API call
           setDataDetails((prev) =>
-            prev.map((item) => (item.id === id ? { ...item, ...editingData } : item))
+            prev.map((item) =>
+              item.id === id ? { ...item, ...editingData } : item
+            )
           );
           setEditingId(null);
           setEditingData({});
@@ -230,7 +258,9 @@ const Data = () => {
 
       // Update local state
       setDataDetails((prev) =>
-        prev.map((item) => (item.id === id ? { ...item, ...editingData } : item))
+        prev.map((item) =>
+          item.id === id ? { ...item, ...editingData } : item
+        )
       );
 
       // Reset editing state
@@ -247,14 +277,17 @@ const Data = () => {
   // Delete record
   const handleDelete = async (id) => {
     try {
-      const response = await fetch(`https://margda.in:7000/api/margda.org/delete-data`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ dataID: id }),
-      });
+      const response = await fetch(
+        `https://margda.in:7000/api/margda.org/delete-data`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ dataID: id }),
+        }
+      );
 
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
@@ -349,58 +382,65 @@ const Data = () => {
       setError("Please select at least one record to shortlist.");
       return;
     }
-  
+
     setIsLoading(true);
     setError(null);
-  
+
     try {
       // Convert the Set of selected row IDs to an array
       const selectedIDs = Array.from(selectedRows);
       console.log("Selected IDs for shortlisting:", selectedIDs);
-  
+
       // Loop through each ID and make an individual API call
       for (const id of selectedIDs) {
         // Find the corresponding record in the dataDetails array
         const record = dataDetails.find((item) => item.id === id);
-  
+
         if (!record) {
           console.error("Record not found for ID:", id);
           continue; // Skip this iteration if the record is not found
         }
-  
+
         // Construct the payload with separate userId and dataId
         const payload = {
           dataID: record.dataId, // Use the dataId from the record
           userID: record.userId, // Use the userId from the record
         };
-  
-        console.log("Request Payload for ID:", id, JSON.stringify(payload, null, 2));
-  
+
+        console.log(
+          "Request Payload for ID:",
+          id,
+          JSON.stringify(payload, null, 2)
+        );
+
         // Make the API call
         console.log("Making API call to shortlist record with ID:", id);
-        const response = await fetch("https://margda.in:7000/api/margda.org/shortlist", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(payload),
-        });
-  
+        const response = await fetch(
+          "https://margda.in:7000/api/margda.org/shortlist",
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(payload),
+          }
+        );
+
         // Log the response status
         console.log("API Response Status for ID:", id, response.status);
-  
+
         if (!response.ok) {
           // Log the error details
           const errorResponse = await response.json().catch(() => null);
           console.error("API Error Response for ID:", id, errorResponse);
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
-  
+
         // Log the successful response
         const result = await response.json();
         console.log("API Response Data for ID:", id, result);
-  
+
         // Update local state to reflect the shortlisted status for this ID
         setDataDetails((prev) =>
           prev.map((item) =>
@@ -408,11 +448,11 @@ const Data = () => {
           )
         );
       }
-  
+
       // Clear the selected rows after shortlisting
       console.log("Clearing selected rows...");
       setSelectedRows(new Set());
-  
+
       // Log success message
       console.log("Records shortlisted successfully!");
       setError("Records shortlisted successfully!");
@@ -436,7 +476,10 @@ const Data = () => {
 
   const indexOfLastRecord = currentPage * recordsPerPage;
   const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
-  const currentRecords = filteredData.slice(indexOfFirstRecord, indexOfLastRecord);
+  const currentRecords = filteredData.slice(
+    indexOfFirstRecord,
+    indexOfLastRecord
+  );
   const totalPages = Math.ceil(filteredData.length / recordsPerPage);
 
   const handleNextPage = () => {
@@ -504,11 +547,15 @@ const Data = () => {
       {isAddFormOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-75 z-50">
           <div className="bg-white p-8 rounded-3xl shadow-2xl w-11/12 max-w-4xl">
-            <h3 className="text-3xl font-extrabold mb-8 text-gray-900 text-center">Add New Record</h3>
+            <h3 className="text-3xl font-extrabold mb-8 text-gray-900 text-center">
+              Add New Record
+            </h3>
             <form onSubmit={handleSubmit} className="space-y-8">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Name</label>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Name
+                  </label>
                   <input
                     type="text"
                     name="name"
@@ -520,7 +567,9 @@ const Data = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Phone</label>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Phone
+                  </label>
                   <PhoneInput
                     international
                     defaultCountry="IN"
@@ -532,7 +581,9 @@ const Data = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">WhatsApp Number</label>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    WhatsApp Number
+                  </label>
                   <PhoneInput
                     international
                     defaultCountry="IN"
@@ -546,7 +597,9 @@ const Data = () => {
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Email</label>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Email
+                  </label>
                   <input
                     type="email"
                     name="email"
@@ -558,7 +611,9 @@ const Data = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Gender</label>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Gender
+                  </label>
                   <select
                     name="gender"
                     value={formData.gender}
@@ -700,7 +755,9 @@ const Data = () => {
                       onChange={toggleSelectAll}
                       className="form-checkbox h-4 w-4 text-blue-600 rounded"
                     />
-                    <span className="text-sm md:text-sm whitespace-nowrap">Select All</span>
+                    <span className="text-sm md:text-sm whitespace-nowrap">
+                      Select All
+                    </span>
                   </div>
                 </th>
                 <th className="px-4 py-3">
@@ -757,7 +814,11 @@ const Data = () => {
                               onClick={() => handleSave(item.id)}
                               disabled={saveLoading}
                             >
-                              {saveLoading ? "Saving..." : <FaSave className="w-4 h-4" />}
+                              {saveLoading ? (
+                                "Saving..."
+                              ) : (
+                                <FaSave className="w-4 h-4" />
+                              )}
                             </button>
                             <button
                               title="Cancel"
@@ -786,7 +847,9 @@ const Data = () => {
                           </>
                         )
                       ) : (
-                        <span className="text-gray-400">No actions available</span>
+                        <span className="text-gray-400">
+                          No actions available
+                        </span>
                       )}
                     </div>
                   </td>
@@ -802,7 +865,9 @@ const Data = () => {
                             className="border border-gray-300 p-1 rounded"
                           />
                         ) : (
-                          <span className="font-medium text-black">{item.name || "N/A"}</span>
+                          <span className="font-medium text-black">
+                            {item.name || "N/A"}
+                          </span>
                         )}
                       </div>
                       <div className="flex items-center space-x-2">
@@ -815,7 +880,9 @@ const Data = () => {
                             className="border border-gray-300 p-1 rounded"
                           />
                         ) : (
-                          <span className="text-black">{item.email || "N/A"}</span>
+                          <span className="text-black">
+                            {item.email || "N/A"}
+                          </span>
                         )}
                       </div>
                       <div className="flex items-center space-x-2">
@@ -828,7 +895,9 @@ const Data = () => {
                             className="border border-gray-300 p-1 rounded"
                           />
                         ) : (
-                          <span className="text-black">{item.phone || "N/A"}</span>
+                          <span className="text-black">
+                            {item.phone || "N/A"}
+                          </span>
                         )}
                       </div>
                       <div className="flex items-center space-x-2">
@@ -837,11 +906,15 @@ const Data = () => {
                           <input
                             type="text"
                             value={editingData.whatsapp || ""}
-                            onChange={(e) => handleEditInputChange(e, "whatsapp")}
+                            onChange={(e) =>
+                              handleEditInputChange(e, "whatsapp")
+                            }
                             className="border border-gray-300 p-1 rounded"
                           />
                         ) : (
-                          <span className="text-black">{item.whatsapp || "N/A"}</span>
+                          <span className="text-black">
+                            {item.whatsapp || "N/A"}
+                          </span>
                         )}
                       </div>
                       <div className="flex items-center space-x-2">
@@ -857,7 +930,9 @@ const Data = () => {
                             <option value="Other">Other</option>
                           </select>
                         ) : (
-                          <span className="text-black">{item.gender || "N/A"}</span>
+                          <span className="text-black">
+                            {item.gender || "N/A"}
+                          </span>
                         )}
                       </div>
                     </div>
@@ -866,19 +941,27 @@ const Data = () => {
                     <div className="flex flex-col space-y-1">
                       <div className="flex items-center space-x-2">
                         <FaMapMarkerAlt className="text-green-400 w-4 h-4" />
-                        <p className="text-xs text-black">City: {item.location.city || "N/A"}</p>
+                        <p className="text-xs text-black">
+                          City: {item.location.city || "N/A"}
+                        </p>
                       </div>
                       <div className="flex items-center space-x-2">
                         <FaMapMarkerAlt className="text-green-400 w-4 h-4" />
-                        <p className="text-xs text-black">State: {item.location.state || "N/A"}</p>
+                        <p className="text-xs text-black">
+                          State: {item.location.state || "N/A"}
+                        </p>
                       </div>
                       <div className="flex items-center space-x-2">
                         <FaMapMarkerAlt className="text-green-400 w-4 h-4" />
-                        <p className="text-xs text-black">Country: {item.location.country || "N/A"}</p>
+                        <p className="text-xs text-black">
+                          Country: {item.location.country || "N/A"}
+                        </p>
                       </div>
                       <div className="flex items-center space-x-2">
                         <FaMapMarkerAlt className="text-green-400 w-4 h-4" />
-                        <p className="text-xs text-black">Pincode: {item.location.pincode || "N/A"}</p>
+                        <p className="text-xs text-black">
+                          Pincode: {item.location.pincode || "N/A"}
+                        </p>
                       </div>
                     </div>
                   </td>
@@ -894,11 +977,15 @@ const Data = () => {
                           <input
                             type="text"
                             value={editingData.remarks || ""}
-                            onChange={(e) => handleEditInputChange(e, "remarks")}
+                            onChange={(e) =>
+                              handleEditInputChange(e, "remarks")
+                            }
                             className="border border-gray-300 p-1 rounded"
                           />
                         ) : (
-                          <span className="text-black">{item.remarks || "No remarks"}</span>
+                          <span className="text-black">
+                            {item.remarks || "No remarks"}
+                          </span>
                         )}
                       </div>
                     </div>
@@ -913,14 +1000,18 @@ const Data = () => {
       {/* Pagination Footer */}
       <div className="flex items-center justify-between mt-6">
         <div className="text-sm text-gray-600">
-          Showing {indexOfFirstRecord + 1} to {Math.min(indexOfLastRecord, filteredData.length)} of {filteredData.length} records
+          Showing {indexOfFirstRecord + 1} to{" "}
+          {Math.min(indexOfLastRecord, filteredData.length)} of{" "}
+          {filteredData.length} records
         </div>
         <div className="flex items-center space-x-2">
           <button
             onClick={handlePreviousPage}
             disabled={currentPage === 1}
             className={`px-4 py-2 bg-gray-200 text-gray-700 rounded ${
-              currentPage === 1 ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-300"
+              currentPage === 1
+                ? "opacity-50 cursor-not-allowed"
+                : "hover:bg-gray-300"
             }`}
           >
             {"<<"} Previous
@@ -942,7 +1033,9 @@ const Data = () => {
             onClick={handleNextPage}
             disabled={currentPage === totalPages}
             className={`px-4 py-2 bg-gray-200 text-gray-700 rounded ${
-              currentPage === totalPages ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-300"
+              currentPage === totalPages
+                ? "opacity-50 cursor-not-allowed"
+                : "hover:bg-gray-300"
             }`}
           >
             Next {">>"}

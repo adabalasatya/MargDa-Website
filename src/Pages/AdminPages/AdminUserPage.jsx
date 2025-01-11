@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { Outlet } from "react-router-dom";
 
-import Sidebar from "../../Dashboard/Sidebar";
+import AdminNavbar from "../../Dashboard/admin/adminnavbar";
+import AdminSidebar from '../../Dashboard/admin/adminsidebar'
 import Adminuser from "../../Dashboard/admin/adminuser"
 
-const ProfilePage = () => {
+const AdminUserPage = () => {
   const [isOpen, setIsOpen] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
 
@@ -27,9 +28,9 @@ const ProfilePage = () => {
 
   return (
     <div className="flex h-screen ">
-      <Sidebar isOpen={isOpen} toggleSidebar={toggleSidebar} isMobile={isMobile} />
+      <AdminSidebar isOpen={isOpen} toggleSidebar={toggleSidebar} isMobile={isMobile} />
       <div className="flex flex-col flex-1">
-        
+        <AdminNavbar/>
        <Adminuser/>
         <div className="flex-grow p-4 overflow-auto">
           <Outlet />
@@ -39,4 +40,4 @@ const ProfilePage = () => {
   );
 };
 
-export default ProfilePage;
+export default AdminUserPage;

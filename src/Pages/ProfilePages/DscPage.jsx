@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { Outlet } from "react-router-dom";
+import Navbar from "../../Dashboard/Navbar";
+import Sidebar from "../../Dashboard/Sidebar";
+import Dsc from "../../Dashboard/profile/dsc";
 
-import AdminNavbar from "../../Dashboard/admin/adminnavbar";
-import AdminSidebar from '../../Dashboard/admin/adminsidebar'
-import Admindata from "../../Dashboard/admin/admindata"
-
-const AdmindataPage = () => {
+const DscPage = () => {
   const [isOpen, setIsOpen] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
 
@@ -28,10 +27,10 @@ const AdmindataPage = () => {
 
   return (
     <div className="flex h-screen ">
-      <AdminSidebar isOpen={isOpen} toggleSidebar={toggleSidebar} isMobile={isMobile} />
+      <Sidebar isOpen={isOpen} toggleSidebar={toggleSidebar} isMobile={isMobile} />
       <div className="flex flex-col flex-1">
-        <AdminNavbar/>
-       <Admindata/>
+        <Navbar />
+        <Dsc />
         <div className="flex-grow p-4 overflow-auto">
           <Outlet />
         </div>
@@ -40,4 +39,4 @@ const AdmindataPage = () => {
   );
 };
 
-export default AdmindataPage;
+export default DscPage;

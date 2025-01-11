@@ -10,12 +10,18 @@ import {
   FaMoneyBillWave,
   FaStar,
 } from "react-icons/fa";
+import { IoTimeOutline } from "react-icons/io5";
 import Logo from "../../assets/m.jpeg";
+import { toast, ToastContainer } from "react-toastify";
+import { LuLanguages } from "react-icons/lu";
 
 const CounsellorsAP = () => {
   const [sortOption, setSortOption] = useState(null);
   const [showSortPopup, setShowSortPopup] = useState(false);
   const [consultants, setConsultants] = useState([]);
+  const [services, setServices] = useState([]);
+  const [languages, setLanguages] = useState([]);
+  const [recharge, setRecharge] = useState("");
 
   const localUserData = JSON.parse(localStorage.getItem("userData"));
   const accessToken = localUserData ? localUserData.access_token : null;
@@ -27,7 +33,10 @@ const CounsellorsAP = () => {
   };
 
   useEffect(() => {
+    fetchServices();
     fetchAdvisors();
+    fetchLanguages();
+    fetchRecharge();
   }, []);
 
   const fetchAdvisors = async () => {
@@ -93,100 +102,99 @@ const CounsellorsAP = () => {
     },
   ];
 
-  // Example data for counsellors
-  // const counsellors = [
-  //   {
-  //     name: 'Aumodaya',
-  //     expertise: 'Vedic, Prashana, Palmistry',
-  //     languages: 'English, Hindi',
-  //     experience: '4 Years',
-  //     orders: '1000 orders',
-  //     responseTime: '18min',
-  //     rating: '★★★★★',
-  //     image: '', // Placeholder image URL
-  //   },
-  //   {
-  //     name: 'Maaran',
-  //     expertise: 'Vedic, Numerology',
-  //     languages: 'English, Hindi, Tamil',
-  //     experience: '3 Years',
-  //     orders: '5218 orders',
-  //     responseTime: '18min',
-  //     rating: '★★★★★',
-  //     image: '', // Placeholder image URL
-  //   },
-  //   {
-  //     name: 'Yugandina',
-  //     expertise: 'Numerology, Tarot, Palmistry',
-  //     languages: 'English, Hindi, Marathi',
-  //     experience: '3 Years',
-  //     orders: '714 orders',
-  //     responseTime: '18min',
-  //     rating: '★★★★★',
-  //     image: '', // No image provided
-  //   },
-  //   {
-  //     name: 'Jhanvi',
-  //     expertise: 'Numerology, Tarot',
-  //     languages: 'English, Hindi',
-  //     experience: '5 Years',
-  //     orders: '582 orders',
-  //     responseTime: '23min',
-  //     rating: '★★★★★',
-  //     image: '', // Placeholder image URL
-  //   },
-  //   {
-  //     name: 'Nirman',
-  //     expertise: 'Vedic',
-  //     languages: 'English, Hindi, Telugu',
-  //     experience: '3 Years',
-  //     orders: '2698 orders',
-  //     responseTime: '23min',
-  //     rating: '★★★★★',
-  //     image: '', // No image provided
-  //   },
-  //   {
-  //     name: 'Sanchukta',
-  //     expertise: 'Tarot, Psychic, Life Coaching',
-  //     languages: 'English, Hindi, Nepali',
-  //     experience: '3 Years',
-  //     orders: '1699 orders',
-  //     responseTime: '21min',
-  //     rating: '★★★★★',
-  //     image: '', // Placeholder image URL
-  //   },
-  //   {
-  //     name: 'Rudraaye',
-  //     expertise: 'Tarot, Face Reading, Life Coaching',
-  //     languages: 'English, Hindi, Punjabi',
-  //     experience: '6 Years',
-  //     orders: 'New',
-  //     responseTime: '25min',
-  //     rating: '★★★★★',
-  //     image: '', // No image provided
-  //   },
-  //   {
-  //     name: 'Harshyali',
-  //     expertise: 'Vedic, Numerology, Tarot',
-  //     languages: 'English, Hindi',
-  //     experience: '10 Years',
-  //     orders: '5257 orders',
-  //     responseTime: '22min',
-  //     rating: '★★★★★',
-  //     image: '', // Placeholder image URL
-  //   },
-  //   {
-  //     name: 'Neerad',
-  //     expertise: 'Vedic, Numerology',
-  //     languages: 'English, Hindi',
-  //     experience: '27 Years',
-  //     orders: '2737 orders',
-  //     responseTime: '36min',
-  //     rating: '★★★★★',
-  //     image: '', // No image provided
-  //   },
-  //   // Add more counsellors as needed
-  // ];
+  const fetchServices = async () => {
+    try {
+      const response = await fetch(
+        "https://margda.in:7000/api/advisor/services",
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch services");
+      }
+
+      const result = await response.json();
+      console.log("Services API Response:", result);
+
+      if (result.success && Array.isArray(result.data)) {
+        setServices(result.data);
+      } else {
+        throw new Error("Invalid data format received from the API");
+      }
+    } catch (error) {
+      console.error("Error fetching services:", error);
+      alert("Failed to fetch services. Please try again later.");
+    }
+  };
+
+  // Fetch languages from the API
+  const fetchLanguages = async () => {
+    try {
+      const response = await fetch("https://margda.in:7000/api/languages", {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch languages");
+      }
+
+      const result = await response.json();
+      console.log("Languages API Response:", result);
+
+      if (result.success && Array.isArray(result.data)) {
+        // Sort languages alphabetically
+        const sortedLanguages = result.data.sort((a, b) =>
+          a.language.localeCompare(b.language)
+        );
+        setLanguages(sortedLanguages);
+      } else {
+        throw new Error("Invalid data format received from the API");
+      }
+    } catch (error) {
+      console.error("Error fetching languages:", error);
+      alert("Failed to fetch languages. Please try again later.");
+    }
+  };
+
+  const fetchRecharge = async () => {
+    try {
+      const response = await fetch(
+        "https://margda.in:7000/api/advisor/get_recharge_info",
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        if (response.status === 404) {
+          return setRecharge(null);
+        }
+      }
+
+      const result = await response.json();
+      console.log("Recharge API Response:", result);
+
+      if (result.success) {
+        setRecharge(result.Data.call_limit / 100);
+      } else {
+        throw new Error("Invalid data format received from the API");
+      }
+    } catch (error) {
+      console.error("Error fetching recharge info:", error);
+      alert("Failed to recharge info. Please try again later.");
+    }
+  };
 
   // Fallback component for profile image
   const ProfileFallback = ({ name }) => {
@@ -198,13 +206,56 @@ const CounsellorsAP = () => {
     );
   };
 
+  const handleCall = async (mobile) => {
+    if (!recharge) {
+      return alert("Recharge to make a call");
+    }
+
+    const agent = localUserData ? localUserData.user_data.mobile : null;
+    try {
+      const response = await fetch(
+        "https://margda.in:7000/api/cloud_telephony/initiate_call",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            agent_number: Number(agent),
+            destination_number: Number(mobile),
+          }),
+        }
+      );
+      const data = await response.json();
+      if (response.ok) {
+        toast.success(data.message || "Call initiated successfully.");
+      } else {
+        toast.error(data.message || "Failed to initiate call.");
+      }
+    } catch (error) {
+      toast.error("An error occurred. Please try again.", error);
+    }
+  };
+
+  const formatToAmPm = (time) => {
+    const [hours, minutes, seconds] = time.split(":").map(Number);
+    const period = hours >= 12 ? "PM" : "AM";
+    const formattedHours = hours % 12 || 12; // Convert 0 to 12 for AM
+    return `${formattedHours}:${String(minutes).padStart(2, "0")} ${period}`;
+  };
+
   return (
     <div className="p-4 bg-gray-50 min-h-screen">
+      <ToastContainer />
       {/* Talk-time Balance and Recharge Section */}
       <div className="flex justify-between items-center bg-white p-4 rounded-lg shadow-md mb-4">
         <div className="flex items-center gap-4">
           <span className="text-lg font-medium text-gray-700">
-            Talk-time balance: <span className="text-blue-600">₹60</span>
+            Talk-time balance:{" "}
+            <span className="text-blue-600">
+              ₹{recharge == null ? "  No balance" : recharge}
+            </span>
           </span>
           <button className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition duration-300">
             Recharge
@@ -304,7 +355,7 @@ const CounsellorsAP = () => {
             key={index}
             className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow duration-300 border border-gray-100"
           >
-            <div className="flex gap-4">
+            <div className="flex gap-4 items-center">
               {/* Left Side: Profile Picture, Star Rating, and Orders */}
               <div className="flex flex-col items-center">
                 {/* Profile Picture or Fallback */}
@@ -317,47 +368,68 @@ const CounsellorsAP = () => {
                 ) : (
                   <ProfileFallback name={counsellor.heading} />
                 )}
-                {/* Star Rating */}
-                <div className="mt-2 text-yellow-500 text-sm">
-                  {counsellor.rating}
-                </div>
-                {/* Orders */}
-                <div className="text-sm text-gray-600 mt-1">
-                  {counsellor.orders}
+                <div>
+                  <span className="mt-2 text-yellow-500 text-3xl">{"***"}</span>
+                  <span className="mt-2 text-gray-500 text-3xl">{"**"}</span>
                 </div>
               </div>
 
               {/* Right Side: Details and Checkmark */}
               <div className="flex-1">
                 {/* Checkmark at Top Right */}
-                <div className="flex justify-end ">
-                  <FaCheck className="text-yellow-500 w-5 h-5" />
+                <div className="flex flex-row justify-between">
+                  <div className="text-xl text-gray-600">
+                    {counsellor.avatar_name}
+                  </div>
+                  <div className="flex justify-end ">
+                    {counsellor.live ? "🟢" : "🔴"}
+                  </div>
                 </div>
                 {/* Name */}
                 <h3 className="text-xl font-semibold text-gray-800 ">
                   {counsellor.heading}
                 </h3>
-                {/* Expertise */}
-                <p className="text-sm text-gray-600 ">{counsellor.expertise}</p>
-                {/* Languages */}
-                <p className="text-sm text-gray-600 ">{counsellor.languages}</p>
-                {/* Experience */}
+                <p className="text-sm text-gray-600 ">{counsellor.details}</p>
+                <p className="text-sm text-gray-600 m">
+                  {services
+                    .filter((item) => item.serviceID == counsellor.serviceID)
+                    .map((item) => (
+                      <div key={item.serviceID}>{item.service}</div>
+                    ))}
+                </p>
+                <p className="text-sm text-gray-600 m flex flex-row items-center">
+                  <LuLanguages />
+                  &nbsp;
+                  {counsellor.language
+                    .map((lang) =>
+                      languages
+                        .filter((item) => item.langID == lang)
+                        .map((item) => item.language)
+                    )
+                    .flat()
+                    .join(", ")}
+                </p>
 
                 <p className="text-sm text-gray-600 ">
-                  Details: {counsellor.details}
+                  <b> ₹ {counsellor.fee_pm}</b>/min
                 </p>
-                <p className="text-sm text-gray-600 ">
-                  Fees Per minute: {counsellor.fee_pm}
+                <p className="text-sm text-gray-600 flex flex-row items-center">
+                  <span>
+                    <IoTimeOutline />
+                  </span>
+                  &nbsp;
+                  {formatToAmPm(counsellor.avail_time[0])} to{" "}
+                  {formatToAmPm(counsellor.avail_time[1])}
                 </p>
-                <p className="text-sm text-gray-600 ">
-                  Avalable At:{" "}
-                  {`${counsellor.avail_time[0]} to ${counsellor.avail_time[1]}`}
-                </p>
+                {/* Star Rating */}
               </div>
             </div>
 
             {/* Call Button */}
-            <button className="mt-4 w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-300">
+            <button
+              onClick={() => handleCall(counsellor.mobile)}
+              className="mt-4 w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-300"
+            >
               Call
             </button>
           </div>

@@ -30,7 +30,8 @@ const Login = () => {
   const validateForm = () => {
     const newErrors = {};
     if (!formValues.login) newErrors.login = "Please input your Login Id.";
-    if (!formValues.password) newErrors.password = "Please input your Password.";
+    if (!formValues.password)
+      newErrors.password = "Please input your Password.";
     if (!formValues.terms)
       newErrors.terms = "Please agree to the Terms of Use and Privacy Policy.";
     return newErrors;
@@ -42,15 +43,6 @@ const Login = () => {
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       Object.values(newErrors).forEach((error) => toast.error(error));
-      return;
-    }
-
-    // Check for admin credentials
-    if (formValues.login === "admin" && formValues.password === "admin") {
-      toast.success("Admin login successful!");
-      setTimeout(() => {
-        navigate("/admin-dashboard");
-      }, 2000);
       return;
     }
 
@@ -73,9 +65,18 @@ const Login = () => {
         toast.error("Invalid password.");
       } else if (response.status === 200) {
         const userData = await response.json();
-        toast.success("Login successful!");
+        // Check for admin credentials
+        if (userData.user_data.userID === 1) {
+          toast.success("Admin login successful!");
+          // setTimeout(() => {
+          //   navigate("/admin-dashboard");
+          // }, 2000);
+          // return;
+        } else {
+          toast.success("Login successful!");
+        }
 
-         // Save user data to local storage
+        // Save user data to local storage
         localStorage.setItem("userData", JSON.stringify(userData));
 
         // Log the saved user data
