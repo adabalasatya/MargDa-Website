@@ -11,8 +11,9 @@ import {
   FaStar,
 } from "react-icons/fa";
 import { IoTimeOutline } from "react-icons/io5";
-import Logo from "../../assets/m.jpeg";
+
 import { toast, ToastContainer } from "react-toastify";
+import { Link } from "react-router-dom"; 
 import { LuLanguages } from "react-icons/lu";
 
 const CounsellorsAP = () => {
@@ -206,7 +207,7 @@ const CounsellorsAP = () => {
     );
   };
 
-  const handleCall = async (mobile) => {
+  const handleCall = async (mobile, id) => {
     if (!recharge) {
       return alert("Recharge to make a call");
     }
@@ -224,6 +225,7 @@ const CounsellorsAP = () => {
           body: JSON.stringify({
             agent_number: Number(agent),
             destination_number: Number(mobile),
+            advisorID: id,
           }),
         }
       );
@@ -257,9 +259,11 @@ const CounsellorsAP = () => {
               ₹{recharge == null ? "  No balance" : recharge}
             </span>
           </span>
-          <button className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition duration-300">
-            Recharge
-          </button>
+          <Link to={"/online-payment"}>
+            <button className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition duration-300">
+              Recharge
+            </button>
+          </Link>
         </div>
       </div>
 
@@ -427,7 +431,9 @@ const CounsellorsAP = () => {
 
             {/* Call Button */}
             <button
-              onClick={() => handleCall(counsellor.mobile)}
+              onClick={() =>
+                handleCall(counsellor.mobile, counsellor.advisorID)
+              }
               className="mt-4 w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-300"
             >
               Call

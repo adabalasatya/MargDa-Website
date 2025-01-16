@@ -198,7 +198,7 @@ const AllUsers = () => {
     }));
   };
   // Filtering and pagination
-  const filteredData = dataDetails.filter((item) =>
+  const filteredData = data.filter((item) =>
     Object.values(item).some((value) =>
       value?.toString().toLowerCase().includes(searchQuery.toLowerCase())
     )
@@ -226,6 +226,7 @@ const AllUsers = () => {
 
   const handleRecordsPerPageChange = (e) => {
     const value = parseInt(e.target.value, 10); // Parse the input value as an integer
+    setCurrentPage(1);
     if (value < 1) {
       setRecordsPerPage(1); // Set to 1 if the value is less than 1
     } else {
@@ -238,11 +239,115 @@ const AllUsers = () => {
     setSelectedUser(null);
   };
 
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsPincodeDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   return (
     <div className="p-8 min-h-screen">
+      {/* Search and Filter Section */}
+      <div className="bg-white p-2 shadow rounded-lg mb-6 mt-9">
+        <div className="flex flex-wrap items-center justify-between space-y-4 md:space-y-2">
+          <label className="flex items-center">
+            <span className="text-sm font-semibold mr-2">Show</span>
+            <input
+              type="number"
+              value={recordsPerPage}
+              onChange={handleRecordsPerPageChange}
+              className="border border-gray-300 p-2 rounded w-20"
+              min="1"
+            />
+            <span className="text-sm font-bold ml-2">Records</span>
+          </label>
+          <div className="relative w-full md:w-48">
+            <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="border border-gray-300 p-2 pl-10 rounded w-full"
+              placeholder="Search"
+            />
+          </div>
+          <div className="flex flex-wrap items-center space-x-3">
+            <select className="border border-gray-300 p-2 rounded">
+              <option>Data Type</option>
+              <option>Lead</option>
+              <option>Customer</option>
+              <option>Prospect</option>
+            </select>
+            <select className="border border-gray-300 p-2 rounded">
+              <option>Country</option>
+              <option>India</option>
+              <option>USA</option>
+              <option>UK</option>
+            </select>
+            <select className="border border-gray-300 p-2 rounded">
+              <option>State</option>
+              <option>Maharashtra</option>
+              <option>New York</option>
+              <option>London</option>
+            </select>
+            <select className="border border-gray-300 p-2 rounded">
+              <option>District</option>
+              <option>Mumbai</option>
+              <option>Manhattan</option>
+              <option>Westminster</option>
+            </select>
+            <div className="relative" ref={dropdownRef}>
+              <button
+                onClick={() => setIsPincodeDropdownOpen(!isPincodeDropdownOpen)}
+                className="border border-gray-300 p-2 rounded flex items-center justify-between min-w-[150px] bg-white"
+              >
+                <span className="text-gray-700">Pincode</span>
+                <FaChevronDown
+                  className={`ml-2 transform transition-transform ${
+                    isPincodeDropdownOpen ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
+              {isPincodeDropdownOpen && (
+                <div className="absolute top-full left-0 mt-1 w-64 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
+                  <div className="p-3">
+                    <div className="relative mb-3">
+                      <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                      <input
+                        type="text"
+                        value={pincodeSearch}
+                        onChange={(e) => setPincodeSearch(e.target.value)}
+                        className="border border-gray-300 p-2 pl-10 rounded w-full"
+                        placeholder="Search Pincode"
+                      />
+                    </div>
+                    <button
+                      onClick={() => setIsPincodeDropdownOpen(false)}
+                      className="w-full bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600"
+                    >
+                      Search
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+          <button className="bg-orange-500 text-white px-4 py-2 rounded shadow hover:bg-orange-600">
+            + Task
+          </button>
+        </div>
+      </div>
+
       {/* Data Table */}
       <div className="bg-white rounded-lg shadow-md p-6 mt-9">
-        {data.length > 0 ? (
+        {currentRecords.length > 0 ? (
           <div className="max-h-[600px] overflow-y-auto">
             <table className="w-full text-sm text-left border-spacing-x-4">
               <thead>
@@ -274,7 +379,7 @@ const AllUsers = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {data.map((item) => (
+                {currentRecords.map((item) => (
                   <tr
                     key={item.userID}
                     className={`hover:bg-gray-50 transition-colors duration-200 ${

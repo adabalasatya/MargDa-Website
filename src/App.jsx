@@ -3,6 +3,8 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 //Home
 import Home from "./Pages/Home";
+import Aboutus from "./Pages/FooterPages/AboutUs";
+import Feedback from "./Pages/FooterPages/Feedback";
 import PrivacyStatement from "./Pages/FooterPages/PrivacyStatement";
 import TermsofService from "./Pages/FooterPages/TermsofService";
 import RefundPolicy from "./Pages/FooterPages/RefundPolicy";
@@ -21,6 +23,18 @@ import AllUsersPage from "./Pages/NavPages/AllUsersPage";
 import PaymentPage from "./Pages/NavPages/PaymentPage";
 import TeamSupportPage from "./Pages/NavPages/TeamSupportPage";
 import SupportTicketPage from "./Pages/NavPages/SupportTicketPage";
+
+//ShopingMart
+import Shoppage from "./Pages/ShopingMartPages/ShopPage";
+import ShopingPage from "./Pages/ShopingMartPages/ShopPage";
+import CartPage from "./Pages/ShopingMartPages/CartPage";
+import ProductDetails from "./Pages/ShopingMartPages/ProductDetailsPage";
+import PlaceOrderPage from "./Pages/ShopingMartPages/PlaceOrderPage";
+
+//ShopMart
+import ShopHomePage from "./Pages/MartPages/ShopHomePage";
+import UpdateProductPage from "./Pages/MartPages/UpdateProductPage";
+import ViewProductsPage from "./pages/MartPages/ViewProductsPage";
 
 //ProfileSection
 import ProfilePage from "./Pages/ProfilePages/ProfilePage";
@@ -59,6 +73,7 @@ import TeleconsultantPage from "./Pages/AdvisorsPanelPages/TeleconsultantPage";
 import CounsellorsApPage from "./Pages/AdvisorsPanelPages/CounsellorsApPage";
 import RechargePage from "./Pages/AdvisorsPanelPages/RechargePage";
 import OnlinePaymentPage from "./Pages/AdvisorsPanelPages/OnlinePaymentPage";
+import PaymentStatus from "./Pages/PhonePayPaymentStatus";
 
 function App() {
   return (
@@ -67,6 +82,8 @@ function App() {
         <Routes>
           {/* Home */}
           <Route path="/" element={<Home />} />
+          <Route path="/about-us" element={<Aboutus />} />
+          <Route path="/feedback" element={<Feedback />} />
           <Route path="/privacy-statement" element={<PrivacyStatement />} />
           <Route path="/terms-of-service" element={<TermsofService />} />
           <Route path="/refund-policy" element={<RefundPolicy />} />
@@ -86,6 +103,18 @@ function App() {
           <Route path="/team-support" element={<TeamSupportPage />} />
           <Route path="/support-ticket" element={<SupportTicketPage />} />
 
+          {/* Shopping */}
+          <Route path="/shop" element={<Shoppage />} />
+          <Route path="/mart" element={<ShopingPage />} />
+          <Route path="/cart" element={<CartPage />} />
+          <Route path="/product-details/:id" element={<ProductDetails />} />
+          <Route path="/place-order" element={<PlaceOrderPage />} />
+
+          {/* Shop Mart*/}
+          <Route path="/shop-Home" element={<ShopHomePage />} />
+          <Route path="/update-product" element={<UpdateProductPage />} />
+          <Route path="/view-products" element={<ViewProductsPage />} />
+
           {/* Profile Section with drop-down menu */}
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/credential" element={<CredentialPage />} />
@@ -96,7 +125,6 @@ function App() {
 
           <Route path="/admin" element={<AdminDataPage />} />
           <Route path="/user" element={<AdminUserPage />} />
-          
 
           {/* AdvisorsPanel Section with drop-down menu */}
           <Route path="/teleconsultant" element={<TeleconsultantPage />} />
@@ -124,6 +152,9 @@ function App() {
           <Route path="master-data" element={<MasterData />} />
           <Route path="settings" element={<SettingPage />} />
           <Route path="logout" element={<Logout />} />
+
+          {/* Phone Pe Payment Status */}
+          <Route path="phonepay/payment-status" element={<PaymentStatus />} />
         </Routes>
       </Router>
     </>

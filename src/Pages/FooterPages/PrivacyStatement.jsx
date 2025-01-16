@@ -1,13 +1,21 @@
 import React, { useEffect } from 'react'; // Import useEffect
 import { FaShieldAlt } from 'react-icons/fa';
+import { motion } from 'framer-motion'; // Import motion from framer-motion
 import Nav from '../../Components/Home/navbar';
 import Footer from '../../Components/Home/Footer';
+import PrivacyImage from "../../assets/FooterPages/privacypolicy.jpeg";
 
 const PrivacyStatement = () => {
   // Scroll to top on component mount
   useEffect(() => {
     window.scrollTo(0, 0); // Scroll to the top of the page
   }, []); // Empty dependency array ensures this runs only once on mount
+
+  // Animation variants for the image
+  const imageVariants = {
+    hidden: { opacity: 0, x: 50 }, // Start from the right and invisible
+    visible: { opacity: 1, x: 0, transition: { duration: 0.8, ease: "easeOut" } }, // Slide in and fade in
+  };
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -18,9 +26,32 @@ const PrivacyStatement = () => {
       <main className="flex-grow container mx-auto px-6 md:px-12 py-8">
         {/* Privacy Policy Section */}
         <div className="mb-12">
-          <h3 className="text-2xl font-semibold mb-6 flex items-center">
-            <FaShieldAlt className="mr-2" /> Privacy Policy
-          </h3>
+          <div className="flex flex-col md:flex-row items-center gap-8 mb-8">
+            {/* Text Content */}
+            <div className="w-full md:w-3/4">
+              <h3 className="text-2xl font-semibold mb-6 flex items-center">
+                <FaShieldAlt className="mr-2" /> Privacy Policy
+              </h3>
+              <p className="text-gray-700 mb-4">
+                This Privacy Policy describes how Margdarshak Media and its affiliates (collectively “Margdarshak Media, we, our, us”) collect, use, share, protect or otherwise process your information/ personal data through our website https://margda.com (hereinafter referred to as Platform). Please note that you may be able to browse certain sections of the Platform without registering with us. We do not offer any product/service under this Platform outside India and your personal data will primarily be stored and processed in India. By visiting this Platform, providing your information or availing any product/service offered on the Platform, you expressly agree to be bound by the terms and conditions of this Privacy Policy, the Terms of Use and the applicable service/product terms and conditions, and agree to be governed by the laws of India including but not limited to the laws applicable to data protection and privacy. If you do not agree please do not use or access our Platform.
+              </p>
+            </div>
+
+            {/* Image with Animation */}
+            <motion.div
+              className="w-full md:w-1/4"
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+              variants={imageVariants}
+            >
+              <img
+                src={PrivacyImage}
+                alt="Privacy Policy"
+                className="w-full h-auto rounded-lg shadow-lg transform hover:scale-105 transition-transform duration-300"
+              />
+            </motion.div>
+          </div>
 
           {/* Introduction */}
           <section className="mb-8">

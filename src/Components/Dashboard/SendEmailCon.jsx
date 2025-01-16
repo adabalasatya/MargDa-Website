@@ -133,8 +133,10 @@ const SendEmailCon = ({ setSendEmail, selectedLeads, setSelectedLeads }) => {
     setError("");
 
     const urlMap = {
-      "outlook-smtp": "https://margda.in:7000/api/email/send-email/outlook-smtp",
-      "outlook-graph": "https://margda.in:7000/api/email/send-email/outlook-graph-api",
+      "outlook-smtp":
+        "https://margda.in:7000/api/email/send-email/outlook-smtp",
+      "outlook-graph":
+        "https://margda.in:7000/api/email/send-email/outlook-graph-api",
       aws: "https://margda.in:7000/api/email/send-email/aws",
       gmail: "https://margda.in:7000/api/email/send-email/gmail",
     };
@@ -205,6 +207,60 @@ const SendEmailCon = ({ setSendEmail, selectedLeads, setSelectedLeads }) => {
         </div>
         {error && <div className="text-red-500 mb-4">{error}</div>}
         <form className="space-y-4" onSubmit={handleSubmit}>
+          {/* Email Service Selection */}
+          <div className="flex flex-col">
+            <label htmlFor="emailService" className="font-bold mb-2">
+              Select Email Service
+            </label>
+            <select
+              id="emailService"
+              value={selectedService}
+              onChange={handleServiceChange}
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="outlook-smtp">Outlook SMTP</option>
+              <option value="outlook-graph">Outlook API</option>
+              <option value="aws">AWS</option>
+              <option value="gmail">Gmail</option>
+            </select>
+          </div>
+          {/* Sender Email and Password (for Outlook SMTP and Gmail) */}
+          {(selectedService === "outlook-smtp" ||
+            selectedService === "gmail") && (
+            <>
+              <div className="flex flex-col">
+                <label htmlFor="senderEmail" className="font-bold mb-2">
+                  Sender Email
+                </label>
+                <input
+                  type="email"
+                  name="senderEmail"
+                  id="senderEmail"
+                  value={emailDetails.senderEmail}
+                  onChange={handleChange}
+                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  placeholder="Enter sender email"
+                  required
+                />
+              </div>
+              <div className="flex flex-col">
+                <label htmlFor="senderPassword" className="font-bold mb-2">
+                  Sender Password
+                </label>
+                <input
+                  type="password"
+                  name="senderPassword"
+                  id="senderPassword"
+                  value={emailDetails.senderPassword}
+                  onChange={handleChange}
+                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  placeholder="Enter sender password"
+                  required
+                />
+              </div>
+            </>
+          )}
+
           {/* Template Selection */}
           <div className="flex flex-col">
             <label htmlFor="template" className="font-bold mb-2">
@@ -246,7 +302,9 @@ const SendEmailCon = ({ setSendEmail, selectedLeads, setSelectedLeads }) => {
               value={emailDetails.subject}
               onChange={handleChange}
               className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-              placeholder={selectedTemplate ? "Subject from template" : "Enter subject"}
+              placeholder={
+                selectedTemplate ? "Subject from template" : "Enter subject"
+              }
               disabled={!!selectedTemplate}
             />
           </div>
@@ -263,7 +321,9 @@ const SendEmailCon = ({ setSendEmail, selectedLeads, setSelectedLeads }) => {
               onChange={handleChange}
               className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
               rows="5"
-              placeholder={selectedTemplate ? "Body from template" : "Enter email body"}
+              placeholder={
+                selectedTemplate ? "Body from template" : "Enter email body"
+              }
               disabled={!!selectedTemplate}
             />
           </div>
@@ -294,60 +354,6 @@ const SendEmailCon = ({ setSendEmail, selectedLeads, setSelectedLeads }) => {
               className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
               placeholder="Enter reply-to email"
             />
-          </div>
-
-          {/* Sender Email and Password (for Outlook SMTP and Gmail) */}
-          {(selectedService === "outlook-smtp" || selectedService === "gmail") && (
-            <>
-              <div className="flex flex-col">
-                <label htmlFor="senderEmail" className="font-bold mb-2">
-                  Sender Email
-                </label>
-                <input
-                  type="email"
-                  name="senderEmail"
-                  id="senderEmail"
-                  value={emailDetails.senderEmail}
-                  onChange={handleChange}
-                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                  placeholder="Enter sender email"
-                  required
-                />
-              </div>
-              <div className="flex flex-col">
-                <label htmlFor="senderPassword" className="font-bold mb-2">
-                  Sender Password
-                </label>
-                <input
-                  type="password"
-                  name="senderPassword"
-                  id="senderPassword"
-                  value={emailDetails.senderPassword}
-                  onChange={handleChange}
-                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                  placeholder="Enter sender password"
-                  required
-                />
-              </div>
-            </>
-          )}
-
-          {/* Email Service Selection */}
-          <div className="flex flex-col">
-            <label htmlFor="emailService" className="font-bold mb-2">
-              Select Email Service
-            </label>
-            <select
-              id="emailService"
-              value={selectedService}
-              onChange={handleServiceChange}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="outlook-smtp">Outlook SMTP</option>
-              <option value="outlook-graph">Outlook Graph API</option>
-              <option value="aws">AWS SES</option>
-              <option value="gmail">Gmail</option>
-            </select>
           </div>
 
           {/* Buttons */}

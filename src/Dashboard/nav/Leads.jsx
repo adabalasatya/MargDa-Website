@@ -19,11 +19,17 @@ import {
   FaUserCog,
   FaDatabase,
   FaUserPlus,
+  FaUser,
+  FaClipboardList,
+  FaSave,
+  FaTimes,
 } from "react-icons/fa";
 import WhatsAppCon from "../../Components/Dashboard/SendWhatsappCon";
 import EmailCon from "../../Components/Dashboard/SendEmailCon";
 import SendSmsCon from "../../Components/Dashboard/SendSmsCon";
 import CallCon from "../../Components/Dashboard/SendCallCon";
+import PhoneInput from "react-phone-number-input";
+import "react-phone-number-input/style.css";
 
 const Leads = () => {
   // State variables
@@ -35,18 +41,24 @@ const Leads = () => {
   const [userData, setUserData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [selectedRows, setSelectedRows] = useState([]);
+  const [selectedRows, setSelectedRows] = useState(new Set());
   const [selectAll, setSelectAll] = useState(false);
   const [showWhatsAppSend, setShowWhatsAppSend] = useState(false);
   const [showEmailSend, setShowEmailSend] = useState(false);
   const [showSmsSend, setShowSmsSend] = useState(false);
   const [showCallCon, setShowCallCon] = useState(false);
+  const [editingId, setEditingId] = useState(null);
+  const [editingData, setEditingData] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSelectAllChecked, setIsSelectAllChecked] = useState(false);
+  const [enableTableScroll, setEnableTableScroll] = useState(false); // New state for scroll control
 
   const dropdownRef = useRef(null);
 
   // Retrieve userID and AccessToken from localStorage
   const userLocalData = JSON.parse(localStorage.getItem("userData")) || {};
   const accessToken = userLocalData.access_token || null;
+  const loginUserID = userLocalData.user_data?.userID || null;
 
   // Fetch data from API
   useEffect(() => {
@@ -64,6 +76,9 @@ const Leads = () => {
         );
 
         if (!response.ok) {
+          if (response.status == 404) {
+            return setUserData([]);
+          }
           throw new Error("Failed to fetch data");
         }
 
@@ -71,9 +86,36 @@ const Leads = () => {
 
         if (data.message && data.message === "Leads not found") {
           setUserData([]);
-          setError("Leads not found");
+          // setError("Leads not found");
         } else if (data.Leads && Array.isArray(data.Leads)) {
-          setUserData(data.Leads);
+          const transformedData = data.Leads.map((item) => ({
+            id: item.dataID || item.userID,
+            dataId: item.dataID,
+            userId: item.userID,
+            name: item.name || "N/A",
+            email: item.email || "N/A",
+            phone: item.mobile || "N/A",
+            gender:
+              item.gender === "M"
+                ? "Male"
+                : item.gender === "F"
+                ? "Female"
+                : "Other",
+            whatsapp: item.whatsapp || item.mobile || "N/A",
+            location: {
+              city: item.city || "N/A",
+              state: item.state || "N/A",
+              country: item.country || "N/A",
+              pincode: item.pincode || "N/A",
+            },
+            log: `Logged in: ${new Date(
+              item.edate || Date.now()
+            ).toLocaleString()}`,
+            remarks: item.remarks || "No remarks",
+            euser: item.euser || null,
+            isShortlisted: item.isShortlisted || false,
+          }));
+          setUserData(transformedData);
           setError(null);
         } else {
           setUserData([]);
@@ -111,7 +153,7 @@ const Leads = () => {
 
   // Handle bulk actions
   const handleBulkAction = (action) => {
-    if (selectedRows.length === 0) {
+    if (selectedRows.size === 0) {
       alert("Select at least one lead");
       return;
     }
@@ -135,13 +177,20 @@ const Leads = () => {
   };
 
   // Handle delete
-  const handleDelete = async (id) => {
-    if (!id) {
+  const handleDelete = async (item) => {
+    if (!item) {
       console.error("No ID provided for deletion");
       return;
     }
 
     try {
+      console.log(item);
+      const payload = item.userId
+        ? { userID: item.userId }
+        : item.dataId
+        ? { dataID: item.dataId }
+        : "";
+      console.log(payload);
       const response = await fetch(
         "https://margda.in:7000/api/margda.org/delete-lead",
         {
@@ -150,7 +199,7 @@ const Leads = () => {
             Authorization: `Bearer ${accessToken}`,
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ dataID: id }),
+          body: JSON.stringify(payload),
         }
       );
 
@@ -161,8 +210,13 @@ const Leads = () => {
       const data = await response.json();
 
       if (data.message === "Lead deleted successfully") {
-        setUserData((prev) => prev.filter((item) => item.dataID !== id));
-        setSelectedRows((prev) => prev.filter((rowId) => rowId !== id));
+        setUserData((prev) => prev.filter((preitem) => preitem !== item));
+        if (selectedRows.length > 0) {
+          setSelectedRows([
+            ...selectedRows,
+            selectedRows.filter((pre) => pre.id !== item.id),
+          ]);
+        }
       } else {
         throw new Error(data.message || "Failed to delete lead");
       }
@@ -173,25 +227,36 @@ const Leads = () => {
   };
 
   // Handle row selection
-  const handleRowSelect = (lead) => {
-    if (!lead.mobile || lead.mobile.includes("**")) {
-      return alert("You can't select this lead");
-    }
-    if (selectedRows.includes(lead)) {
-      setSelectedRows(selectedRows.filter((item) => item !== lead));
+  const handleRowSelect = (id) => {
+    const newSelectedRows = new Set(selectedRows);
+    if (newSelectedRows.has(id)) {
+      newSelectedRows.delete(id);
     } else {
-      setSelectedRows([...selectedRows, lead]);
+      newSelectedRows.add(id);
     }
+    setSelectedRows(newSelectedRows);
   };
 
   // Handle "Select All" checkbox
   const handleSelectAll = () => {
-    if (selectAll) {
-      setSelectedRows([]);
+    if (selectedRows.size === currentRecords.length) {
+      setSelectedRows(new Set());
+      setIsSelectAllChecked(false);
+      setEnableTableScroll(false); // Disable scroll when "Select All" is unchecked
     } else {
-      setSelectedRows(filteredData.map((item) => item));
+      const allIds = currentRecords.map((item) => item.id);
+      setSelectedRows(new Set(allIds));
+      setIsSelectAllChecked(true);
+      setEnableTableScroll(true); // Enable scroll when "Select All" is checked
     }
-    setSelectAll(!selectAll);
+  };
+
+  const handleEditInputChange = (e, field) => {
+    const { value } = e.target;
+    setEditingData((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
   };
 
   // Filter data based on search query
@@ -405,7 +470,11 @@ const Leads = () => {
       </div>
 
       {/* Leads Table */}
-      <div className="bg-white p-6 shadow-lg rounded-lg flex-1 overflow-x-auto">
+      <div
+        className={`bg-white p-6 shadow-lg rounded-lg flex-1 ${
+          enableTableScroll ? "overflow-x-auto" : ""
+        }`}
+      >
         <table className="w-full text-sm text-left border-separate border-spacing-x-4">
           {/* Table Headers */}
           <thead className="top-0 z-10">
@@ -414,7 +483,7 @@ const Leads = () => {
                 <div className="flex items-center space-x-2">
                   <input
                     type="checkbox"
-                    checked={selectAll}
+                    checked={isSelectAllChecked}
                     onChange={handleSelectAll}
                     className="form-checkbox h-4 w-4 text-blue-600 rounded"
                   />
@@ -449,7 +518,7 @@ const Leads = () => {
           </thead>
           {/* Table Body */}
           <tbody>
-            {currentRecords.map((item, index) => (
+            {filteredData.map((item, index) => (
               <tr
                 key={item.dataID || item.userID || index}
                 className="border-b hover:bg-gray-50 transition-colors duration-200"
@@ -457,26 +526,22 @@ const Leads = () => {
                 <td className="px-6 py-4">
                   <input
                     type="checkbox"
-                    checked={selectedRows.includes(item)}
-                    onChange={() => handleRowSelect(item)}
+                    checked={selectedRows.has(item.id)}
+                    onChange={() => handleRowSelect(item.id)}
                     className="form-checkbox h-4 w-4 text-blue-600 rounded"
                   />
                 </td>
                 <td className="px-6 py-4">
                   <div className="flex items-center space-x-2">
-                    <button
-                      title="Edit"
-                      className="p-2 bg-blue-500 text-white rounded-full shadow hover:bg-blue-600 transition"
-                    >
-                      <FaEdit />
-                    </button>
-                    <button
-                      title="Delete"
-                      className="p-2 bg-red-500 text-white rounded-full shadow hover:bg-red-600 transition"
-                      onClick={() => handleDelete(item.dataID || item.userID)}
-                    >
-                      <FaTrash />
-                    </button>
+                    <>
+                      <button
+                        title="Delete"
+                        className="p-2 bg-red-500 text-white rounded-full shadow hover:bg-red-600 transition"
+                        onClick={() => handleDelete(item)}
+                      >
+                        <FaTrash className="w-4 h-4" />
+                      </button>
+                    </>
                   </div>
                 </td>
                 <td className="px-6 py-4">
@@ -488,27 +553,74 @@ const Leads = () => {
                       <div className="flex flex-col space-y-1">
                         <div className="flex items-center space-x-2">
                           <FaEnvelope className="text-purple-500 w-4 h-4" />
-                          <span className="text-xs text-gray-600">
-                            {item.email}
-                          </span>
+                          {editingId === item.id ? (
+                            <input
+                              type="email"
+                              value={editingData.email || ""}
+                              onChange={(e) =>
+                                handleEditInputChange(e, "email")
+                              }
+                              className="border border-gray-300 p-1 rounded"
+                            />
+                          ) : (
+                            <span className="text-xs text-gray-600">
+                              {item.email}
+                            </span>
+                          )}
                         </div>
                         <div className="flex items-center space-x-2">
                           <FaPhone className="text-green-500 w-4 h-4" />
-                          <span className="text-xs text-gray-600">
-                            {item.mobile}
-                          </span>
+                          {editingId === item.id ? (
+                            <input
+                              type="text"
+                              value={editingData.phone || ""}
+                              onChange={(e) =>
+                                handleEditInputChange(e, "phone")
+                              }
+                              className="border border-gray-300 p-1 rounded"
+                            />
+                          ) : (
+                            <span className="text-xs text-gray-600">
+                              {item.phone}
+                            </span>
+                          )}
                         </div>
                         <div className="flex items-center space-x-2">
                           <FaVenusMars className="text-pink-500 w-4 h-4" />
-                          <span className="text-xs text-gray-600">
-                            {item.gender}
-                          </span>
+                          {editingId === item.id ? (
+                            <select
+                              value={editingData.gender || "Female"}
+                              onChange={(e) =>
+                                handleEditInputChange(e, "gender")
+                              }
+                              className="border border-gray-300 p-1 rounded"
+                            >
+                              <option value="Female">Female</option>
+                              <option value="Male">Male</option>
+                              <option value="Other">Other</option>
+                            </select>
+                          ) : (
+                            <span className="text-xs text-gray-600">
+                              {item.gender}
+                            </span>
+                          )}
                         </div>
                         <div className="flex items-center space-x-2">
                           <FaWhatsapp className="text-green-600 w-4 h-4" />
-                          <span className="text-xs text-gray-600">
-                            {item.whatsapp}
-                          </span>
+                          {editingId === item.id ? (
+                            <input
+                              type="text"
+                              value={editingData.whatsapp || ""}
+                              onChange={(e) =>
+                                handleEditInputChange(e, "whatsapp")
+                              }
+                              className="border border-gray-300 p-1 rounded"
+                            />
+                          ) : (
+                            <span className="text-xs text-gray-600">
+                              {item.whatsapp}
+                            </span>
+                          )}
                         </div>
                         <div className="flex items-center space-x-2">
                           <FaBirthdayCake className="text-yellow-500 w-4 h-4" />
@@ -537,22 +649,26 @@ const Leads = () => {
                   <div className="flex flex-col space-y-1">
                     <div className="flex items-center space-x-2">
                       <FaMapMarkerAlt className="text-green-400 w-4 h-4" />
-                      <p className="text-xs text-black">City: {item.city}</p>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <FaMapMarkerAlt className="text-green-400 w-4 h-4" />
-                      <p className="text-xs text-black">State: {item.state}</p>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <FaMapMarkerAlt className="text-green-400 w-4 h-4" />
                       <p className="text-xs text-black">
-                        Country: {item.country}
+                        City: {item.location.city}
                       </p>
                     </div>
                     <div className="flex items-center space-x-2">
                       <FaMapMarkerAlt className="text-green-400 w-4 h-4" />
                       <p className="text-xs text-black">
-                        Pincode: {item.pincode}
+                        State: {item.location.state}
+                      </p>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <FaMapMarkerAlt className="text-green-400 w-4 h-4" />
+                      <p className="text-xs text-black">
+                        Country: {item.location.country}
+                      </p>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <FaMapMarkerAlt className="text-green-400 w-4 h-4" />
+                      <p className="text-xs text-black">
+                        Pincode: {item.location.pincode}
                       </p>
                     </div>
                   </div>
@@ -566,7 +682,16 @@ const Leads = () => {
                     </div>
                     <div className="flex items-center space-x-2">
                       <FaStickyNote className="text-red-400 w-4 h-4" />
-                      <span className="text-black">{item.remarks}</span>
+                      {editingId === item.id ? (
+                        <input
+                          type="text"
+                          value={editingData.remarks || ""}
+                          onChange={(e) => handleEditInputChange(e, "remarks")}
+                          className="border border-gray-300 p-1 rounded"
+                        />
+                      ) : (
+                        <span className="text-black">{item.remarks}</span>
+                      )}
                     </div>
                   </div>
                 </td>
@@ -580,8 +705,7 @@ const Leads = () => {
       <div className="flex items-center justify-between mt-6">
         <div className="text-sm text-gray-600">
           Showing {indexOfFirstRecord + 1} to{" "}
-          {Math.min(indexOfLastRecord, filteredData.length)} of{" "}
-          {filteredData.length} records
+          {Math.min(indexOfLastRecord, filteredData.length)} Records
         </div>
         <div className="flex items-center space-x-2">
           <button
@@ -625,7 +749,7 @@ const Leads = () => {
       {/* WhatsApp Modal */}
       {showWhatsAppSend && (
         <WhatsAppCon
-          selectedLeads={selectedRows}
+          selectedLeads={Array.from(selectedRows)}
           setSendWhatsApp={setShowWhatsAppSend}
         />
       )}
@@ -634,7 +758,7 @@ const Leads = () => {
       {showEmailSend && (
         <EmailCon
           setSelectedLeads={setSelectedRows}
-          selectedLeads={selectedRows}
+          selectedLeads={Array.from(selectedRows)}
           setSendEmail={setShowEmailSend}
         />
       )}
@@ -642,7 +766,7 @@ const Leads = () => {
       {/* SMS Modal */}
       {showSmsSend && (
         <SendSmsCon
-          selectedLeads={selectedRows}
+          selectedLeads={Array.from(selectedRows)}
           setSendSms={setShowSmsSend}
         />
       )}
@@ -650,8 +774,8 @@ const Leads = () => {
       {/* Call Modal */}
       {showCallCon && (
         <CallCon
-          selectedLeads={selectedRows}
-          setSendCall={setShowCallCon}
+          selectedLeads={Array.from(selectedRows)}
+          setShowCallCon={setShowCallCon}
         />
       )}
 

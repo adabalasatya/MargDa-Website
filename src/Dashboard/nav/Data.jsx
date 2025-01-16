@@ -47,6 +47,7 @@ const Data = () => {
   const [isLoading, setIsLoading] = useState(false); // Loading state for form submission
   const [saveLoading, setSaveLoading] = useState(false); // Loading state for save operation
   const [error, setError] = useState(null); // Error state
+  const [isSelectAllChecked, setIsSelectAllChecked] = useState(false); // Track "Select All" state
 
   const dropdownRef = useRef(null);
 
@@ -55,11 +56,8 @@ const Data = () => {
   const loginUserID = userData ? userData.user_data.userID : null;
   const accessToken = userData ? userData.access_token : null;
 
-  // Fetch data from API
   const fetchData = async () => {
     try {
-      console.log("Fetching data from API...");
-
       const response = await fetch(
         "https://margda.in:7000/api/margda.org/get-all-data",
         {
@@ -76,7 +74,6 @@ const Data = () => {
       }
 
       const result = await response.json();
-      console.log("API response:", result);
 
       // Transform API data
       const transformedData = result.Data.map((item) => ({
@@ -107,7 +104,17 @@ const Data = () => {
         isShortlisted: item.isShortlisted || false, // Add shortlisted status
       }));
 
-      console.log("Transformed data:", transformedData);
+      transformedData.map((item) => {
+        if (item.euser == loginUserID) {
+          return item;
+        }
+        item.phone = item.phone ? item.phone.slice(0, 4) + "********" : "N/A";
+        item.whatsapp = item.whatsapp
+          ? item.whatsapp.slice(0, 4) + "********"
+          : "N/A";
+        item.email = item.email ? item.email.slice(0, 4) + "********" : "N/A";
+        return item;
+      });
       setDataDetails(transformedData);
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -370,9 +377,11 @@ const Data = () => {
   const toggleSelectAll = () => {
     if (selectedRows.size === currentRecords.length) {
       setSelectedRows(new Set()); // Deselect all
+      setIsSelectAllChecked(false); // Uncheck "Select All"
     } else {
       const allIds = currentRecords.map((item) => item.id);
       setSelectedRows(new Set(allIds)); // Select all
+      setIsSelectAllChecked(true); // Check "Select All"
     }
   };
 
@@ -743,7 +752,13 @@ const Data = () => {
 
       {/* Data Table */}
       <div className="bg-white rounded-lg shadow-md p-6">
-        <div className="max-h-[400px] overflow-y-auto">
+        {/* Add max-height and overflow-y conditionally */}
+        <div
+          style={{
+            maxHeight: isSelectAllChecked ? "400px" : "none",
+            overflowY: isSelectAllChecked ? "auto" : "visible",
+          }}
+        >
           <table className="w-full text-sm text-left border-spacing-x-4">
             <thead>
               <tr className="text-gray-600 sticky top-0 bg-white z-10">
@@ -751,7 +766,7 @@ const Data = () => {
                   <div className="flex items-center space-x-2">
                     <input
                       type="checkbox"
-                      checked={selectedRows.size === currentRecords.length}
+                      checked={isSelectAllChecked}
                       onChange={toggleSelectAll}
                       className="form-checkbox h-4 w-4 text-blue-600 rounded"
                     />
@@ -1001,8 +1016,7 @@ const Data = () => {
       <div className="flex items-center justify-between mt-6">
         <div className="text-sm text-gray-600">
           Showing {indexOfFirstRecord + 1} to{" "}
-          {Math.min(indexOfLastRecord, filteredData.length)} of{" "}
-          {filteredData.length} records
+          {Math.min(indexOfLastRecord, filteredData.length)} Records
         </div>
         <div className="flex items-center space-x-2">
           <button

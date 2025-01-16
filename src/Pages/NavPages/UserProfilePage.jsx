@@ -86,6 +86,13 @@ const UserProfile = () => {
             )}
             {/* Links */}
             <Link
+              to="/data-share"
+              className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors duration-300"
+            >
+              <span className="w-5 h-5 mr-2 flex items-center justify-center">📤</span>
+              <span>Data Share</span>
+            </Link>
+            <Link
               to="/profile"
               className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors duration-300"
             >
@@ -99,13 +106,13 @@ const UserProfile = () => {
               <span className="w-5 h-5 mr-2 flex items-center justify-center">🔑</span>
               <span>Credential</span>
             </Link>
-            <Link
+            {/* <Link
               to="/dsc"
               className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors duration-300"
             >
-              <FaCode className="w-5 h-5 mr-2 text-gray-700" /> {/* Icon for DSC */}
+              <FaCode className="w-5 h-5 mr-2 text-gray-700" /> 
               <span>DSC</span>
-            </Link>
+            </Link> */}
             <Link
               to="/email-auth"
               className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors duration-300"
@@ -113,13 +120,7 @@ const UserProfile = () => {
               <span className="w-5 h-5 mr-2 flex items-center justify-center">📧</span>
               <span>Email Auth</span>
             </Link>
-            <Link
-              to="/data-share"
-              className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors duration-300"
-            >
-              <span className="w-5 h-5 mr-2 flex items-center justify-center">📤</span>
-              <span>Data Share</span>
-            </Link>
+           
             <Link
               to="/qr-scan"
               className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors duration-300"

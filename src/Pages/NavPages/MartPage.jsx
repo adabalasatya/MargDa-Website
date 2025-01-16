@@ -2,9 +2,9 @@ import React, { useState, useEffect } from "react";
 import { Outlet } from "react-router-dom";
 import Navbar from "../../Dashboard/Navbar";
 import Sidebar from "../../Dashboard/Sidebar";
-import Dsc from "../../Dashboard/profile/dsc"
+import Mart from '../../Dashboard/nav/Mart'
 
-const ProfilePage = () => {
+const MartPage = () => {
   const [isOpen, setIsOpen] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
 
@@ -30,7 +30,7 @@ const ProfilePage = () => {
       <Sidebar isOpen={isOpen} toggleSidebar={toggleSidebar} isMobile={isMobile} />
       <div className="flex flex-col flex-1">
         <Navbar />
-        <Dsc />
+        <Mart />
         <div className="flex-grow p-4 overflow-auto">
           <Outlet />
         </div>
@@ -39,4 +39,4 @@ const ProfilePage = () => {
   );
 };
 
-export default ProfilePage;
+export default MartPage;

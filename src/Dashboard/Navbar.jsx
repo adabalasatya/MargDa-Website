@@ -85,7 +85,7 @@ const Navbar = () => {
         {/* Right Side Buttons */}
         <div className="flex space-x-4 sm:space-x-8 ml-auto mr-16 whitespace-nowrap">
           <Link
-            to="/ddmart"
+            to="/shop-Home"
             className="flex items-center px-3 py-2 text-xs font-medium text-gray-800 bg-white border-2 border-gray-300 rounded-lg shadow-md hover:bg-orange-500 hover:text-white transition-colors duration-300 ease-in-out sm:px-4 sm:py-2 sm:text-sm"
           >
             <FaShoppingCart className="mr-2" /> Mart

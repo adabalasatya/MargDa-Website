@@ -15,11 +15,13 @@ function Nav() {
     <nav className="flex items-center justify-between px-4 md:px-16 py-8 relative">
       {/* Logo Section */}
       <div className="flex-shrink-0">
-        <img
-          src={Logo}
-          alt="Margdarshakendra Logo"
-          className="h-10 md:h-12"
-        />
+      <Link to="/" className="flex-shrink-0">
+  <img
+    src={Logo}
+    alt="Margdarshakendra Logo"
+    className="h-10 md:h-12"
+  />
+</Link>
       </div>
 
       {/* Hamburger Menu */}

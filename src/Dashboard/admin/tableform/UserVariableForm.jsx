@@ -1,6 +1,76 @@
-import React, { useState } from "react";
+/* eslint-disable react/prop-types */
+import { useEffect, useState } from "react";
 
 const UserVariableForm = ({ user, onClose, onSave }) => {
+  useEffect(() => {
+    fetchVariables();
+  }, []);
+
+  const userData = JSON.parse(localStorage.getItem("userData"));
+  const accessToken = userData ? userData.access_token : null;
+
+  const fetchVariables = async () => {
+    const userID = user.userID;
+    try {
+      const response = await fetch(
+        "https://margda.in:7000/api/admin/get-user-variables",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            userID,
+          }),
+        }
+      );
+      const data = await response.json();
+      if (response.ok) {
+        console.log(data);
+        const variables = data.Variables[0];
+        if (data.Variables.length > 0) {
+          setFormData((prevValues) => ({
+            ...prevValues,
+            didNumber: variables.did,
+            validDate: formatDateToIndianISO(variables.validate),
+            officeMobile: variables.mobile,
+            officeEmail: variables.email,
+            emailPasscode: variables.email_pass,
+            didExtn: variables.extn,
+            dataLimit: variables.data_limit,
+            dataView: variables.data_view,
+            leadLimit: variables.lead_limit,
+            leadView: variables.lead_view,
+            whatsApSLimit: variables.whatsaps_limit,
+            whatsApILimit: variables.whatsapi_limit,
+            emailLimit: variables.email_limit,
+            smsLimit: variables.sms_limit,
+            snsLimit: variables.sns_limit,
+            callLimit: variables.call_limit / 100,
+            meetLimit: variables.meet_limit,
+            teamLimit: variables.team_limit,
+            selfIncome: variables.self_income,
+            team1Income: variables.team1_income,
+            team2Income: variables.team2_income,
+            team3Income: variables.team3_income,
+            referIncome: variables.refer_income,
+            pinCodeIncome: variables.pincode_income,
+            districtIncome: variables.district_income,
+            stateIncome: variables.state_income,
+            countryIncome: variables.country_income,
+            dataIncome: variables.data_income,
+            royaltyIncome: variables.royalty_income,
+            callWallet: variables.call_wallet,
+            meetWallet: variables.meet_wallet,
+            businessMonthly: variables.business,
+          }));
+        }
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
   // Initialize form data with user's data if it exists
   const [formData, setFormData] = useState({
     validDate: user?.validDate || "",
@@ -9,18 +79,18 @@ const UserVariableForm = ({ user, onClose, onSave }) => {
     emailPasscode: user?.emailPasscode || "",
     didNumber: user?.didNumber || "",
     didExtn: user?.didExtn || "",
-    dataLimit: user?.dataLimit || 100,
+    dataLimit: user?.dataLimit || 0,
     dataView: user?.dataView || 0,
-    leadLimit: user?.leadLimit || 50,
+    leadLimit: user?.leadLimit || 0,
     leadView: user?.leadView || 0,
-    whatsApSLimit: user?.whatsApSLimit || 200,
+    whatsApSLimit: user?.whatsApSLimit || 0,
     whatsApILimit: user?.whatsApILimit || 0,
-    emailLimit: user?.emailLimit || 100,
-    smsLimit: user?.smsLimit || 50,
-    snsLimit: user?.snsLimit || 30,
-    callLimit: user?.callLimit || 100,
-    meetLimit: user?.meetLimit || 20,
-    teamLimit: user?.teamLimit || 10,
+    emailLimit: user?.emailLimit || 0,
+    smsLimit: user?.smsLimit || 0,
+    snsLimit: user?.snsLimit || 0,
+    callLimit: user?.callLimit || 0,
+    meetLimit: user?.meetLimit || 0,
+    teamLimit: user?.teamLimit || 0,
     selfIncome: user?.selfIncome || 0,
     team1Income: user?.team1Income || 0,
     team2Income: user?.team2Income || 0,
@@ -36,6 +106,20 @@ const UserVariableForm = ({ user, onClose, onSave }) => {
     meetWallet: user?.meetWallet || 0,
     businessMonthly: user?.businessMonthly || 0,
   });
+
+  function formatDateToIndianISO(dateString) {
+    const date = new Date(dateString); // Parse the ISO string
+
+    // Get the local time adjusted for IST (UTC+5:30)
+    const offsetDate = new Date(date.getTime() + 5.5 * 60 * 60 * 1000);
+
+    // Extract year, month, and day
+    const year = offsetDate.getUTCFullYear();
+    const month = String(offsetDate.getUTCMonth() + 1).padStart(2, "0"); // Months are zero-based
+    const day = String(offsetDate.getUTCDate()).padStart(2, "0");
+
+    return `${year}-${month}-${day}`;
+  }
 
   // Handle input changes
   const handleChange = (e) => {

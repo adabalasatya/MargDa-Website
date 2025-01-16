@@ -75,7 +75,7 @@ const CallCon = ({ setShowCallCon, selectedLeads }) => {
         }
       } else if (callType === "A") {
         const response = await fetch(
-          "https://margda.in:7000/api/cloud_telephony/initiate_call",
+          "https://margda.in:7000/api/cloud_telephony/initiate_call_to_lead",
           {
             method: "POST",
             headers: {
@@ -109,7 +109,9 @@ const CallCon = ({ setShowCallCon, selectedLeads }) => {
         <div className="bg-white rounded-lg shadow-2xl w-full max-w-md overflow-hidden">
           {/* Header */}
           <div className="flex justify-between items-center p-4 border-b">
-            <h2 className="text-xl font-semibold text-gray-800">Initiate Call</h2>
+            <h2 className="text-xl font-semibold text-gray-800">
+              Initiate Call
+            </h2>
             <button
               onClick={() => setShowCallCon(false)}
               className="text-gray-500 hover:text-gray-700 transition-colors"
@@ -142,8 +144,8 @@ const CallCon = ({ setShowCallCon, selectedLeads }) => {
                 value={callType}
                 onChange={(e) => setCallType(e.target.value)}
               >
-                <option value="A">Cloud Telephony</option>
-                <option value="S">Simple</option>
+                <option value="S">SIM</option>
+                <option value="A">API</option>
               </select>
             </div>
 
