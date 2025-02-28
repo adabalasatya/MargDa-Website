@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { FaEnvelope, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { toast } from "react-toastify";
 import { NavLink, useNavigate } from "react-router-dom";
 import Navbar from "./navbar";
 
@@ -58,29 +57,33 @@ const Login = () => {
           password: formValues.password,
         }),
       });
+      const userData = await response.json();
 
       if (response.status === 404) {
         toast.error("Invalid login ID.");
       } else if (response.status === 401) {
-        toast.error("Invalid password.");
+        toast.error(userData.message);
       } else if (response.status === 200) {
-        const userData = await response.json();
-        // Check for admin credentials
-        if (userData.user_data.userID === 1) {
-          toast.success("Admin login successful!");
-          // setTimeout(() => {
-          //   navigate("/admin-dashboard");
-          // }, 2000);
-          // return;
-        } else {
-          toast.success("Login successful!");
-        }
-
         // Save user data to local storage
         localStorage.setItem("userData", JSON.stringify(userData));
-
-        // Log the saved user data
-        console.log("User data saved to localStorage:", userData);
+        const pushNotificationToken = localStorage.getItem(
+          "push-notification-token"
+        );
+        console.log(userData);
+        if (pushNotificationToken) {
+          const accessToken = userData.access_token;
+          await fetch(
+            "https://margda.in:7000/api/web-push-notification/store-token",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${accessToken}`,
+              },
+              body: JSON.stringify({ webtoken: pushNotificationToken }),
+            }
+          );
+        }
 
         // Reset form values
         setFormValues({
@@ -91,12 +94,13 @@ const Login = () => {
 
         // Navigate to user dashboard
         setTimeout(() => {
-          navigate("/explore", { state: { user: userData } });
-        }, 2000);
+          navigate("/consultants-panel", { state: { user: userData } });
+        }, 500);
       } else {
         toast.error("An unexpected error occurred.");
       }
     } catch (error) {
+      console.log(error);
       toast.error("Failed to connect to the server. Please try again later.");
     }
   };
@@ -198,19 +202,6 @@ const Login = () => {
           </p>
         </div>
       </div>
-
-      <ToastContainer
-        position="top-center"
-        autoClose={5000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="colored"
-      />
     </>
   );
 };

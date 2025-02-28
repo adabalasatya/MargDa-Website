@@ -2,9 +2,9 @@ import React, { useState, useEffect } from "react";
 import { Outlet } from "react-router-dom";
 import Navbar from "../../Dashboard/Navbar";
 import Sidebar from "../../Dashboard/Sidebar";
-import MasterData from "../../Dashboard/OutSidebarComponents/MasterData"
+import MasterData from "../../Dashboard/MasterData/Master"
 
-const ProfilePage = () => {
+const MasterDataPage = () => {
   const [isOpen, setIsOpen] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
 
@@ -39,4 +39,4 @@ const ProfilePage = () => {
   );
 };
 
-export default ProfilePage;
+export default MasterDataPage;

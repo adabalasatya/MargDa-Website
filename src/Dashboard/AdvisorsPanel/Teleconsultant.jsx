@@ -1,7 +1,18 @@
 import React, { useState, useEffect, useRef } from "react";
-import { FaEdit, FaTrash, FaUpload, FaChevronDown, FaSearch, FaSave, FaTimes, FaUser } from "react-icons/fa";
+import {
+  FaEdit,
+  FaTrash,
+  FaUpload,
+  FaChevronDown,
+  FaSearch,
+  FaSave,
+  FaTimes,
+  FaPhoneAlt,
+  FaRupeeSign,
+} from "react-icons/fa";
 import PhoneInput from "react-phone-input-2";
-import "react-phone-input-2/lib/style.css";
+import { Link, useLocation } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const Teleconsultant = () => {
   const [formData, setFormData] = useState({
@@ -11,62 +22,104 @@ const Teleconsultant = () => {
     heading: "",
     details: "",
     language: [],
-    availableTime: "08:00 to 16:00",
+    availableTime: ["09:00", "18:00"],
     live: false,
     feePerMinute: "",
     freeTwoMinutes: false,
     mobile: "",
     servicetype: "",
+    refercode: "",
+    pincode: "",
   });
 
   const [editFormData, setEditFormData] = useState({
     advisorID: "",
     serviceID: "",
-    fee_per_minute: "",
-    avatar_url: "",
-    avatar_name: "",
+    avatarPic: "",
+    avatarName: "",
+    serviceName: "",
+    serviceType: "",
     heading: "",
     details: "",
-    languages: [], // Initialize as an array
-    available_time: [], // Initialize as an array
+    language: [],
+    availableTime: ["", ""],
     live: false,
-    free_2_minutes: false,
+    feePerMinute: "",
+    freeTwoMinutes: false,
     mobile: "",
+    pincode: "",
   });
 
   const [isLanguagePopupOpen, setIsLanguagePopupOpen] = useState(false);
-  const [isAddServiceOpen, setIsAddServiceOpen] = useState(false);
+  const [isEditLanguagePopupOpen, setIsEditLanguagePopupOpen] = useState(false);
   const [editingAdvisorId, setEditingAdvisorId] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
-  const [isFormVisible, setIsFormVisible] = useState(true);
+  const [isFormVisible, setIsFormVisible] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [consultants, setConsultants] = useState([]);
+  const [referedConsultants, setReferedConsultants] = useState([]);
   const [languages, setLanguages] = useState([]);
   const [isEditFormOpen, setIsEditFormOpen] = useState(false);
   const [saveLoading, setSaveLoading] = useState(false);
   const [allServices, setAllServices] = useState([]);
   const [services, setServices] = useState([]);
   const [serviceTypes, setServiceTypes] = useState([]);
-  const [serviceName, setServiceName] = useState("");
-  const [serviceType, setServiceType] = useState("");
+  const [addNewService, setAddNewService] = useState(false);
 
   const languagePopupRef = useRef(null);
-
-  // Retrieve userID and AccessToken from localStorage
   const localUserData = JSON.parse(localStorage.getItem("userData"));
   const accessToken = localUserData ? localUserData.access_token : null;
 
-  // Fetch services and languages on component mount
   useEffect(() => {
     fetchServices();
+    fetchServiceTypes();
     fetchLanguages();
     fetchAdvisors();
+    fetchReferedAdvisors();
   }, []);
 
   useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
+  const uploadFile = async (file) => {
+    const formData = new FormData();
+    formData.append("files", file);
+
+    try {
+      const response = await fetch("https://margda.in:7000/api/upload_file", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to upload file");
+      }
+
+      const result = await response.json();
+      if (result.success) {
+        return result.fileUrls[0];
+      } else {
+        throw new Error(result.message);
+      }
+    } catch (error) {
+      console.error("Error uploading file:", error);
+      alert("Failed to upload file. Please try again later.");
+      return null;
+    }
+  };
+
+  useEffect(() => {
     const handleClickOutside = (event) => {
-      if (languagePopupRef.current && !languagePopupRef.current.contains(event.target)) {
+      if (
+        languagePopupRef.current &&
+        !languagePopupRef.current.contains(event.target)
+      ) {
         setIsLanguagePopupOpen(false);
+        setIsEditLanguagePopupOpen(false);
       }
     };
 
@@ -76,56 +129,84 @@ const Teleconsultant = () => {
     };
   }, []);
 
-  // Fetch advisors from the API
   const fetchAdvisors = async () => {
     try {
-      const response = await fetch("https://margda.in:7000/api/advisor/get_advisors", {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      });
+      const response = await fetch(
+        "https://margda.in:7000/api/advisor/get_advisors",
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
 
       if (!response.ok) {
         throw new Error("Failed to fetch advisors");
       }
 
       const result = await response.json();
-      console.log("Advisors API Response:", result);
 
       if (response.ok) {
-        setConsultants(result.Services); // Update the consultants state with fetched data
+        setConsultants(result.Services);
+        if (result.Services.length == 0) {
+          setIsFormVisible(true);
+        }
       } else {
         throw new Error("Invalid data format received from the API");
       }
     } catch (error) {
       console.error("Error fetching advisors:", error);
-      alert("Failed to fetch advisors. Please try again later.");
+      // alert("Failed to fetch advisors. Please try again later.");
     }
   };
 
-  // Fetch services from the API
+  const fetchReferedAdvisors = async () => {
+    try {
+      const response = await fetch(
+        "https://margda.in:7000/api/advisor/get_refered_advisors",
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
+
+      const result = await response.json();
+
+      if (response.ok) {
+        if (result.Advisors.length > 0) {
+          setReferedConsultants(result.Advisors);
+        }
+      } else {
+        toast.error(result.message);
+      }
+    } catch (error) {
+      console.error("Error fetching refered advisors:", error);
+    }
+  };
+
   const fetchServices = async () => {
     try {
-      const response = await fetch("https://margda.in:7000/api/advisor/services", {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      });
+      const response = await fetch(
+        "https://margda.in:7000/api/advisor/services",
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
 
       if (!response.ok) {
         throw new Error("Failed to fetch services");
       }
 
       const result = await response.json();
-      console.log("Services API Response:", result);
 
       if (result.success && Array.isArray(result.data)) {
-        const services = result.data;
-        const serviceTypes = [...new Set(services.map((item) => item.servicetype))];
         setAllServices(result.data);
-        setServiceTypes(serviceTypes);
       } else {
         throw new Error("Invalid data format received from the API");
       }
@@ -135,7 +216,36 @@ const Teleconsultant = () => {
     }
   };
 
-  // Fetch languages from the API
+  const fetchServiceTypes = async () => {
+    try {
+      const response = await fetch(
+        "https://margda.in:7000/api/master/service/get-servicetypes",
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch services");
+      }
+
+      const result = await response.json();
+
+      if (result.success && Array.isArray(result.data)) {
+        const services = result.data;
+        setServiceTypes(services);
+      } else {
+        throw new Error("Invalid data format received from the API");
+      }
+    } catch (error) {
+      console.error("Error fetching services:", error);
+      alert("Failed to fetch services. Please try again later.");
+    }
+  };
+
   const fetchLanguages = async () => {
     try {
       const response = await fetch("https://margda.in:7000/api/languages", {
@@ -150,10 +260,11 @@ const Teleconsultant = () => {
       }
 
       const result = await response.json();
-      console.log("Languages API Response:", result);
 
       if (result.success && Array.isArray(result.data)) {
-        const sortedLanguages = result.data.sort((a, b) => a.language.localeCompare(b.language));
+        const sortedLanguages = result.data.sort((a, b) =>
+          a.language.localeCompare(b.language)
+        );
         setLanguages(sortedLanguages);
       } else {
         throw new Error("Invalid data format received from the API");
@@ -164,26 +275,21 @@ const Teleconsultant = () => {
     }
   };
 
-  // Handle form input changes
-  const handleChange = (e) => {
+  const handleChange = async (e) => {
     const { name, value, type, checked, files } = e.target;
 
     if (type === "file") {
       const file = files[0];
       if (file) {
-        const reader = new FileReader();
-        reader.onloadend = () => {
+        const fileUrl = await uploadFile(file);
+        if (fileUrl) {
           setFormData({
             ...formData,
-            [name]: reader.result,
+            [name]: fileUrl,
           });
-        };
-        reader.readAsDataURL(file);
+        }
       }
     } else {
-      if ((name === "service" || name === "servicetype") && value === "new") {
-        return setIsAddServiceOpen(true);
-      }
       if (name === "servicetype") {
         const filter = allServices.filter((item) => item.servicetype == value);
         setServices(filter);
@@ -195,32 +301,74 @@ const Teleconsultant = () => {
     }
   };
 
-  const handleEditChange = (e) => {
+  const handleTimeChange = (e) => {
+    const { name, value } = e.target;
+    if (name == "start") {
+      setFormData({
+        ...formData,
+        ["availableTime"]: [value, formData.availableTime[1]],
+      });
+    } else if (name == "end") {
+      setFormData({
+        ...formData,
+        ["availableTime"]: [formData.availableTime[0], value],
+      });
+    }
+  };
+
+  const handleEditChange = async (e) => {
     const { name, value, type, checked, files } = e.target;
 
     if (type === "file") {
       const file = files[0];
       if (file) {
-        const reader = new FileReader();
-        reader.onloadend = () => {
+        const fileUrl = await uploadFile(file);
+        if (fileUrl) {
           setEditFormData({
             ...editFormData,
-            [name]: reader.result,
+            [name]: fileUrl,
           });
-        };
-        reader.readAsDataURL(file);
+        }
       }
+    } else if (name === "language") {
+      const { value, checked } = e.target;
+      if (checked) {
+        setEditFormData({
+          ...editFormData,
+          language: [...editFormData.language, value],
+        });
+      } else {
+        setEditFormData({
+          ...editFormData,
+          language: editFormData.language.filter((lang) => lang !== value),
+        });
+      }
+    } else if (name === "servicetype") {
+      const filter = allServices.filter((item) => item.servicetype == value);
+      setServices(filter);
+      setEditFormData({
+        ...editFormData,
+        [name]: value,
+      });
     } else {
-      if ((name === "service" || name === "servicetype") && value === "new") {
-        return setIsAddServiceOpen(true);
-      }
-      if (name === "servicetype") {
-        const filter = allServices.filter((item) => item.servicetype == value);
-        setServices(filter);
-      }
       setEditFormData({
         ...editFormData,
         [name]: type === "checkbox" ? checked : value,
+      });
+    }
+  };
+
+  const handleEditTimeChange = (e) => {
+    const { name, value } = e.target;
+    if (name == "start") {
+      setEditFormData({
+        ...editFormData,
+        ["availableTime"]: [value, editFormData.availableTime[1]],
+      });
+    } else if (name == "end") {
+      setEditFormData({
+        ...editFormData,
+        ["availableTime"]: [editFormData.availableTime[0], value],
       });
     }
   };
@@ -233,7 +381,6 @@ const Teleconsultant = () => {
     lang.language.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // Handle language selection changes
   const handleLanguageChange = (e) => {
     const { value, checked } = e.target;
     if (checked) {
@@ -253,11 +400,9 @@ const Teleconsultant = () => {
     setFormData({ ...formData, mobile: value });
   };
 
-  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Basic validation
     if (
       !formData.avatarName ||
       !formData.avatarPic ||
@@ -266,7 +411,9 @@ const Teleconsultant = () => {
       !formData.details ||
       !formData.language.length ||
       !formData.feePerMinute ||
-      !formData.mobile
+      !formData.mobile ||
+      !formData.service ||
+      !formData.servicetype
     ) {
       alert("Please fill all required fields.");
       return;
@@ -274,15 +421,9 @@ const Teleconsultant = () => {
 
     setIsSubmitting(true);
 
-    // Prepare the request body
-    const selectedService = allServices.find(
-      (service) =>
-        service.service === formData.service && service.servicetype == formData.servicetype
-    );
-    const serviceID = selectedService ? selectedService.serviceID : null;
-
     const requestBody = {
-      serviceID: serviceID,
+      serviceName: formData.service,
+      serviceType: formData.servicetype,
       fee_per_minute: parseFloat(formData.feePerMinute),
       avatar_url: formData.avatarPic,
       avatar_name: formData.avatarName,
@@ -294,36 +435,39 @@ const Teleconsultant = () => {
           return selectedLang ? selectedLang.langID : null;
         })
         .filter((id) => id !== null),
-      available_time: formData.availableTime.split(" to "),
+      available_time: formData.availableTime,
       live: formData.live,
       free_2_minutes: formData.freeTwoMinutes,
       mobile: formData.mobile,
+      referCode: formData.refercode || null,
+      pincode: formData.pincode || null,
     };
 
     try {
-      const response = await fetch("https://margda.in:7000/api/advisor/add_advisor", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(requestBody),
-      });
-
-      if (!response.ok) {
-        if (response.status == 409) {
-          return alert("This service is already added");
+      const response = await fetch(
+        "https://margda.in:7000/api/advisor/add_advisor",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(requestBody),
         }
-        throw new Error("Failed to add advisor");
-      }
+      );
 
       const result = await response.json();
-      console.log("Advisor added successfully:", result);
+      if (!response.ok) {
+        if (response.status === 409) {
+          throw new Error("This service is already added.");
+        } else if (response.status === 400) {
+          return alert(result.message);
+        }
+        throw new Error("Failed to add advisor.");
+      }
 
-      // Update local state with the new advisor
       setConsultants([...consultants, result.data]);
 
-      // Reset form data
       setFormData({
         avatarPic: "",
         avatarName: "",
@@ -331,29 +475,29 @@ const Teleconsultant = () => {
         heading: "",
         details: "",
         language: [],
-        availableTime: "08:00 to 16:00",
+        availableTime: ["", ""],
         live: false,
         feePerMinute: "",
         freeTwoMinutes: false,
         mobile: "",
+        servicetype: "",
+        pincode: "",
       });
 
       setIsFormVisible(false);
     } catch (error) {
       console.error("Error adding advisor:", error);
-      alert("Failed to add advisor. Please try again later.");
+      alert(error.message);
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // Handle delete action
   const handleDelete = (index) => {
     const updatedConsultants = consultants.filter((_, i) => i !== index);
     setConsultants(updatedConsultants);
   };
 
-  // Toggle live status
   const toggleLiveStatus = (index) => {
     const updatedConsultants = consultants.map((consultant, i) =>
       i === index ? { ...consultant, live: !consultant.live } : consultant
@@ -361,36 +505,55 @@ const Teleconsultant = () => {
     setConsultants(updatedConsultants);
   };
 
-  // Toggle free 2 minutes
   const toggleFreeTwoMinutes = (index) => {
     const updatedConsultants = consultants.map((consultant, i) =>
-      i === index ? { ...consultant, freeTwoMinutes: !consultant.freeTwoMinutes } : consultant
+      i === index
+        ? { ...consultant, freeTwoMinutes: !consultant.freeTwoMinutes }
+        : consultant
     );
     setConsultants(updatedConsultants);
   };
 
-  // Handle showing the edit form with pre-filled data
   const handleShowEditForm = (consultant) => {
     setIsEditFormOpen(true);
+    const filter = allServices.filter(
+      (item) => item.servicetype === consultant.serviceType
+    );
+    setServices(filter);
     setEditFormData({
-      ...consultant,
-      languages: consultant.languages || [], // Ensure languages is an array
-      available_time: consultant.available_time || [], // Ensure available_time is an array
+      advisorID: consultant.advisorID,
+      serviceID: consultant.serviceID,
+      avatarPic: consultant.avatar_url,
+      avatarName: consultant.avatar_name,
+      serviceName: consultant.serviceName,
+      serviceType: consultant.serviceType,
+      heading: consultant.heading,
+      details: consultant.details,
+      language: consultant.language.map((lang) => {
+        const selectedLang = languages.find((item) => item.langID == lang);
+        return selectedLang ? selectedLang.language : null;
+      }),
+      availableTime: consultant.avail_time,
+      live: consultant.live,
+      feePerMinute: consultant.fee_pm,
+      freeTwoMinutes: consultant.free,
+      mobile: consultant.mobile,
+      pincode: consultant.pincode,
     });
   };
 
-  // Handle edit form submission
   const handleEditSubmit = async (e) => {
     e.preventDefault();
 
-    // Basic validation
     if (
-      !editFormData.avatar_name ||
-      !editFormData.avatar_url ||
+      !editFormData.avatarName ||
+      !editFormData.avatarPic ||
+      !editFormData.serviceName ||
+      !editFormData.serviceType ||
       !editFormData.heading ||
       !editFormData.details ||
-      !editFormData.languages.length ||
-      !editFormData.fee_per_minute ||
+      !editFormData.language.length ||
+      !editFormData.feePerMinute ||
       !editFormData.mobile
     ) {
       alert("Please fill all required fields.");
@@ -399,57 +562,60 @@ const Teleconsultant = () => {
 
     setIsSubmitting(true);
 
-    // Prepare the request body
     const requestBody = {
-      advisorID: parseInt(editFormData.advisorID, 10), // Ensure advisorID is an integer
-      serviceID: parseInt(editFormData.serviceID, 10), // Ensure serviceID is an integer
-      fee_per_minute: parseFloat(editFormData.fee_per_minute), // Ensure fee_per_minute is a number
-      avatar_url: editFormData.avatar_url,
-      avatar_name: editFormData.avatar_name,
+      advisorID: editFormData.advisorID,
+      serviceName: editFormData.serviceName,
+      serviceType: editFormData.serviceType,
+      fee_per_minute: parseFloat(editFormData.feePerMinute),
+      avatar_url: editFormData.avatarPic,
+      avatar_name: editFormData.avatarName,
       heading: editFormData.heading,
       details: editFormData.details,
-      languages: editFormData.languages
+      languages: editFormData.language
         .map((lang) => {
           const selectedLang = languages.find((l) => l.language === lang);
           return selectedLang ? selectedLang.langID : null;
         })
-        .filter((id) => id !== null), // Map language names to their IDs
-      available_time: editFormData.available_time, // Ensure this is an array of times
+        .filter((id) => id !== null),
+      available_time: editFormData.availableTime,
       live: editFormData.live,
-      free_2_minutes: editFormData.free_2_minutes,
-      mobile: editFormData.mobile, // Ensure mobile is a string
+      free_2_minutes: editFormData.freeTwoMinutes,
+      mobile: editFormData.mobile,
+      pincode: editFormData.pincode,
     };
 
     try {
-      const response = await fetch("https://margda.in:7000/api/advisor/update_advisor", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(requestBody),
-      });
+      const response = await fetch(
+        `https://margda.in:7000/api/advisor/update_advisor`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(requestBody),
+        }
+      );
 
       if (!response.ok) {
-        const errorResponse = await response.json(); // Parse the error response
-        console.error("Error response:", errorResponse);
-        throw new Error("Failed to update advisor");
+        if (response.status === 404) {
+          throw new Error(
+            "Advisor not found. Please check the ID and try again."
+          );
+        } else {
+          throw new Error("Failed to update advisor.");
+        }
       }
 
       const result = await response.json();
-      console.log("Advisor updated successfully:", result);
 
-      // Update local state with the updated advisor
-      const updatedConsultants = consultants.map((consultant) =>
-        consultant.advisorID === editFormData.advisorID ? { ...consultant, ...result.data } : consultant
-      );
-      setConsultants(updatedConsultants);
+      // Re-fetch advisors to update the list
+      await fetchAdvisors();
 
-      // Close the edit form
       setIsEditFormOpen(false);
     } catch (error) {
       console.error("Error updating advisor:", error);
-      alert("Failed to update advisor. Please try again later.");
+      alert(error.message);
     } finally {
       setIsSubmitting(false);
     }
@@ -457,7 +623,6 @@ const Teleconsultant = () => {
 
   return (
     <div className="p-8 bg-gray-50">
-      {/* Add Services Button */}
       <div className="flex justify-center mb-8">
         <button
           onClick={() => setIsFormVisible(!isFormVisible)}
@@ -467,29 +632,39 @@ const Teleconsultant = () => {
         </button>
       </div>
 
-      {/* Form Section */}
       {isFormVisible && (
         <div className="bg-white p-8 rounded-lg shadow-md mb-8">
-          <h2 className="text-3xl font-bold text-gray-800 mb-8">Teleconsultant</h2>
-
+          <h2 className="text-3xl font-bold text-gray-800 mb-8">
+            Teleconsultant
+          </h2>
           <form onSubmit={handleSubmit} className="space-y-8">
-            {/* 3x4 Grid Layout */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {/* Column 1 */}
-              <div className="space-y-8">
-                {/* Avatar Section */}
+              <div className="space-y-4">
                 <div>
-                  <label className="block text-lg font-semibold text-gray-700 mb-4">
-                    Avatar Pic
+                  <label className="block text-lg font-medium text-gray-700 mb-3">
+                    Avatar pic
                   </label>
-                  {formData.avatarPic && (
-                    <img
-                      src={formData.avatarPic}
-                      alt="Profile Picture"
-                      className="w-24 h-24 rounded-full border-4 border-blue-500 shadow-md mx-auto mb-4"
-                    />
-                  )}
-                  <div className="flex items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-500 transition duration-300">
+                  <div className="flex items-center justify-center w-full">
+                    <label
+                      htmlFor="avatarPic"
+                      className="cursor-pointer w-full p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 hover:border-blue-500 transition duration-300"
+                    >
+                      {formData.avatarPic ? (
+                        <div className="flex items-center justify-center">
+                          <img
+                            src={formData.avatarPic}
+                            alt="Profile Picture"
+                            className="w-24 h-24 rounded-full border-2 border-blue-500 shadow-sm"
+                          />
+                        </div>
+                      ) : (
+                        <div className="flex items-center justify-center">
+                          <div className="w-16 h-16 rounded-full border-2 border-dashed border-gray-300 flex items-center justify-center">
+                            <FaUpload className="w-6 h-6 text-gray-500" />
+                          </div>
+                        </div>
+                      )}
+                    </label>
                     <input
                       type="file"
                       name="avatarPic"
@@ -497,81 +672,96 @@ const Teleconsultant = () => {
                       className="hidden"
                       id="avatarPic"
                     />
-                    <label
-                      htmlFor="avatarPic"
-                      className="flex flex-col items-center text-gray-600 cursor-pointer hover:text-blue-600"
-                    >
-                      <FaUpload className="w-8 h-8 mb-2" />
-                      <span className="text-sm">
-                        {formData.avatarPic ? "Change Avatar" : "Upload Avatar"}
-                      </span>
-                    </label>
                   </div>
                 </div>
 
-                {/* Avatar Name */}
                 <div>
-                  <label className="block text-lg font-semibold text-gray-700 mb-4">
-                    Avatar Name
+                  <label className="block text-lg font-medium text-gray-700 mb-2">
+                    Avatar name
                   </label>
                   <input
                     type="text"
                     name="avatarName"
                     value={formData.avatarName}
                     onChange={handleChange}
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Enter Avatar Name"
+                    className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Avtar Name"
                   />
                 </div>
 
-                {/* Service Type */}
                 <div>
-                  <label className="block text-lg font-semibold text-gray-700 mb-4">
+                  <label className="block text-lg font-medium text-gray-700 mb-3">
                     Service Type
                   </label>
                   <select
                     name="servicetype"
                     value={formData.servicetype}
                     onChange={handleChange}
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="">Select a service type</option>
                     {serviceTypes.map((service, index) => (
-                      <option key={index} value={service}>
-                        {service}
+                      <option key={index} value={service.servicetypeID}>
+                        {service.servicetype}
                       </option>
                     ))}
-                    <option value="new">Add New Service Type</option>
                   </select>
                 </div>
 
-                {/* Service */}
-                <div>
-                  <label className="block text-lg font-semibold text-gray-700 mb-4">
-                    Service
-                  </label>
-                  <select
-                    name="service"
-                    value={formData.service}
-                    onChange={handleChange}
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="">Select a service</option>
-                    {services.map((service) => (
-                      <option key={service.serviceID} value={service.service}>
-                        {service.service}
-                      </option>
-                    ))}
-                    <option value="new">Add New Service</option>
-                  </select>
+                {addNewService ? (
+                  <div>
+                    <label
+                      htmlFor="newService"
+                      className="block text-lg font-medium text-gray-700 mb-2"
+                    >
+                      New Service
+                    </label>
+                    <input
+                      id="newService"
+                      value={formData.service}
+                      onChange={handleChange}
+                      name="service"
+                      placeholder="New Service"
+                      className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      type="text"
+                    />
+                  </div>
+                ) : (
+                  <div>
+                    <label className="block text-lg font-medium text-gray-700 mb-2">
+                      Service
+                    </label>
+                    <select
+                      name="service"
+                      value={formData.service}
+                      onChange={handleChange}
+                      className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="">Select a service</option>
+                      {services.map((service) => (
+                        <option key={service.serviceID} value={service.service}>
+                          {service.service}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+                <div className="flex items-center flex-row">
+                  <label htmlFor="newservicecheckbox"> Add New Service</label>
+                  <input
+                    checked={addNewService}
+                    onChange={() => setAddNewService(!addNewService)}
+                    type="checkbox"
+                    className="ml-1"
+                    name="newservicecheckbox"
+                    id="newservicecheckbox"
+                  />
                 </div>
               </div>
 
-              {/* Column 2 */}
-              <div className="space-y-8">
-                {/* Mobile Number */}
-                <div>
-                  <label className="block text-lg font-semibold text-gray-700 mb-4">
+              <div>
+                <div className="space-y-4">
+                  <label className="block text-lg font-medium text-gray-700 mb-3">
                     Service Mobile Number
                   </label>
                   <PhoneInput
@@ -587,24 +777,8 @@ const Teleconsultant = () => {
                   />
                 </div>
 
-                {/* Details */}
                 <div>
-                  <label className="block text-lg font-semibold text-gray-700 mb-4">
-                    Details of the Service
-                  </label>
-                  <textarea
-                    name="details"
-                    value={formData.details}
-                    onChange={handleChange}
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Enter Service Details"
-                    rows="4"
-                  />
-                </div>
-
-                {/* Heading */}
-                <div>
-                  <label className="block text-lg font-semibold text-gray-700 mb-4">
+                  <label className="block text-lg font-medium p-2 text-gray-700 mb-3">
                     Heading
                   </label>
                   <input
@@ -612,21 +786,22 @@ const Teleconsultant = () => {
                     name="heading"
                     value={formData.heading}
                     onChange={handleChange}
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Enter Service Heading"
+                    className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Service Heading"
                   />
                 </div>
 
-                {/* Language */}
                 <div>
-                  <label className="block text-lg font-semibold text-gray-700 mb-4">
+                  <label className="block text-lg font-medium p-2 text-gray-700 mb-3">
                     Language
                   </label>
                   <div className="relative">
                     <button
                       type="button"
-                      onClick={() => setIsLanguagePopupOpen(!isLanguagePopupOpen)}
-                      className="w-full p-3 border border-gray-300 rounded-lg text-left bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 flex items-center justify-between"
+                      onClick={() =>
+                        setIsLanguagePopupOpen(!isLanguagePopupOpen)
+                      }
+                      className="w-full p-4 border border-gray-300 rounded-lg text-left bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 flex items-center justify-between"
                     >
                       {formData.language.length > 0
                         ? formData.language.join(", ")
@@ -635,35 +810,72 @@ const Teleconsultant = () => {
                     </button>
                   </div>
                 </div>
+
+                <div className="mt-4">
+                  <label className="block text-lg font-medium text-gray-700 mb-3">
+                    Details of the service
+                  </label>
+                  <textarea
+                    name="details"
+                    value={formData.details}
+                    onChange={handleChange}
+                    className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Service Details"
+                    rows="4"
+                  />
+                </div>
               </div>
 
-              {/* Column 3 */}
               <div className="space-y-8">
-                {/* Available Time */}
                 <div>
-                  <label className="block text-lg font-semibold text-gray-700 mb-4">
-                    Available Time
+                  <label className="block text-lg font-medium p-2 text-gray-700 mb-3">
+                    Pin Code
                   </label>
                   <input
                     type="text"
-                    name="availableTime"
-                    value={formData.availableTime}
+                    name="pincode"
+                    value={formData.pincode}
                     onChange={handleChange}
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Enter Available Time"
+                    className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Pin Code"
+                  />
+                </div>
+                <div>
+                  <label
+                    className="block text-lg font-medium text-gray-700 mb-3"
+                    htmlFor="avail_time"
+                  >
+                    Available Hours
+                  </label>
+
+                  <input
+                    type="time"
+                    name="start"
+                    id="avail_time"
+                    className="mr-4"
+                    value={formData.availableTime[0]}
+                    onChange={handleTimeChange}
+                  />
+                  <input
+                    type="time"
+                    value={formData.availableTime[1]}
+                    name="end"
+                    id="avail_time"
+                    onChange={handleTimeChange}
                   />
                 </div>
 
-                {/* Live Toggle */}
                 <div>
-                  <label className="block text-lg font-semibold text-gray-700 mb-4">
+                  <label className="block text-lg font-medium text-gray-700 mb-3">
                     Live
                   </label>
                   <div className="flex items-center">
                     <span className="mr-2 text-sm text-gray-600">No</span>
                     <button
                       type="button"
-                      onClick={() => setFormData({ ...formData, live: !formData.live })}
+                      onClick={() =>
+                        setFormData({ ...formData, live: !formData.live })
+                      }
                       className={`relative w-12 h-6 rounded-full transition-colors duration-300 ${
                         formData.live ? "bg-blue-600" : "bg-gray-300"
                       }`}
@@ -678,25 +890,23 @@ const Teleconsultant = () => {
                   </div>
                 </div>
 
-                {/* Fee Per Minute */}
                 <div>
-                  <label className="block text-lg font-semibold text-gray-700 mb-4">
-                    Fee Per Minute
+                  <label className="block text-lg font-medium text-gray-700 mb-3">
+                    Fee per minute
                   </label>
                   <input
                     type="number"
                     name="feePerMinute"
                     value={formData.feePerMinute}
                     onChange={handleChange}
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     placeholder="₹ Fee Per Minute"
                   />
                 </div>
 
-                {/* Free 2 Minutes Toggle */}
                 <div>
-                  <label className="block text-lg font-semibold text-gray-700 mb-4">
-                    Free 2 Minutes
+                  <label className="block text-lg font-medium text-gray-700 mb-3">
+                    Free 2 minutes
                   </label>
                   <div className="flex items-center">
                     <span className="mr-2 text-sm text-gray-600">No</span>
@@ -714,21 +924,41 @@ const Teleconsultant = () => {
                     >
                       <span
                         className={`absolute left-0.5 top-0.5 w-5 h-5 bg-white rounded-full shadow-md transform transition-transform duration-300 ${
-                          formData.freeTwoMinutes ? "translate-x-6" : "translate-x-0"
+                          formData.freeTwoMinutes
+                            ? "translate-x-6"
+                            : "translate-x-0"
                         }`}
                       />
                     </button>
                     <span className="ml-2 text-sm text-gray-600">Yes</span>
                   </div>
                 </div>
+                {consultants.length == 0 && (
+                  <div>
+                    <label
+                      className="block text-lg font-medium text-gray-700 mb-3"
+                      htmlFor="refercode"
+                    >
+                      Refer Code
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.refercode}
+                      onChange={handleChange}
+                      placeholder="Refer By"
+                      name="refercode"
+                      id="refercode"
+                      className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                )}
               </div>
             </div>
 
-            {/* Submit Button */}
             <div className="flex justify-end">
               <button
                 type="submit"
-                className="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-300 flex items-center"
+                className="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-300 items-center"
                 disabled={isSubmitting}
               >
                 {isSubmitting ? (
@@ -764,10 +994,11 @@ const Teleconsultant = () => {
         </div>
       )}
 
-      {/* Consultants Table */}
       {consultants.length > 0 && (
         <div className="mt-8">
-          <h2 className="text-3xl font-bold text-gray-800 mb-8">Teleconsultants</h2>
+          <h2 className="text-3xl font-bold text-gray-800 mb-8">
+            Teleconsultants
+          </h2>
           <table className="min-w-full bg-white border border-gray-200 mb-8">
             <thead>
               <tr className="bg-gray-100">
@@ -790,8 +1021,10 @@ const Teleconsultant = () => {
             </thead>
             <tbody>
               {consultants.map((consultant, index) => (
-                <tr key={index} className="hover:bg-gray-50 transition duration-200">
-                  {/* Avatar */}
+                <tr
+                  key={index}
+                  className="hover:bg-gray-50 transition duration-200"
+                >
                   <td className="py-6 px-6 border-b">
                     <div className="flex flex-col items-center">
                       <img
@@ -806,22 +1039,38 @@ const Teleconsultant = () => {
                     </div>
                   </td>
 
-                  {/* Service */}
                   <td className="py-6 px-6 border-b">
                     <div>
                       <div className="text-lg font-medium text-gray-800">
                         {services
-                          .filter((item) => item.serviceID == consultant.serviceID)
+                          .filter(
+                            (item) => item.serviceID == consultant.serviceID
+                          )
                           .map((item) => (
                             <div key={item.serviceID}>{item.service}</div>
                           ))}
                       </div>
-                      <div className="text-sm text-gray-600">{consultant.heading}</div>
-                      <div className="text-sm text-gray-500">{consultant.details}</div>
+
+                      <div className="text-sm text-black-500">
+                        Service: <strong>{consultant.serviceName}</strong>
+                      </div>
+                      <div className="text-sm text-black-600">
+                        Heading: <strong>{consultant.heading}</strong>
+                      </div>
+                      <div className="text-sm text-black-500">
+                        Details: <strong>{consultant.details}</strong>
+                      </div>
+                      <div className="text-sm text-black-500">
+                        Timing:{" "}
+                        <strong>
+                          {consultant.avail_time[0] +
+                            " - " +
+                            consultant.avail_time[1]}
+                        </strong>
+                      </div>
                     </div>
                   </td>
 
-                  {/* Connect */}
                   <td className="py-6 px-6 border-b">
                     <div>
                       <div className="text-lg text-gray-700 flex flex-row">
@@ -838,8 +1087,11 @@ const Teleconsultant = () => {
                         {consultant.availableTime}
                       </div>
                       <div className="flex items-center mt-2">
-                        <span className="text-sm text-gray-600 mr-2">Live:</span>
+                        <span className="text-sm text-gray-600 mr-2">
+                          Live:
+                        </span>
                         <button
+                          disabled
                           onClick={() => toggleLiveStatus(index)}
                           className={`relative w-12 h-6 rounded-full transition-colors duration-300 ${
                             consultant.live ? "bg-blue-600" : "bg-gray-300"
@@ -847,7 +1099,9 @@ const Teleconsultant = () => {
                         >
                           <span
                             className={`absolute left-0.5 top-0.5 w-5 h-5 bg-white rounded-full shadow-md transform transition-transform duration-300 ${
-                              consultant.live ? "translate-x-6" : "translate-x-0"
+                              consultant.live
+                                ? "translate-x-6"
+                                : "translate-x-0"
                             }`}
                           />
                         </button>
@@ -855,7 +1109,6 @@ const Teleconsultant = () => {
                     </div>
                   </td>
 
-                  {/* Fee */}
                   <td className="py-6 px-6 border-b">
                     <div>
                       <div className="text-lg text-gray-800">
@@ -863,8 +1116,11 @@ const Teleconsultant = () => {
                       </div>
 
                       <div className="flex items-center mt-2">
-                        <span className="text-sm text-gray-600 mr-2">Free 2 mins:</span>
+                        <span className="text-sm text-gray-600 mr-2">
+                          Free 2 mins:
+                        </span>
                         <button
+                          disabled={editingAdvisorId != consultant.advisorID}
                           onClick={() => toggleFreeTwoMinutes(index)}
                           className={`relative w-12 h-6 rounded-full transition-colors duration-300 ${
                             consultant.free ? "bg-blue-600" : "bg-gray-300"
@@ -872,7 +1128,9 @@ const Teleconsultant = () => {
                         >
                           <span
                             className={`absolute left-0.5 top-0.5 w-5 h-5 bg-white rounded-full shadow-md transform transition-transform duration-300 ${
-                              consultant.free ? "translate-x-6" : "translate-x-0"
+                              consultant.free
+                                ? "translate-x-6"
+                                : "translate-x-0"
                             }`}
                           />
                         </button>
@@ -880,7 +1138,6 @@ const Teleconsultant = () => {
                     </div>
                   </td>
 
-                  {/* Action */}
                   <td className="py-6 px-6 border-b">
                     <div className="flex items-center space-x-4">
                       <>
@@ -890,12 +1147,22 @@ const Teleconsultant = () => {
                         >
                           <FaEdit className="w-6 h-6" />
                         </button>
-                        <button
+                        {/*<button
                           onClick={() => handleDelete(index)}
                           className="text-red-500 hover:text-red-700"
                         >
                           <FaTrash className="w-6 h-6" />
-                        </button>
+                        </button>*/}
+                        {/* <Link to={"/online-payment"}>
+                          <button className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-all duration-300 flex items-center space-x-2 shadow-md hover:shadow-lg transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                            <FaPhoneAlt className="w-5 h-5" />{" "}
+                            <span className="text-left">
+                              Web telephony is not activated. <br />
+                              Pay <FaRupeeSign className="inline" />
+                              2,700 + GST for activation.
+                            </span>
+                          </button>
+                        </Link> */}
                       </>
                     </div>
                   </td>
@@ -903,36 +1170,177 @@ const Teleconsultant = () => {
               ))}
             </tbody>
           </table>
+
+          <p className="font-bold text-xl mb-4">You Refered These Advisors</p>
+          {referedConsultants && referedConsultants.length > 0 ? (
+            <div className="flex flex-col gap-3">
+              {referedConsultants.map((consultant, index) => (
+                <div
+                  key={index}
+                  className="bg-gray-100 flex rounded p-5 items-center hover:bg-gray-300"
+                >
+                  <div className="mr-9">{index + 1}.</div>
+                  <div className="mr-9">
+                    <p>Advisor Name</p>
+                    <div>{consultant.avatar_name}</div>
+                  </div>
+                  <div className="mr-9">
+                    <p>Service</p>
+                    <div>{consultant.serviceName}</div>
+                  </div>
+                  <div className="mr-9">
+                    <p>Fee Per Minute</p>
+                    <div> {consultant.fee_pm}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div> You had not refered any advisor yet</div>
+          )}
         </div>
       )}
 
-      {/* Edit Form Modal */}
-      {isEditFormOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-4xl">
-            <h2 className="text-3xl font-bold text-gray-800 mb-8">Edit Consultant</h2>
+      {isLanguagePopupOpen && (
+        <div
+          role="dialog"
+          aria-labelledby="modal-title"
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+        >
+          <div
+            ref={languagePopupRef}
+            className="bg-white p-6 rounded-lg shadow-lg w-full max-w-sm"
+          >
+            <h2 className="text-xl font-bold text-gray-800 mb-4">
+              Select Languages
+            </h2>
+            <div className="flex items-center p-2 border-b border-gray-200 mb-4">
+              <FaSearch className="w-4 h-4 text-gray-500" />
+              <input
+                type="text"
+                placeholder="Search languages"
+                value={searchQuery}
+                onChange={handleSearchChange}
+                className="w-full p-2 focus:outline-none"
+              />
+            </div>
+            <div className="max-h-64 overflow-y-auto">
+              {filteredLanguages.map((lang) => (
+                <label
+                  key={lang.langID}
+                  className="flex items-center p-2 hover:bg-gray-100 rounded-lg"
+                >
+                  <input
+                    type="checkbox"
+                    name="language"
+                    value={lang.language}
+                    checked={formData.language.includes(lang.language)}
+                    onChange={handleLanguageChange}
+                    className="form-checkbox h-5 w-5 text-blue-600 rounded"
+                  />
+                  <span className="ml-2 text-sm text-gray-700">
+                    {lang.language}
+                  </span>
+                </label>
+              ))}
+            </div>
+            <div className="mt-4 flex justify-end">
+              <button
+                type="button"
+                onClick={() => setIsLanguagePopupOpen(false)}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-300"
+              >
+                Done
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
-            <form onSubmit={handleEditSubmit} className="space-y-6 w-full max-w-6xl mx-auto p-6 bg-white rounded-lg shadow-md">
-              {/* 3x4 Grid Layout */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {/* Column 1 */}
-                <div className="space-y-6">
-                  {/* Avatar Section */}
+      {isEditLanguagePopupOpen && (
+        <div
+          role="dialog"
+          aria-labelledby="modal-title"
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+        >
+          <div
+            ref={languagePopupRef}
+            className="bg-white p-6 rounded-lg shadow-lg w-full max-w-sm"
+          >
+            <h2 className="text-xl font-bold text-gray-800 mb-4">
+              Select Languages
+            </h2>
+            <div className="flex items-center p-2 border-b border-gray-200 mb-4">
+              <FaSearch className="w-4 h-4 text-gray-500" />
+              <input
+                type="text"
+                placeholder="Search languages"
+                value={searchQuery}
+                onChange={handleSearchChange}
+                className="w-full p-2 focus:outline-none"
+              />
+            </div>
+            <div className="max-h-64 overflow-y-auto">
+              {filteredLanguages.map((lang) => (
+                <label
+                  key={lang.langID}
+                  className="flex items-center p-2 hover:bg-gray-100 rounded-lg"
+                >
+                  <input
+                    type="checkbox"
+                    name="language"
+                    value={lang.language}
+                    checked={editFormData.language.includes(lang.language)}
+                    onChange={handleEditChange}
+                    className="form-checkbox h-5 w-5 text-blue-600 rounded"
+                  />
+                  <span className="ml-2 text-sm text-gray-700">
+                    {lang.language}
+                  </span>
+                </label>
+              ))}
+            </div>
+            <div className="mt-4 flex justify-end">
+              <button
+                type="button"
+                onClick={() => setIsEditLanguagePopupOpen(false)}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-300"
+              >
+                Done
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isEditFormOpen && (
+        <div
+          role="dialog"
+          aria-labelledby="modal-title"
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-40"
+        >
+          <div className="bg-white p-8 rounded-lg shadow-md mb-8  max-w-[60%]">
+            <h2 className="text-3xl font-bold text-gray-800 mb-8">
+              Teleconsultant
+            </h2>
+            <form onSubmit={handleEditSubmit} className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Avatar Pic
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Avatar pic
                     </label>
-                    <div className="flex items-center justify-center">
-                      <label htmlFor="avatarPic" className="cursor-pointer">
-                        {editFormData.avatar_url ? (
+                    <div className="flex items-center justify-center w-full">
+                      <label htmlFor="editAvatarPic" className="cursor-pointer">
+                        {editFormData.avatarPic ? (
                           <img
-                            src={editFormData.avatar_url}
+                            src={editFormData.avatarPic}
                             alt="Profile Picture"
-                            className="w-20 h-20 rounded-full border-2 border-blue-500 shadow-sm hover:border-blue-600 transition duration-300"
+                            className="w-16 h-16 rounded-full border-2 border-blue-500 shadow-sm hover:border-blue-600 transition duration-300"
                           />
                         ) : (
-                          <div className="w-20 h-20 rounded-full border-2 border-gray-300 shadow-sm flex items-center justify-center hover:border-blue-500 transition duration-300">
-                            <FaUser className="w-10 h-10 text-gray-400 hover:text-blue-500 transition duration-300" />
+                          <div className="w-16 h-16 rounded-full border-2 border-dashed border-gray-300 flex items-center justify-center hover:border-blue-500 transition duration-300">
+                            <FaUpload className="w-6 h-6 text-gray-500" />
                           </div>
                         )}
                       </label>
@@ -941,78 +1349,139 @@ const Teleconsultant = () => {
                         name="avatarPic"
                         onChange={handleEditChange}
                         className="hidden"
-                        id="avatarPic"
+                        id="editAvatarPic"
                       />
                     </div>
                   </div>
 
-                  {/* Advisor ID */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Advisor ID
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Service Type
                     </label>
-                    <input
-                      type="number"
-                      name="advisorID"
-                      value={editFormData.advisorID}
+                    <select
+                      name="servicetype"
+                      value={editFormData.serviceType}
                       onChange={handleEditChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-300"
-                      placeholder="Enter Advisor ID"
-                      disabled // Disable editing of advisorID
-                    />
+                      className="w-full p-1.5 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      disabled
+                    >
+                      <option value="">Select a service type</option>
+                      {serviceTypes.map((service, index) => (
+                        <option key={index} value={service.servicetypeID}>
+                          {service.servicetype}
+                        </option>
+                      ))}
+                      <option value="new"> Add New Service Type</option>
+                    </select>
                   </div>
 
-                  {/* Service ID */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Service ID
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Service
                     </label>
-                    <input
-                      type="number"
-                      name="serviceID"
-                      value={editFormData.serviceID}
+                    <select
+                      name="service"
+                      value={editFormData.serviceName}
                       onChange={handleEditChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-300"
-                      placeholder="Enter Service ID"
-                    />
+                      className="w-full p-1.5 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      disabled
+                    >
+                      <option value="">Select a service</option>
+                      {services.map((service) => (
+                        <option key={service.serviceID} value={service.service}>
+                          {service.service}
+                        </option>
+                      ))}
+                      <option value="new"> Add New Service</option>
+                    </select>
                   </div>
-
-                  {/* Fee Per Minute */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Fee Per Minute
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Pin Code
                     </label>
                     <input
-                      type="number"
-                      name="fee_per_minute"
-                      value={editFormData.fee_per_minute}
+                      type="text"
+                      name="pincode"
+                      value={editFormData.pincode}
                       onChange={handleEditChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-300"
-                      placeholder="₹ Fee Per Minute"
+                      className="w-full p-1.5 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      placeholder="Pin Code"
                     />
                   </div>
                 </div>
 
-                {/* Column 2 */}
-                <div className="space-y-6">
-                  {/* Avatar Name */}
+                <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Avatar Name
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Avatar name
                     </label>
                     <input
                       type="text"
-                      name="avatar_name"
-                      value={editFormData.avatar_name}
+                      name="avatarName"
+                      value={editFormData.avatarName}
                       onChange={handleEditChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-300"
-                      placeholder="Enter Avatar Name"
+                      className="w-full p-1.5 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      placeholder="Avatar Name"
                     />
                   </div>
 
-                  {/* Heading */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Service Mobile Number
+                    </label>
+                    <PhoneInput
+                      country={"in"}
+                      value={editFormData.mobile}
+                      onChange={(value) =>
+                        setEditFormData({ ...editFormData, mobile: value })
+                      }
+                      placeholder="Mobile"
+                      inputStyle={{
+                        width: "100%",
+                        height: "36px",
+                        paddingLeft: "40px",
+                      }}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Language
+                    </label>
+                    <div className="relative">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setIsEditLanguagePopupOpen(!isEditLanguagePopupOpen)
+                        }
+                        className="w-full p-1.5 border border-gray-300 rounded-md text-left bg-white focus:outline-none focus:ring-1 focus:ring-blue-500 flex items-center justify-between"
+                      >
+                        {editFormData.language.length > 0
+                          ? editFormData.language.join(", ")
+                          : "Select languages"}
+                        <FaChevronDown className="w-3 h-3 text-gray-500" />
+                      </button>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Details of the service
+                    </label>
+                    <textarea
+                      name="details"
+                      value={editFormData.details}
+                      onChange={handleEditChange}
+                      className="w-full p-1.5 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      placeholder="Service Details"
+                      rows="2"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
                       Heading
                     </label>
                     <input
@@ -1020,94 +1489,42 @@ const Teleconsultant = () => {
                       name="heading"
                       value={editFormData.heading}
                       onChange={handleEditChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-300"
-                      placeholder="Enter Service Heading"
+                      className="w-full p-1.5 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      placeholder="Service Heading"
                     />
                   </div>
 
-                  {/* Languages */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Languages
+                    <label
+                      className="block text-lg font-medium text-gray-700 mb-3"
+                      htmlFor="avail_edit_time"
+                    >
+                      Available Hours
                     </label>
+
                     <input
-                      type="text"
-                      name="languages"
-                      value={editFormData.languages?.join(", ") || ""}
-                      onChange={(e) =>
-                        setEditFormData({
-                          ...editFormData,
-                          languages: e.target.value.split(",").map((lang) => lang.trim()),
-                        })
-                      }
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-300"
-                      placeholder="Enter Languages"
+                      type="time"
+                      name="start"
+                      id="avail_edit_time"
+                      className="mr-4"
+                      value={editFormData.availableTime[0]}
+                      onChange={handleEditTimeChange}
                     />
-                  </div>
-
-                  {/* Details */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Details
-                    </label>
-                    <textarea
-                      name="details"
-                      value={editFormData.details}
-                      onChange={handleEditChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-300"
-                      placeholder="Enter Service Details"
-                      rows="3"
-                    />
-                  </div>
-                </div>
-
-                {/* Column 3 */}
-                <div className="space-y-6">
-                  {/* Available Time */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Available Time
-                    </label>
                     <input
-                      type="text"
-                      name="available_time"
-                      value={editFormData.available_time?.join(", ") || ""}
-                      onChange={(e) =>
-                        setEditFormData({
-                          ...editFormData,
-                          available_time: e.target.value.split(",").map((time) => time.trim()),
-                        })
-                      }
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-300"
-                      placeholder="Enter Available Time"
+                      type="time"
+                      value={editFormData.availableTime[1]}
+                      name="end"
+                      id="avail_edit_time"
+                      onChange={handleEditTimeChange}
                     />
                   </div>
 
-                  {/* Mobile Number */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Mobile Number
-                    </label>
-                    <PhoneInput
-                      country={"in"}
-                      value={editFormData.mobile}
-                      onChange={(value) => setEditFormData({ ...editFormData, mobile: value })}
-                      placeholder="Mobile"
-                      inputStyle={{
-                        width: "100%",
-                        height: "50px",
-                        paddingLeft: "58px",
-                      }}
-                    />
-                  </div>
-
-                  {/* Live Toggle */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
                       Live
                     </label>
                     <div className="flex items-center">
-                      <span className="mr-2 text-sm text-gray-600">No</span>
+                      <span className="mr-2 text-xs text-gray-600">No</span>
                       <button
                         type="button"
                         onClick={() =>
@@ -1116,62 +1533,80 @@ const Teleconsultant = () => {
                             live: !editFormData.live,
                           })
                         }
-                        className={`relative w-10 h-6 rounded-full transition-colors duration-300 ${
+                        className={`relative w-8 h-4 rounded-full transition-colors duration-300 ${
                           editFormData.live ? "bg-blue-600" : "bg-gray-300"
                         }`}
                       >
                         <span
-                          className={`absolute left-1 top-1 w-4 h-4 bg-white rounded-full shadow-md transform transition-transform duration-300 ${
-                            editFormData.live ? "translate-x-4" : "translate-x-0"
+                          className={`absolute left-0.5 top-0.5 w-3 h-3 bg-white rounded-full shadow-sm transform transition-transform duration-300 ${
+                            editFormData.live
+                              ? "translate-x-4"
+                              : "translate-x-0"
                           }`}
                         />
                       </button>
-                      <span className="ml-2 text-sm text-gray-600">Yes</span>
+                      <span className="ml-2 text-xs text-gray-600">Yes</span>
                     </div>
                   </div>
 
-                  {/* Free 2 Minutes Toggle */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Free 2 Minutes
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Fee per minute
+                    </label>
+                    <input
+                      type="number"
+                      name="feePerMinute"
+                      value={editFormData.feePerMinute}
+                      onChange={handleEditChange}
+                      className="w-full p-1.5 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      placeholder="₹ Fee Per Minute"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Free 2 minutes
                     </label>
                     <div className="flex items-center">
-                      <span className="mr-2 text-sm text-gray-600">No</span>
+                      <span className="mr-2 text-xs text-gray-600">No</span>
                       <button
                         type="button"
                         onClick={() =>
                           setEditFormData({
                             ...editFormData,
-                            free_2_minutes: !editFormData.free_2_minutes,
+                            freeTwoMinutes: !editFormData.freeTwoMinutes,
                           })
                         }
-                        className={`relative w-10 h-6 rounded-full transition-colors duration-300 ${
-                          editFormData.free_2_minutes ? "bg-blue-600" : "bg-gray-300"
+                        className={`relative w-8 h-4 rounded-full transition-colors duration-300 ${
+                          editFormData.freeTwoMinutes
+                            ? "bg-blue-600"
+                            : "bg-gray-300"
                         }`}
                       >
                         <span
-                          className={`absolute left-1 top-1 w-4 h-4 bg-white rounded-full shadow-md transform transition-transform duration-300 ${
-                            editFormData.free_2_minutes ? "translate-x-4" : "translate-x-0"
+                          className={`absolute left-0.5 top-0.5 w-3 h-3 bg-white rounded-full shadow-sm transform transition-transform duration-300 ${
+                            editFormData.freeTwoMinutes
+                              ? "translate-x-4"
+                              : "translate-x-0"
                           }`}
                         />
                       </button>
-                      <span className="ml-2 text-sm text-gray-600">Yes</span>
+                      <span className="ml-2 text-xs text-gray-600">Yes</span>
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* Submit and Cancel Buttons */}
-              <div className="flex justify-end mt-6">
+              <div className="flex justify-end">
                 <button
                   type="submit"
-                  className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-300 flex items-center"
+                  className="px-4 py-1.5 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition duration-300 items-center"
                   disabled={isSubmitting}
                 >
                   {isSubmitting ? (
                     <>
                       <svg
-                        className="animate-spin h-5 w-5 mr-2 text-white"
+                        className="animate-spin h-3 w-3 mr-2 text-white"
                         xmlns="http://www.w3.org/2000/svg"
                         fill="none"
                         viewBox="0 0 24 24"
@@ -1198,7 +1633,7 @@ const Teleconsultant = () => {
                 </button>
                 <button
                   onClick={() => setIsEditFormOpen(false)}
-                  className="px-6 ml-4 py-2 bg-gray-400 text-white rounded-lg hover:bg-gray-500 transition duration-300"
+                  className="px-4 ml-2 py-1.5 bg-gray-400 text-white rounded-md hover:bg-gray-700 transition duration-300 items-center"
                 >
                   Cancel
                 </button>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCartShopping, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
@@ -19,9 +19,8 @@ const ProductDetails = () => {
   // Handle adding item to cart
   const handleAddToCart = () => {
     if (product) {
-      setCart([...cart, product]);
-      alert(`${product.itemName} added to cart!`);
-      navigate('/cart', { state: { cart: [...cart, product] } });
+      setCart([...cart, product]); // Add the item to the cart
+      alert(`${product.itemName} added to cart!`); // Show a confirmation message
     }
   };
 
@@ -37,6 +36,10 @@ const ProductDetails = () => {
     return <div className="text-center text-red-500 text-2xl mt-8">Product not found.</div>;
   }
 
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   return (
     <div className="bg-gradient-to-br from-blue-50 to-purple-50 min-h-screen">
       {/* Header */}
@@ -49,14 +52,11 @@ const ProductDetails = () => {
               alt="Logo"
               className="h-12"
             />
-            <span className="ml-4 text-2xl font-bold text-gray-800">
-              Tools and Training
-            </span>
           </div>
 
           {/* Cart Button */}
           <button
-            onClick={() => navigate('/cart', { state: { cart } })} // Pass cart state to the cart page
+            onClick={() => navigate('/cart', { state: { cart } })}
             className="flex items-center text-gray-700 hover:text-blue-600 transition duration-300"
           >
             <FontAwesomeIcon icon={faCartShopping} className="mr-2" />
@@ -69,8 +69,8 @@ const ProductDetails = () => {
       </header>
 
       {/* Main Content */}
-      <div className="pt-24 pb-8"> {/* Add padding to account for the fixed header */}
-        <div className="max-w-7xl mx-auto">
+      <div className="pt-24 pb-8">
+        <div className="max-w-6xl mx-auto">
           {/* Back Button */}
           <button
             onClick={handleBackToShop}
@@ -92,13 +92,13 @@ const ProductDetails = () => {
             </div>
 
             {/* Product Details Section */}
-            <div className="space-y-8">
-              <h1 className="text-5xl font-bold text-gray-800">
+            <div className="space-y-2">
+              <h1 className="text-4xl font-bold text-gray-800">
                 {product.itemName}
               </h1>
 
               {/* Brand and Seller */}
-              <div className="space-y-2">
+              <div className="space-y-2 ">
                 <p className="text-gray-600">
                   <span className="font-semibold">Brand:</span> {product.brand}
                 </p>

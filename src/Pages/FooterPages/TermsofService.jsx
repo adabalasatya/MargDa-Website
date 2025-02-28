@@ -1,6 +1,6 @@
-import React, { useEffect } from 'react'; // Import useEffect
+import React, { useEffect } from 'react'; 
 import { FaFileContract } from "react-icons/fa";
-import { motion } from 'framer-motion'; // Import motion from framer-motion
+import { motion } from 'framer-motion'; 
 import Nav from '../../Components/Home/navbar';
 import Footer from '../../Components/Home/Footer';
 import TermsImage from "../../assets/FooterPages/terms1.jpeg"

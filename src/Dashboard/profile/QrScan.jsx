@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import io from "socket.io-client";
+import Loader from "../../Components/Loader";
+import { toast } from "react-toastify";
 
 const SOCKET_SERVER_URL = "https://margda.in:3000";
 
@@ -9,6 +11,7 @@ const QrScanPage = () => {
   const [name, setName] = useState(null);
   const [getBtnText, setGetButtonText] = useState("Get Qr Code");
   const [profiles, setProfiles] = useState([]);
+  const [loading, setLoading] = useState(false);
   useEffect(() => {
     fetchProfiles();
   }, []);
@@ -38,27 +41,33 @@ const QrScanPage = () => {
     });
   };
 
-  // const userID = localStorage.getItem("userID");
-  const userID = 8;
-
   const getInstance = async () => {
-    startSocket("8");
-    const response = await fetch(
-      "https://margda.in:3000/api/margda/scan-whatsapp/getinstance",
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
-        },
+    setLoading(true);
+    startSocket(userData.user_data.userID);
+    try {
+      const response = await fetch(
+        "https://margda.in:3000/api/margda/scan-whatsapp/getinstance",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      const data = await response.json();
+      if (response.ok) {
+        setInstanceId(data.instanceId);
+        setQrCodeSrc(data.qrcode);
+      } else {
+        toast.error(data.message);
       }
-    );
-    const data = await response.json();
-    if (response.ok) {
-      setInstanceId(data.instanceId);
-      setQrCodeSrc(data.qrcode);
+      setLoading(false);
+    } catch (error) {
+      setLoading(false);
+      toast.error(error);
+      console.log(error);
     }
-    console.log(data);
   };
 
   const fetchProfiles = async () => {
@@ -70,7 +79,6 @@ const QrScanPage = () => {
           Authorization: `Bearer ${accessToken}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ userID }),
       }
     );
     const data = await response.json();
@@ -85,6 +93,7 @@ const QrScanPage = () => {
   };
   return (
     <>
+      {loading && <Loader />}
       <div className="flex items-center justify-center min-h-screen px-4 sm:px-6">
         <div className="w-full max-w-sm p-4 sm:p-6 bg-white rounded-lg shadow-md sm:max-w-md mx-4 sm:ml-16">
           <h2 className="text-lg sm:text-2xl font-bold text-center text-gray-800 mb-4 sm:mb-6">
@@ -152,15 +161,18 @@ const QrScanPage = () => {
                     {item.mobile}
                   </div>
 
-                  <div
-                    className={`mt-3 px-4 py-1 rounded-full text-sm font-medium ${
-                      item.active
-                        ? "bg-green-100 text-green-600"
-                        : "bg-red-100 text-red-600"
-                    }`}
-                  >
-                    {item.active ? "Active" : "Re-login"}
-                  </div>
+                  {item.active ? (
+                    <div className="mt-3 px-4 py-1 rounded-full text-sm font-medium bg-green-100 text-green-600">
+                      Active
+                    </div>
+                  ) : (
+                    <div
+                      onClick={getQrCode}
+                      className="cursor-pointer mt-3 px-4 py-1 rounded-full text-sm font-medium bg-red-100 text-red-600"
+                    >
+                      Re-login
+                    </div>
+                  )}
                 </div>
               ))}
           </div>

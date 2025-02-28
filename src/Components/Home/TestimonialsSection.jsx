@@ -79,31 +79,31 @@ const TestimonialsSection = () => {
   };
 
   return (
-    <div className="bg-gray-50 py-10">
+    <div className="bg-gray-50 py-8 md:py-10">
       <div className="container mx-auto text-center px-4">
-        <h2 className="text-3xl font-bold text-gray-800 mb-8 flex items-center justify-center gap-2">
+        <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-6 md:mb-8 flex items-center justify-center gap-2">
           <MdOutlineRateReview className="text-orange-500" /> Testimonials
         </h2>
-        <div className="bg-white rounded-lg shadow-md p-6 text-left relative">
-          <FaQuoteLeft className="text-orange-500 text-2xl mb-4" />
-          <p className="text-gray-600 italic mb-4">
+        <div className="bg-white rounded-lg shadow-md p-4 md:p-6 text-left relative">
+          <FaQuoteLeft className="text-orange-500 text-xl md:text-2xl mb-3 md:mb-4" />
+          <p className="text-gray-600 italic text-sm md:text-base mb-3 md:mb-4">
             "{testimonials[currentIndex].quote}"
           </p>
-          <h4 className="font-semibold text-gray-800">
+          <h4 className="font-semibold text-gray-800 text-base md:text-lg">
             {testimonials[currentIndex].author}
           </h4>
-          <div className="flex justify-between mt-4">
+          <div className="flex justify-between mt-3 md:mt-4">
             <button
               onClick={handlePrevious}
               className="text-orange-500 hover:text-orange-700"
             >
-              <FaArrowLeft className="text-2xl" />
+              <FaArrowLeft className="text-xl md:text-2xl" />
             </button>
             <button
               onClick={handleNext}
               className="text-orange-500 hover:text-orange-700"
             >
-              <FaArrowRight className="text-2xl" />
+              <FaArrowRight className="text-xl md:text-2xl" />
             </button>
           </div>
         </div>

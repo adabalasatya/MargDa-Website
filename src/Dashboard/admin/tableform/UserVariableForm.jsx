@@ -64,6 +64,7 @@ const UserVariableForm = ({ user, onClose, onSave }) => {
             callWallet: variables.call_wallet,
             meetWallet: variables.meet_wallet,
             businessMonthly: variables.business,
+            callrate: variables.call_rate,
           }));
         }
       }
@@ -105,6 +106,7 @@ const UserVariableForm = ({ user, onClose, onSave }) => {
     callWallet: user?.callWallet || 0,
     meetWallet: user?.meetWallet || 0,
     businessMonthly: user?.businessMonthly || 0,
+    callrate: user?.call_rate || 0,
   });
 
   function formatDateToIndianISO(dateString) {
@@ -141,6 +143,13 @@ const UserVariableForm = ({ user, onClose, onSave }) => {
     e.preventDefault();
     onSave(formData); // Pass the updated form data back to Adminuser
     onClose(); // Close the form
+  };
+
+  // New function to handle clicks outside the modal
+  const handleOutsideClick = (e) => {
+    if (e.target === e.currentTarget) {
+      onClose(); // Close the modal if clicked outside the content
+    }
   };
 
   return (
@@ -643,6 +652,21 @@ const UserVariableForm = ({ user, onClose, onSave }) => {
                       value={formData.businessMonthly}
                       onChange={handleChange}
                       placeholder="Enter Business Monthly"
+                      className="w-full p-2 border border-gray-300 rounded-md"
+                    />
+                  </td>
+                </tr>
+                <tr>
+                  <td className="border px-4 py-2 font-medium text-gray-700 w-1/4">
+                    Call Rate:
+                  </td>
+                  <td className="border px-4 py-2 w-1/4">
+                    <input
+                      type="number"
+                      name="callrate"
+                      value={formData.callrate}
+                      onChange={handleChange}
+                      placeholder="Call Rate"
                       className="w-full p-2 border border-gray-300 rounded-md"
                     />
                   </td>

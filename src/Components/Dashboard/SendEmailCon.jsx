@@ -1,6 +1,16 @@
+/* eslint-disable react/prop-types */
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
-const SendEmailCon = ({ setSendEmail, selectedLeads, setSelectedLeads }) => {
+const SendEmailCon = ({
+  setSendEmail,
+  selectedLeads,
+  setSelectedLeads,
+  unhideData,
+  fetchData,
+}) => {
+  const navigate = useNavigate();
   const [emailDetails, setEmailDetails] = useState({
     recipientEmails: [],
     subject: "",
@@ -18,31 +28,58 @@ const SendEmailCon = ({ setSendEmail, selectedLeads, setSelectedLeads }) => {
 
   const [templates, setTemplates] = useState([]);
   const [selectedTemplate, setSelectedTemplate] = useState(null);
-  const [selectedService, setSelectedService] = useState("outlook-smtp");
+  const [adminCredentails, setAdminCredentials] = useState({});
+  const [selectedService, setSelectedService] = useState("aws");
+  const [gmail, setGmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [remarks, setRemarks] = useState("");
+  const [followUpDateTime, setFollowUpDateTime] = useState("");
   const [error, setError] = useState("");
 
   const userLocalData = JSON.parse(localStorage.getItem("userData"));
   const accessToken = userLocalData ? userLocalData.access_token : null;
   const senderName = userLocalData ? userLocalData.user_data.name : "";
+  const replyToEmail = userLocalData ? userLocalData.user_data.email : "";
+
+  const [emailServices, setEmailServices] = useState([
+    { value: "aws", name: "AWS" },
+    { value: "outlook-smtp", name: "Outlook SMTP" },
+    { value: "outlook-graph", name: "Outlook API" },
+    { value: "gmail", name: "Gmail Self" },
+    { value: "gmailAPI", name: "Gmail API" },
+  ]);
 
   useEffect(() => {
+    check();
     fetchTemplates();
+    fetchAdminCredentials();
+    fetchCredentials();
   }, []);
 
-  useEffect(() => {
+  const check = () => {
     if (selectedLeads.length > 0) {
-      const firstLeadEmail = selectedLeads[0]?.email || "";
-      setEmailDetails((prevState) => ({
-        ...prevState,
-        replyToEmail: firstLeadEmail,
-      }));
-    } else {
-      setEmailDetails((prevState) => ({
-        ...prevState,
-        replyToEmail: "",
-      }));
+      for (let i = 0; i < selectedLeads.length; i++) {
+        const lead = selectedLeads[i];
+        if (lead.email && lead.email.includes("*")) {
+          setEmailServices([
+            { value: "aws", name: "AWS" },
+            { value: "outlook-smtp", name: "Outlook SMTP", disabled: true },
+            { value: "outlook-graph", name: "Outlook API" },
+            { value: "gmail", name: "Gmail Self", disabled: true },
+            { value: "gmailAPI", name: "Gmail API" },
+          ]);
+          break;
+        }
+      }
     }
+  };
+
+  useEffect(() => {
+    setEmailDetails((prevState) => ({
+      ...prevState,
+      replyToEmail: gmail,
+    }));
   }, [selectedLeads]);
 
   const fetchTemplates = async () => {
@@ -63,11 +100,33 @@ const SendEmailCon = ({ setSendEmail, selectedLeads, setSelectedLeads }) => {
       console.log("API Response:", data);
 
       const filterTemplates = data.Templates.filter(
-        (template) => template.temptype === "E "
+        (template) => template.temptype === "E"
       );
       console.log("Filtered Email Templates:", filterTemplates);
 
       setTemplates(filterTemplates);
+    } catch (error) {
+      console.error("Error fetching templates:", error);
+      setError("Failed to fetch templates. Please try again later.");
+    }
+  };
+
+  const fetchAdminCredentials = async () => {
+    try {
+      const response = await fetch(
+        "https://margda.in:7000/api/email/admin_credentials",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!response.ok) throw new Error("Failed to fetch templates");
+      const data = await response.json();
+      setAdminCredentials(data.Credential);
     } catch (error) {
       console.error("Error fetching templates:", error);
       setError("Failed to fetch templates. Please try again later.");
@@ -96,6 +155,34 @@ const SendEmailCon = ({ setSendEmail, selectedLeads, setSelectedLeads }) => {
     }
   };
 
+  const fetchCredentials = async () => {
+    try {
+      const response = await fetch(
+        "https://margda.in:7000/api/email/get_credentials",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
+      const data = await response.json();
+      if (response.ok) {
+        const credentials = data.Credential;
+        setGmail(credentials.email);
+        setPassword(credentials.email_pass);
+      } else if (response.status == 404) {
+        setGmail("");
+        setPassword("");
+        toast.info("Update Your email credentials first");
+        return navigate("/email-auth");
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setEmailDetails((prevState) => ({
@@ -121,8 +208,19 @@ const SendEmailCon = ({ setSendEmail, selectedLeads, setSelectedLeads }) => {
       return;
     }
 
+    if (!followUpDateTime) {
+      setError("Please provide follow up date and time");
+      toast.warn("Please provide follow up date and time");
+      return;
+    }
+
+    if (!remarks) {
+      toast.warn("Please Enter Remarks");
+      return;
+    }
+
     if (
-      (selectedService === "outlook-smtp" || selectedService === "gmail") &&
+      selectedService === "outlook-smtp" &&
       (!emailDetails.senderEmail || !emailDetails.senderPassword)
     ) {
       setError("Sender email and password are required for this service.");
@@ -139,18 +237,37 @@ const SendEmailCon = ({ setSendEmail, selectedLeads, setSelectedLeads }) => {
         "https://margda.in:7000/api/email/send-email/outlook-graph-api",
       aws: "https://margda.in:7000/api/email/send-email/aws",
       gmail: "https://margda.in:7000/api/email/send-email/gmail",
+      gmailAPI: "https://margda.in:7000/api/email/send-email/gmail",
     };
     const url = urlMap[selectedService];
+    if (selectedService == "gmailAPI") {
+      if (!adminCredentails.gmailID || !adminCredentails.gmail_pass) {
+        return alert("Gmail API service is not available");
+      }
+      emailDetails.senderEmail = adminCredentails.gmailID;
+      emailDetails.senderPassword = adminCredentails.gmail_pass;
+    } else if (selectedService == "gmail") {
+      emailDetails.senderEmail = gmail;
+      emailDetails.senderPassword = password;
+    }
+    emailDetails.replyToEmail = gmail;
 
     const emailData = {
       ...emailDetails,
-      recipientEmails: selectedLeads.map((lead) => lead.email),
+      recipientEmails: selectedLeads.map((lead) => {
+        // Find the matching item in unhideData
+        const match = unhideData.find(
+          (item) => item.userId === lead.userId && item.dataId === lead.dataId
+        );
+        return match.email || lead.email; // Return the matching item or the original lead
+      }),
       recipientnames: selectedLeads.map((lead) => lead.name),
-      dataIDs: selectedLeads.map((lead) => lead.dataID),
-      userIDs: selectedLeads.map((lead) => lead.userID),
+      dataIDs: selectedLeads.map((lead) => lead.dataId),
+      userIDs: selectedLeads.map((lead) => lead.userId),
       senderName: senderName,
+      remarks,
+      followUpDateTime,
     };
-
     try {
       const response = await fetch(url, {
         method: "POST",
@@ -167,7 +284,7 @@ const SendEmailCon = ({ setSendEmail, selectedLeads, setSelectedLeads }) => {
       }
 
       const data = await response.json();
-      alert(data.message || "Email sent successfully!");
+      toast.success("Email sent, Verify in email report");
 
       setEmailDetails({
         recipientEmails: [],
@@ -185,8 +302,11 @@ const SendEmailCon = ({ setSendEmail, selectedLeads, setSelectedLeads }) => {
       });
       setSelectedLeads([]);
       setSelectedTemplate(null);
+      fetchData();
+      setSendEmail(false);
     } catch (error) {
       console.error("Error sending email:", error);
+      alert(error.message);
       setError(error.message || "Failed to send email");
     } finally {
       setLoading(false);
@@ -218,15 +338,19 @@ const SendEmailCon = ({ setSendEmail, selectedLeads, setSelectedLeads }) => {
               onChange={handleServiceChange}
               className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
             >
-              <option value="outlook-smtp">Outlook SMTP</option>
-              <option value="outlook-graph">Outlook API</option>
-              <option value="aws">AWS</option>
-              <option value="gmail">Gmail</option>
+              {emailServices.map((service, index) => (
+                <option
+                  key={index}
+                  value={service.value}
+                  disabled={service.disabled}
+                >
+                  {service.name}
+                </option>
+              ))}
             </select>
           </div>
           {/* Sender Email and Password (for Outlook SMTP and Gmail) */}
-          {(selectedService === "outlook-smtp" ||
-            selectedService === "gmail") && (
+          {selectedService === "outlook-smtp" && (
             <>
               <div className="flex flex-col">
                 <label htmlFor="senderEmail" className="font-bold mb-2">
@@ -322,7 +446,7 @@ const SendEmailCon = ({ setSendEmail, selectedLeads, setSelectedLeads }) => {
               className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
               rows="5"
               placeholder={
-                selectedTemplate ? "Body from template" : "Enter email body"
+                selectedTemplate ? "Body from template" : "Email body"
               }
               disabled={!!selectedTemplate}
             />
@@ -335,25 +459,42 @@ const SendEmailCon = ({ setSendEmail, selectedLeads, setSelectedLeads }) => {
             </label>
             <div
               id="preview"
-              className="px-4 py-2 border border-gray-300 rounded-lg"
+              className="px-4 py-2 border border-gray-300 rounded overflow-x-scroll"
               dangerouslySetInnerHTML={{ __html: emailDetails.body }}
             />
           </div>
 
-          {/* Reply-to Email */}
+          {/* Remarks */}
           <div className="flex flex-col">
-            <label htmlFor="replyToEmail" className="font-bold mb-2">
-              Reply-to Email
+            <label htmlFor="remarks" className="font-bold mb-2">
+              Remarks
             </label>
-            <input
-              type="email"
-              name="replyToEmail"
-              id="replyToEmail"
-              value={emailDetails.replyToEmail}
-              onChange={handleChange}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-              placeholder="Enter reply-to email"
+            <textarea
+              name="remarks"
+              id="remarks"
+              value={remarks}
+              onChange={(e) => setRemarks(e.target.value)}
+              className="px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              rows="3"
+              placeholder="Remarks"
             />
+          </div>
+
+          {/* Follow Up date and time */}
+          <div className="flex justify-between">
+            <div className="flex flex-col">
+              <label htmlFor="followup-date-time" className="font-bold mb-2">
+                Follow up date
+              </label>
+              <input
+                name="followup-date-time"
+                id="followup-date-time"
+                value={followUpDateTime}
+                onChange={(e) => setFollowUpDateTime(e.target.value)}
+                type="datetime-local"
+                className="px-3 py-1 border border-gray-400 rounded font-light focus:ring-blue-500 text-base focus:border-blue-500 "
+              />
+            </div>
           </div>
 
           {/* Buttons */}

@@ -15,20 +15,15 @@ import {
   FaClipboardList,
   FaStickyNote,
   FaSlidersH,
-  FaUpload,
-  FaSave,
-  FaTimes,
-  FaInfoCircle,
-  FaBriefcase,
-  FaGraduationCap,
-  FaHeart,
-  FaBan,
   FaLink,
   FaUserCircle,
+  FaLock,
 } from "react-icons/fa";
 import PhoneInput from "react-phone-number-input";
 import "react-phone-number-input/style.css"; // Import the styles
 import UserVariableForm from "../admin/tableform/UserVariableForm";
+import UserProfileForm from "../admin/tableform/UserProfileForm";
+import UserLinkForm from "../admin/tableform/UserLinkForm";
 
 const AllUsers = () => {
   const [data, setData] = useState([]);
@@ -37,21 +32,14 @@ const AllUsers = () => {
   const [pincodeSearch, setPincodeSearch] = useState("");
   const [recordsPerPage, setRecordsPerPage] = useState(10);
   const [searchQuery, setSearchQuery] = useState("");
-  const [isAddFormOpen, setIsAddFormOpen] = useState(false);
-  const [file, setFile] = useState(null);
-  //   const [formData, setFormData] = useState(initialFormState);
   const [currentPage, setCurrentPage] = useState(1);
   const [dataDetails, setDataDetails] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
   const [showForm, setShowForm] = useState(false);
-  const [editingId, setEditingId] = useState(null); // Track which row is being edited
-  const [editingData, setEditingData] = useState({}); // Store temporary edits
+  const [showEditForm, setShowEditForm] = useState(false);
   const [selectedRows, setSelectedRows] = useState(new Set()); // Track selected rows
-  const [isLoading, setIsLoading] = useState(false); // Loading state for form submission
-  const [saveLoading, setSaveLoading] = useState(false); // Loading state for save operation
 
   const userData = JSON.parse(localStorage.getItem("userData"));
-  const loginUserID = userData ? userData.user_data.userID : null;
   const accessToken = userData ? userData.access_token : null;
 
   useEffect(() => {
@@ -61,6 +49,18 @@ const AllUsers = () => {
   const handleVariableClick = (user) => {
     setSelectedUser(user);
     setShowForm(true);
+  };
+
+  const [showLinkForm, setShowLinkForm] = useState(false);
+
+  const handleLinkClick = (user) => {
+    setSelectedUser(user);
+    setShowLinkForm(true);
+  };
+
+  const handleCloseLinkForm = () => {
+    setShowLinkForm(false);
+    setSelectedUser(null);
   };
 
   const fetchData = async () => {
@@ -85,7 +85,6 @@ const AllUsers = () => {
       }
 
       const result = await response.json();
-      console.log("API response:", result);
       setData(result.data);
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -134,6 +133,7 @@ const AllUsers = () => {
             meet_wallet: newData.meetWallet,
             business: newData.businessMonthly,
             validate_date: newData.validDate,
+            call_rate: newData.callrate,
           }),
         }
       );
@@ -169,34 +169,27 @@ const AllUsers = () => {
       }
 
       const result = await response.json();
-      console.log("API response after deletion:", result);
+      if (response.ok) {
+        setDataDetails((prev) => prev.filter((item) => item.id !== id));
+      }
 
       // Update local state to remove the deleted record
-      setDataDetails((prev) => prev.filter((item) => item.id !== id));
     } catch (error) {
       console.error("Error deleting record:", error);
       setError("Failed to delete the record. Please try again.");
     }
   };
   // Inline Editing Handlers
-  const handleEdit = (id) => {
-    const recordToEdit = dataDetails.find((item) => item.id === id);
-    setEditingData(recordToEdit);
-    setEditingId(id);
+  const handleEdit = (item) => {
+    setSelectedUser(item);
+    setShowEditForm(true);
   };
 
-  const handleCancel = () => {
-    setEditingId(null);
-    setEditingData({});
+  const handleCloseEditForm = () => {
+    setShowEditForm(false);
+    setSelectedUser(null);
   };
 
-  const handleEditInputChange = (e, field) => {
-    const { value } = e.target;
-    setEditingData((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-  };
   // Filtering and pagination
   const filteredData = data.filter((item) =>
     Object.values(item).some((value) =>
@@ -253,7 +246,7 @@ const AllUsers = () => {
   }, []);
 
   return (
-    <div className="p-8 min-h-screen">
+    <div className="p-8">
       {/* Search and Filter Section */}
       <div className="bg-white p-2 shadow rounded-lg mb-6 mt-9">
         <div className="flex flex-wrap items-center justify-between space-y-4 md:space-y-2">
@@ -366,6 +359,12 @@ const AllUsers = () => {
                   </th>
                   <th className="px-4 py-3">
                     <div className="flex items-center space-x-2">
+                      <FaLock className="text-green-600 w-4 h-4" />
+                      <span>Login</span>
+                    </div>
+                  </th>
+                  <th className="px-4 py-3">
+                    <div className="flex items-center space-x-2">
                       <FaMapMarkerAlt className="text-green-600 w-4 h-4" />
                       <span>Location</span>
                     </div>
@@ -388,14 +387,10 @@ const AllUsers = () => {
                   >
                     <td className="px-4 py-3">
                       <div className="space-y-2">
-                        <div className="flex items-center space-x-2">
-                          <input
-                            type="checkbox"
-                            className="form-checkbox h-4 w-4 text-blue-500 border-blue-300 rounded focus:ring-blue-500"
-                          />
-                          <span className="text-gray-600">(pic)</span>
-                        </div>
-                        <div className="flex items-center space-x-2">
+                        <div
+                          className="flex items-center space-x-2 cursor-pointer"
+                          onClick={() => handleEdit(item)}
+                        >
                           <FaEdit className="text-blue-500" />
                           <span className="text-blue-500">Edit</span>
                         </div>
@@ -403,24 +398,25 @@ const AllUsers = () => {
                           <FaTrash className="text-red-500" />
                           <span className="text-red-500">Delete</span>
                         </div>
-                        <div className="flex items-center space-x-2">
+                        {/* <div className="flex items-center space-x-2">
                           <FaInfoCircle className="text-red-500" />
                           <span className="text-red-500">Invalid</span>
                         </div>
                         <div className="flex items-center space-x-2">
                           <FaBan className="text-gray-500" />
                           <span className="text-gray-600">Inactive</span>
-                        </div>
-                        <div className="flex items-center space-x-2">
+                        </div> */}
+                        <div
+                          className="flex items-center space-x-2 cursor-pointer"
+                          onClick={() => handleVariableClick(item)}
+                        >
                           <FaSlidersH className="text-purple-500" />
-                          <span
-                            className="text-purple-500 cursor-pointer"
-                            onClick={() => handleVariableClick(item)}
-                          >
-                            Variable
-                          </span>
+                          <span className="text-purple-500">Variable</span>
                         </div>
-                        <div className="flex items-center space-x-2">
+                        <div
+                          className="flex items-center space-x-2 cursor-pointer"
+                          onClick={() => handleLinkClick(item)}
+                        >
                           <FaLink className="text-green-500" />
                           <span className="text-green-500">Link</span>
                         </div>
@@ -431,98 +427,75 @@ const AllUsers = () => {
                       </div>
                     </td>
                     <td className="px-4 py-3">
-                      <div className="space-y-2">
-                        <div className="flex items-center space-x-2">
-                          <FaUser className="text-blue-400 w-4 h-4" />
-                          {editingId === item.userID ? (
-                            <input
-                              type="text"
-                              value={editingData.name || ""}
-                              onChange={(e) => handleEditInputChange(e, "name")}
-                              className="border border-gray-300 p-1 rounded"
-                            />
-                          ) : (
+                      <div className="flex flex-row items-center">
+                        <div className="mr-5 w-12 h-12 rounded-full overflow-hidden border-2 border-orange-500 flex items-center justify-center bg-gradient-to-r from-orange-400 to-orange-500">
+                          <img
+                            src={
+                              item.pic_url
+                                ? item.pic_url
+                                : "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTh4uQmq5l06DIuhNUDihsvATgceMTbyKNBzT4Rharp2hacekLEJHq9eaKF1LPaT9_iRpA&usqp=CAU"
+                            }
+                            alt={item.name}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <div className="flex items-center space-x-2">
+                            <FaUser className="text-blue-400 w-4 h-4" />
+
                             <span className="font-medium text-black">
                               {item.name || "N/A"}
                             </span>
-                          )}
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <FaEnvelope className="text-purple-400 w-4 h-4" />
-                          {editingId === item.userID ? (
-                            <input
-                              type="email"
-                              value={editingData.email || ""}
-                              onChange={(e) =>
-                                handleEditInputChange(e, "email")
-                              }
-                              className="border border-gray-300 p-1 rounded"
-                            />
-                          ) : (
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <FaEnvelope className="text-purple-400 w-4 h-4" />
+
                             <span className="text-black">
                               {item.email || "N/A"}
                             </span>
-                          )}
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <FaPhone className="text-green-400 w-4 h-4" />
-                          {editingId === item.userID ? (
-                            <input
-                              type="text"
-                              value={editingData.phone || ""}
-                              onChange={(e) =>
-                                handleEditInputChange(e, "phone")
-                              }
-                              className="border border-gray-300 p-1 rounded"
-                            />
-                          ) : (
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <FaPhone className="text-green-400 w-4 h-4" />
+
                             <span className="text-black">
                               {item.mobile || "N/A"}
                             </span>
-                          )}
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <FaWhatsapp className="text-green-500 w-4 h-4" />
-                          {editingId === item.userID ? (
-                            <input
-                              type="text"
-                              value={editingData.whatsapp || ""}
-                              onChange={(e) =>
-                                handleEditInputChange(e, "whatsapp")
-                              }
-                              className="border border-gray-300 p-1 rounded"
-                            />
-                          ) : (
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <FaWhatsapp className="text-green-500 w-4 h-4" />
+
                             <span className="text-black">
                               {item.whatsapp || "N/A"}
                             </span>
-                          )}
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <FaVenusMars className="text-pink-400 w-4 h-4" />
-                          {editingId === item.userID ? (
-                            <select
-                              value={editingData.gender || "Female"}
-                              onChange={(e) =>
-                                handleEditInputChange(e, "gender")
-                              }
-                              className="border border-gray-300 p-1 rounded"
-                            >
-                              <option value="Female">Female</option>
-                              <option value="Male">Male</option>
-                              <option value="Other">Other</option>
-                            </select>
-                          ) : (
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <FaVenusMars className="text-pink-400 w-4 h-4" />
+
                             <span className="text-black">
-                              {item.gender || "N/A"}
+                              {item.gender == "M"
+                                ? "Male"
+                                : item.gender == "F"
+                                ? "Female"
+                                : item.gender == "O"
+                                ? "Other"
+                                : "N/A"}
                             </span>
-                          )}
+                          </div>
                         </div>
                       </div>
                     </td>
                     <td className="px-8 py-2">
                       <div className="flex flex-col space-y-1">
                         <div className="flex items-center space-x-2">
+                          <FaUser />
+                          <span>LoginID:</span>
+                          <span> {item.login}</span>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-8 py-2">
+                      <div className="flex flex-col space-y-1">
+                        {/* <div className="flex items-center space-x-2">
                           <FaMapMarkerAlt className="text-green-400 w-4 h-4" />
                           <p className="text-xs text-black">
                             City: {item.placeID || "N/A"}
@@ -533,11 +506,11 @@ const AllUsers = () => {
                           <p className="text-xs text-black">
                             State: {item.placeID || "N/A"}
                           </p>
-                        </div>
+                        </div> */}
                         <div className="flex items-center space-x-2">
                           <FaMapMarkerAlt className="text-green-400 w-4 h-4" />
                           <p className="text-xs text-black">
-                            Country: {item.placeID || "N/A"}
+                            Address: {item.address || "N/A"}
                           </p>
                         </div>
                         <div className="flex items-center space-x-2">
@@ -558,20 +531,10 @@ const AllUsers = () => {
                         </div>
                         <div className="flex items-center space-x-2">
                           <FaStickyNote className="text-red-400 w-4 h-4" />
-                          {editingId === item.userID ? (
-                            <input
-                              type="text"
-                              value={editingData.edate || ""}
-                              onChange={(e) =>
-                                handleEditInputChange(e, "remarks")
-                              }
-                              className="border border-gray-300 p-1 rounded"
-                            />
-                          ) : (
-                            <span className="text-black">
-                              {item.remarks || "No remarks"}
-                            </span>
-                          )}
+
+                          <span className="text-black">
+                            {item.remarks || "No remarks"}
+                          </span>
                         </div>
                       </div>
                     </td>
@@ -636,6 +599,17 @@ const AllUsers = () => {
           onClose={handleCloseForm}
           onSave={handleSave}
         />
+      )}
+
+      {showEditForm && (
+        <UserProfileForm
+          user={selectedUser}
+          setShowEditForm={handleCloseEditForm}
+        />
+      )}
+
+      {showLinkForm && (
+        <UserLinkForm user={selectedUser} onClose={handleCloseLinkForm} />
       )}
     </div>
   );

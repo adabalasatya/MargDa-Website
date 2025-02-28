@@ -1,6 +1,14 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { toast } from "react-toastify";
 
-const WhatsAppCon = ({ selectedLeads, setSendWhatsApp }) => {
+const WhatsAppCon = ({
+  selectedLeads,
+  setSendWhatsApp,
+  unhideData,
+  fetchData,
+  setSelectedLeads,
+}) => {
   const [message, setMessage] = useState("");
   const [profile, setProfile] = useState([]);
   const [headerUrl, setHeaderUrl] = useState(null);
@@ -9,19 +17,42 @@ const WhatsAppCon = ({ selectedLeads, setSendWhatsApp }) => {
   const [allTemplates, setAllTemplates] = useState([]);
   const [selectedWhatsApp, setSelectedWhatsapp] = useState("WS");
   const [loading, setLoading] = useState(false);
+  const [remarks, setRemarks] = useState("");
+  const [followUpDateTime, setFollowUpDateTime] = useState("");
   const [mediaIds, setMediaIds] = useState([]);
   const [selectedCloudWhatsappTemplate, setSelectedCloudWhatsappTemplate] =
     useState({});
+  const [whatsappServices, setWhatsappServices] = useState([
+    { value: "WS", name: "SIM" },
+    { value: "WA", name: "API" },
+  ]);
 
   const userLocalData = JSON.parse(localStorage.getItem("userData"));
   const accessToken = userLocalData ? userLocalData.access_token : null;
 
   useEffect(() => {
+    check();
     fetchWhatsAppProfiles();
     fetchTemplates();
     fetchCloudWhatsappTemplate();
     fetchMediaIds();
   }, []);
+
+  const check = () => {
+    if (selectedLeads.length > 0) {
+      for (let i = 0; i < selectedLeads.length; i++) {
+        const lead = selectedLeads[i];
+        if (lead.whatsapp && lead.whatsapp.includes("*")) {
+          setWhatsappServices([
+            { value: "WS", name: "SIM", disabled: true },
+            { value: "WA", name: "API" },
+          ]);
+          setSelectedWhatsapp("WA");
+          break;
+        }
+      }
+    }
+  };
 
   const fetchCloudWhatsappTemplate = async () => {
     try {
@@ -35,8 +66,10 @@ const WhatsAppCon = ({ selectedLeads, setSendWhatsApp }) => {
 
       if (!response.ok) throw new Error("Failed to fetch templates");
       const data = await response.json();
-      console.log(data);
-      setCloudWhatsappTemplates(data.templates.data);
+      const required = data.templates.data.filter(
+        (item) => item.name == "associate_template"
+      );
+      setCloudWhatsappTemplates(required);
     } catch (error) {
       console.error("Error fetching templates:", error);
     }
@@ -109,20 +142,32 @@ const WhatsAppCon = ({ selectedLeads, setSendWhatsApp }) => {
   };
 
   const sendMessage = async () => {
+    if (!followUpDateTime) {
+      return toast.warn("Please Enter Follow up date and time");
+    }
+
+    if (!remarks) {
+      toast.warn("Please Enter Remarks");
+      return;
+    }
     setLoading(true);
     const userLocalData = JSON.parse(localStorage.getItem("userData"));
     const accessToken = userLocalData ? userLocalData.access_token : null;
     const mobile = userLocalData ? userLocalData.user_data.mobile : null;
     const whatsapp = userLocalData ? userLocalData.user_data.whatsapp : null;
     const name = userLocalData ? userLocalData.user_data.name : null;
-    const email = userLocalData ? userLocalData.user_data.email : null;
-    const formatMessage = message
-      .replace("{whatsapp}", whatsapp)
-      .replace("{email}", email)
-      .replace("{euser}", name)
-      .replace("{mobile}", mobile);
-    const phoneNumbers = selectedLeads.map((lead) => lead.whatsapp);
+    const phoneNumbers = selectedLeads.map((lead) => {
+      // Find the matching item in unhideData
+      const match = unhideData.find(
+        (item) => item.userId === lead.userId && item.dataId === lead.dataId
+      );
+      return match.whatsapp || lead.whatsapp; // Return the matching item or the original lead
+    });
+
     const recipientNames = selectedLeads.map((lead) => lead.name);
+
+    const dataIDs = selectedLeads.map((lead) => lead.dataId);
+    const userIDs = selectedLeads.map((lead) => lead.userId);
     if (selectedWhatsApp == "WS") {
       try {
         const response = await fetch(
@@ -136,117 +181,178 @@ const WhatsAppCon = ({ selectedLeads, setSendWhatsApp }) => {
             body: JSON.stringify({
               instanceId: profile[0].instance,
               phoneNumbers: phoneNumbers,
-              message: formatMessage,
+              message: message,
               headerUrl,
               recipientNames,
+              remarks,
+              followUpDateTime,
+              dataIDs,
+              userIDs,
             }),
           }
         );
         const data = await response.json();
         setLoading(false);
-        alert(JSON.stringify(data.message));
+        toast.success(
+          "Message Send Successfully, Verify in Whatsapp Report",
+          data.message
+        );
+        setSelectedLeads([]);
+        fetchData();
+        setSendWhatsApp(false);
       } catch (e) {
         console.log(e);
         setLoading(false);
-        alert("Error in sending message", e);
+        toast.error("Error in Message Sending", e);
       }
     } else if (selectedWhatsApp == "WA") {
       if (!selectedCloudWhatsappTemplate.components) {
+        setLoading(false);
         return alert("Select a template ");
       }
       let header;
       let body;
       let buttons;
       const components = selectedCloudWhatsappTemplate.components;
-      if (components.length && components.length > 0) {
-        components.map((component) => {
-          if (component.type === "HEADER") {
-            if (component.example) {
-              console.log(component);
-              if (component.format === "IMAGE") {
-                header = {
-                  type: "header",
+      for (let i = 0; i < phoneNumbers.length; i++) {
+        const phone = phoneNumbers[i];
+        const dataID = dataIDs[i];
+        const userId = userIDs[i];
+        if (components.length && components.length > 0) {
+          components.map((component) => {
+            if (component.type === "HEADER") {
+              if (component.example) {
+                console.log(component);
+                if (component.format === "IMAGE") {
+                  header = {
+                    type: "header",
+                    parameters: [
+                      {
+                        type: "image",
+                        image: {
+                          id: "1522154255132396",
+                        },
+                      },
+                    ],
+                  };
+                } else if (component.format === "VIDEO") {
+                  header = {
+                    type: "header",
+                    parameters: [
+                      {
+                        type: "video",
+                        video: {
+                          id: "3781868282142978",
+                        },
+                      },
+                    ],
+                  };
+                }
+              }
+            } else if (component.type === "BODY") {
+              if (component.example) {
+                const parameters = [
+                  { type: "text", text: recipientNames[i] },
+                  { type: "text", text: whatsapp },
+                  { type: "text", text: mobile },
+                  { type: "text", text: name },
+                ];
+                // if (
+                //   inputValues.length == component.example.body_text[0].length
+                // ) {
+                // inputValues.map((item, key) => {
+                //   if (key == 0) {
+                //     parameters.push({
+                //       type: "text",
+                //       text: recipientNames[i],
+                //     });
+                //   } else if (key == 1) {
+                //     parameters.push({ type: "text", text: whatsapp });
+                //   } else if (key == 2) {
+                //     parameters.push({ type: "text", text: mobile });
+                //   } else if (key == 3) {
+                //     parameters.push({ type: "text", text: name });
+                //   }
+                // });
+                // } else {
+                //   return alert("Enter all Variables");
+                // }
+                body = {
+                  type: "body",
+                  parameters: parameters,
+                };
+              }
+            } else if (component.type === "BUTTONS") {
+              if (selectedCloudWhatsappTemplate.name === "flow_message") {
+                buttons = {
+                  type: "button",
+                  sub_type: "flow",
+                  index: 0,
+                };
+              } else if (selectedCloudWhatsappTemplate.name === "welcome") {
+                buttons = {
+                  type: "button",
+                  sub_type: "url",
+                  index: "0",
                   parameters: [
                     {
-                      type: "image",
-                      image: {
-                        id: "812040027730776",
-                      },
+                      type: "text",
+                      text: "/",
                     },
                   ],
                 };
-              } else if (component.format === "VIDEO") {
-                header = {
-                  type: "header",
+              } else if (
+                selectedCloudWhatsappTemplate.name === "associate_template"
+              ) {
+                buttons = {
+                  type: "button",
+                  sub_type: "url",
+                  index: "0",
                   parameters: [
                     {
-                      type: "video",
-                      video: {
-                        id: "3781868282142978",
-                      },
+                      type: "text",
+                      text: "/",
                     },
                   ],
                 };
               }
             }
-          } else if (component.type === "BODY") {
-            if (component.example) {
-              const parameters = [];
-              component.example.body_text[0].map((item) => {
-                parameters.push({ type: "text", text: item });
-              });
-              body = {
-                type: "body",
-                parameters: parameters,
-              };
-            }
-          } else if (component.type === "BUTTONS") {
-            if (selectedCloudWhatsappTemplate.name === "flow_message") {
-              buttons = {
-                type: "button",
-                sub_type: "flow",
-                index: 0,
-              };
-            } else if (selectedCloudWhatsappTemplate.name === "welcome") {
-              buttons = {
-                type: "button",
-                sub_type: "url",
-                index: "0",
-                parameters: [
-                  {
-                    type: "text",
-                    text: "/",
-                  },
-                ],
-              };
-            }
-          }
-        });
-      }
-      const response = await fetch(
-        "https://margda.in:2000/api/send-template-messages",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            phoneNumber: phoneNumbers[0],
-            name: recipientNames[0],
-            templateName: selectedCloudWhatsappTemplate.name,
-            languageCode: selectedCloudWhatsappTemplate.language,
-            header: header,
-            body: body,
-            buttons: buttons,
-          }),
+          });
         }
-      );
-      const data = await response.json();
-      console.log(data);
-      if (data.Error && data.Error.error.message) {
-        alert(data.Error.error.message);
-      } else {
-        alert(data.message);
+        const response = await fetch(
+          "https://margda.in:2000/api/send-template-messages",
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              phoneNumber: phone,
+              name: recipientNames[i],
+              templateName: selectedCloudWhatsappTemplate.name,
+              languageCode: selectedCloudWhatsappTemplate.language,
+              header: header,
+              body: body,
+              buttons: buttons,
+              remarks,
+              followUpDateTime,
+              dataID,
+              userId,
+            }),
+          }
+        );
+        const data = await response.json();
+        if (data.Error && data.Error.error.message) {
+          setLoading(false);
+          toast.error("Error in Message Sending", data.Error.error.message);
+        } else {
+          setLoading(false);
+          setSelectedLeads([]);
+          toast.success("Message Send Successfully, Verify in Whatsapp Report");
+        }
+        fetchData();
+        setSendWhatsApp(false);
       }
     }
   };
@@ -280,8 +386,9 @@ const WhatsAppCon = ({ selectedLeads, setSendWhatsApp }) => {
   const handleCloudTemplateChange = async (e) => {
     if (e.target.value != "") {
       const selectedTemplate = cloudWhatsappTemplates[e.target.value];
-      console.log(selectedTemplate);
       setSelectedCloudWhatsappTemplate(selectedTemplate);
+    } else {
+      setSelectedCloudWhatsappTemplate({});
     }
   };
 
@@ -308,8 +415,15 @@ const WhatsAppCon = ({ selectedLeads, setSendWhatsApp }) => {
               onChange={handleWhatsappChange}
               id="type"
             >
-              <option value="WS">SIM</option>
-              <option value="WA">API</option>
+              {whatsappServices.map((service, index) => (
+                <option
+                  key={index}
+                  value={service.value}
+                  disabled={service.disabled}
+                >
+                  {service.name}
+                </option>
+              ))}
             </select>
           </div>
           <div className="flex flex-col">
@@ -342,6 +456,7 @@ const WhatsAppCon = ({ selectedLeads, setSendWhatsApp }) => {
               >
                 <option value="">Select Template</option>
                 {selectedWhatsApp == "WA" &&
+                  cloudWhatsappTemplates.length > 0 &&
                   cloudWhatsappTemplates.map((template, index) => (
                     <option key={index} value={index}>
                       {template.name}
@@ -351,24 +466,26 @@ const WhatsAppCon = ({ selectedLeads, setSendWhatsApp }) => {
             )}
           </div>
         </div>
-        <div className="flex justify-end gap-4 mb-6">
+        <div className="flex justify-end gap-4">
           {selectedWhatsApp === "WS" && (
             <>
               {profile.length === 0 && (
-                <button
-                  disabled
+                <Link
+                  to={"/qr-scan"}
+                  // disabled
                   className="bg-red-400 text-white px-4 py-2 rounded-lg hover:bg-red-500"
                 >
                   Scan WhatsApp First
-                </button>
+                </Link>
               )}
               {profile.length === 1 && !profile[0].active && (
-                <button
-                  disabled
+                <Link
+                  // disabled
+                  to={"/qr-scan"}
                   className="bg-red-400 text-white px-4 py-2 rounded-lg hover:bg-red-500"
                 >
                   Re-scan WhatsApp
-                </button>
+                </Link>
               )}
               {profile.length === 1 && profile[0].active && (
                 <button
@@ -384,6 +501,7 @@ const WhatsAppCon = ({ selectedLeads, setSendWhatsApp }) => {
           {selectedWhatsApp === "WA" && (
             <button
               onClick={sendMessage}
+              disabled={loading}
               className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 disabled:opacity-50"
             >
               {loading ? "Sending..." : "Send"}
@@ -411,7 +529,7 @@ const WhatsAppCon = ({ selectedLeads, setSendWhatsApp }) => {
                 </div>
               </div>
             )}
-            <div className="mb-6">
+            <div className="mb-2">
               <label className="font-bold mb-2">Message</label>
               <textarea
                 value={message}
@@ -424,7 +542,94 @@ const WhatsAppCon = ({ selectedLeads, setSendWhatsApp }) => {
           </>
         )}
 
-        {selectedWhatsApp == "WA" && <></>}
+        {selectedWhatsApp == "WA" && (
+          <>
+            {selectedCloudWhatsappTemplate.components &&
+              selectedCloudWhatsappTemplate.components.length > 0 &&
+              selectedCloudWhatsappTemplate.components.map(
+                (component, index) => {
+                  if (
+                    component.type === "HEADER" &&
+                    component.format === "IMAGE"
+                  ) {
+                    return (
+                      <img
+                        key={index}
+                        src={component.example.header_handle[0]}
+                        alt=""
+                      />
+                    );
+                  } else if (component.type === "BODY") {
+                    const element = (
+                      <div key={`component-${index}`}>{component.text}</div>
+                    );
+                    // const parameters =
+                    //   component.example && component.example.body_text[0];
+
+                    // let paramDivs;
+                    // if (parameters) {
+                    // paramDivs = parameters.map((param, index) => (
+                    //   <input
+                    //     disabled={index == 0}
+                    //     className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    //     type="text"
+                    //     key={`input-${index}-${index}`}
+                    //     value={inputValues[index] || ""}
+                    //     onChange={(e) =>
+                    //       handleInputChange(index, e.target.value)
+                    //     }
+                    //     placeholder={index == 0 ? "Recipient Name" : param}
+                    //   />
+                    // ));
+                    // }
+
+                    return (
+                      <div
+                        key={`container-${index}`}
+                        className="flex flex-col gap-3"
+                      >
+                        {element}
+                        {/* <b>{"Variables"}</b>
+                        {paramDivs} */}
+                      </div>
+                    );
+                  }
+                }
+              )}
+          </>
+        )}
+
+        {/* Remarks */}
+        <div className="flex flex-col">
+          <label htmlFor="remarks" className="font-bold mb-2">
+            Remarks
+          </label>
+          <textarea
+            name="remarks"
+            id="remarks"
+            value={remarks}
+            onChange={(e) => setRemarks(e.target.value)}
+            className="px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            rows="3"
+            placeholder="Remarks"
+          />
+        </div>
+        {/* Follow Up date and time */}
+        <div className="flex justify-between my-2">
+          <div className="flex flex-col">
+            <label htmlFor="followup-date-time" className="font-bold mb-2">
+              Follow up date
+            </label>
+            <input
+              name="followup-date-time"
+              id="followup-date-time"
+              value={followUpDateTime}
+              onChange={(e) => setFollowUpDateTime(e.target.value)}
+              type="datetime-local"
+              className="px-3 py-1 border border-gray-400 rounded font-light focus:ring-blue-500 text-base focus:border-blue-500 "
+            />
+          </div>
+        </div>
       </div>
     </div>
   );

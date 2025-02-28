@@ -8,8 +8,7 @@ import {
 } from "draft-js";
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { toast } from "react-toastify";
 
 const EditTemplate = () => {
   const location = useLocation();
@@ -52,9 +51,9 @@ const EditTemplate = () => {
       );
       const data = await response.json();
       if (response.ok) {
-        console.log(data);
         const template = data.Template[0];
-        setTemplateType(template.temptype);
+        setTemplateType(template.temptype.trim());
+        setSubject(template.subject);
         setTemplateName(template.template);
         setTemplateId(template.auth);
         setMessage(template.matter);
@@ -113,7 +112,7 @@ const EditTemplate = () => {
         newErrors.subject = "Subject is required";
       }
     } else if (templateType === "WA" || templateType === "S") {
-      if (!templateId.trim()) {
+      if (!templateId || !templateId.trim()) {
         newErrors.templateId = "Template ID is required";
       }
     }
@@ -160,7 +159,6 @@ const EditTemplate = () => {
         throw new Error("File upload failed");
       }
     } else if (headerUrl) {
-      console.log(headerUrl);
       payload.headerFileUrl = headerUrl;
     }
     if (attachmentFiles.length > 0) {
@@ -197,7 +195,6 @@ const EditTemplate = () => {
         body: JSON.stringify(payload),
       });
       const data = await response.json();
-      console.log(data);
       if (response.ok) {
         return toast.success(data.message);
       } else {
@@ -244,6 +241,7 @@ const EditTemplate = () => {
               Template Type
             </label>
             <select
+              disabled
               name="template-type"
               id="template-type"
               value={templateType}
@@ -266,7 +264,7 @@ const EditTemplate = () => {
           </div>
           <div className="flex flex-col items-start w-full">
             <label htmlFor="template-name" className="font-bold p-1">
-              Template
+              Template Name
             </label>
             <input
               type="text"
@@ -379,16 +377,37 @@ const EditTemplate = () => {
             </div>
           </a>
         )}
-        <div className="flex flex-row text-base font-bold justify-between w-[90%] mt-4">
-          <div className="flex flex-col items-start w-full">
-            <div className="flex flex-row items-center w-full">
-              <label
-                htmlFor="template-message"
-                className="text-base font-normal p-1"
-              >
-                Message
-              </label>
-              <div className="flex ml-10 items-center">
+        <div className="mt-6">
+          <div className="flex flex-col">
+            <label
+              htmlFor="template-message"
+              className="text-base font-normal p-1"
+            >
+              Message
+            </label>
+            {templateType == "S" ? (
+              <div>
+                <textarea
+                  name="message"
+                  id="template-message"
+                  placeholder="Message"
+                  rows={5}
+                  value={message}
+                  onChange={(e) => {
+                    const newText = e.target.value;
+
+                    if (newText.length > 125) {
+                      toast.warn("SMS Can't be greater than 125 letters");
+                      return; // Prevent updating the state if limit exceeded
+                    }
+
+                    setMessage(newText); // Update state normally if within limit
+                  }}
+                  className="w-full p-2 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500"
+                ></textarea>
+              </div>
+            ) : (
+              <div>
                 <input
                   type="checkbox"
                   name="switch"
@@ -397,62 +416,62 @@ const EditTemplate = () => {
                   className="w-5 h-5 hidden"
                   onChange={handleHtmlChange}
                 />
-              </div>
-            </div>
-            <div id="template-message" className="w-[80%]">
-              <div className="border border-slate-700 h-80 w-full overflow-y-scroll">
-                <Editor
-                  editorState={editorState}
-                  toolbarClassName="toolbarclassName="
-                  wrapperClassName="wrapperclassName="
-                  editorClassName="editorclassName="
-                  toolbarCustomButtons={[
-                    <label
-                      htmlFor="switch-html"
-                      className={`text-base font-normal p-1 ${
-                        isHtmlContent ? "border bg-gray-100" : ""
-                      }`}
-                    >
-                      Source
-                    </label>,
-                  ]}
-                  onEditorStateChange={onEditorStateChange}
-                  onTab={onHandleKeyBindings}
-                />
-              </div>
-              {isHtmlContent && (
-                <div className="flex flex-col justify-start items-start">
-                  <label
-                    htmlFor="preview"
-                    className="text-base font-normal p-1"
-                  >
-                    Preview
-                  </label>
-                  <div
-                    id="preview"
-                    style={{
-                      border: "1px solid #ccc",
-                      padding: "10px",
-                      marginTop: "10px",
-                      overflowX: "scroll",
-                      maxHeight: "400px",
-                      overflowY: "scroll",
-                    }}
-                    className="w-full p-2 mb-4 border-gray-300 flex flex-col items-start"
-                    dangerouslySetInnerHTML={{
-                      __html: message ? message : "Preview Will be Show Here",
-                    }}
+                <div className="border border-gray-300 rounded p-3 h-[300px]  overflow-y-auto">
+                  <Editor
+                    editorState={editorState}
+                    toolbarClassName="toolbarClassName"
+                    wrapperClassName="wrapperClassName"
+                    editorClassName="editorClassName"
+                    toolbarCustomButtons={[
+                      // eslint-disable-next-line react/jsx-key
+                      <label
+                        htmlFor="switch-html"
+                        className={`text-base font-normal p-1 ${
+                          isHtmlContent ? "border bg-gray-100" : ""
+                        }`}
+                      >
+                        Source
+                      </label>,
+                    ]}
+                    onEditorStateChange={onEditorStateChange}
+                    onTab={onHandleKeyBindings}
                   />
                 </div>
-              )}
+              </div>
+            )}
+
+            <div className="justify-end flex text-sm mr-3 mt-3">
+              Length: {message.length}
             </div>
+            {isHtmlContent && (
+              <div className="flex flex-col justify-start items-start">
+                <label htmlFor="preview" className="text-base font-normal p-1">
+                  Preview
+                </label>
+                <div
+                  id="preview"
+                  style={{
+                    border: "1px solid #ccc",
+                    padding: "10px",
+                    marginTop: "10px",
+                    overflowX: "scroll",
+                    maxHeight: "400px",
+                    overflowY: "scroll",
+                  }}
+                  className="w-full p-2 mb-4 border-gray-300 flex flex-col items-start"
+                  dangerouslySetInnerHTML={{
+                    __html: message ? message : "Preview Will be Show Here",
+                  }}
+                />
+              </div>
+            )}
             {errors.message && (
               <p className="text-red-500 text-sm mt-1">{errors.message}</p>
             )}
           </div>
         </div>
 
-        {templateType !== "S" && (
+        {templateType && templateType.trim() !== "S" && (
           <div>
             <div className="flex flex-col text-base font-bold justify-between items-start w-[90%] mt-6">
               <h1 className="text-lg font-bold mt-6">
@@ -549,25 +568,13 @@ const EditTemplate = () => {
             Submit
           </button>
           <Link
-            to={"/dashboard/templates-list"}
+            to={"/templates-list"}
             className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600 font-normal font-mono text-base"
           >
             Back
           </Link>
         </div>
       </div>
-      <ToastContainer
-        position="top-center"
-        autoClose={5000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="colored"
-      />
     </div>
   );
 };

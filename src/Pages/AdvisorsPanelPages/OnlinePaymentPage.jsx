@@ -25,6 +25,11 @@ const OnlinePayment = () => {
     setIsOpen((prev) => !prev);
   };
 
+   useEffect(() => {
+      window.scrollTo(0, 0);
+    }, []);
+  
+
   return (
     <div className="flex h-screen ">
       <Sidebar isOpen={isOpen} toggleSidebar={toggleSidebar} isMobile={isMobile} />

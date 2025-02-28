@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Outlet } from "react-router-dom";
 
-import AdminNavbar from "../../Dashboard/admin/adminnavbar";
-import AdminSidebar from '../../Dashboard/admin/adminsidebar'
-import Admindata from "../../Dashboard/admin/admindata"
+import AdminNavbar from "../../Dashboard/Navbar";
+import AdminSidebar from '../../Dashboard/Sidebar'
+import Admindata from "../../Dashboard/nav/Data"
 
 const AdmindataPage = () => {
   const [isOpen, setIsOpen] = useState(true);

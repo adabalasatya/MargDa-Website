@@ -17,28 +17,32 @@ const Footer = () => {
     <footer className="bg-gradient-to-r from-slate-100 to-slate-300 text-gray-800 py-12">
       <div className="container mx-auto px-6 md:px-12">
         {/* Footer Top - All details in the same line */}
-        <div className="flex flex-wrap justify-between border-b border-gray-300 pb-8">
+        <div className="flex flex-wrap justify-center border-b border-gray-300 pb-8">
           {/* Logo and Contact Info */}
-          <div className="w-full md:w-auto mb-8 md:mb-0">
+          <div className="w-full md:w-auto mb-8 md:mb-0 md:mr-12">
             <img
               src={logo}
               alt="Margdarshak Logo"
               className="h-14 mb-4 transform hover:scale-105 transition-transform duration-300"
             />
-            <p className="text-gray-600 text-sm mb-2 flex items-center">
-              <img src={Mardga} alt="Office Icon" className="w-4 h-4 mr-2" />{" "}
-              Margdarshak Media
-            </p>
+            {/* <p className="text-gray-600 text-sm mb-2 flex items-center">
+      <img src={Mardga} alt="Office Icon" className="w-4 h-4 mr-2" />{" "}
+      Margdarshak Media
+    </p> */}
 
             <p className="text-gray-600 text-sm mb-2">
-              🏠 C-67, Dwarka Mor, New Delhi
+              🏠 C-67 NH Complex, Dwarka Mor, New Delhi
             </p>
-            <p className="text-gray-600 text-sm mb-2">📞 07965174000</p>
-            <p className="text-gray-600 text-sm mb-2 flex items-center">
-              <img src={Whatsapp} alt="Office Icon" className="w-4 h-4 mr-2" />{" "}
-              +918130960040
-            </p>
+            <p className="text-gray-600 text-sm mb-2">☎ 07965174000</p>
+            <p className="text-gray-600 text-sm mb-2">📞 8130960040</p>
+            <p className="text-gray-600 text-sm mb-2">✆ +918130960040</p>
             <p className="text-gray-600 text-sm mb-2">✉️ mail@margda.com</p>
+
+            {/* <p className="text-gray-600 text-sm mb-2 flex items-center">
+      <img src={Whatsapp} alt="Office Icon" className="w-4 h-4 mr-2" />{" "}
+      +918130960040
+    </p> */}
+
             <p className="text-gray-600 text-sm">CIN: U85320DL2016NPL306100</p>
             <p className="text-gray-600 text-sm">GST: 07AAUPS8603H1Z4</p>
           </div>
@@ -58,22 +62,30 @@ const Footer = () => {
                   Margdarshak
                 </Link>
               </li>
-              {/* <li>
+              <li>
                 <Link
-                  to=""
+                  to="/digital-workplace"
                   className="flex items-center hover:text-orange-500 transition transform hover:translate-x-2 duration-300"
                 >
-                  <HiOutlineArrowNarrowRight className="mr-2" /> Management Team
+                  <HiOutlineArrowNarrowRight className="mr-2" /> Digital Workplace
                 </Link>
-              </li> */}
+              </li>
               {/* <li>
-                <Link
-                  to=""
-                  className="flex items-center hover:text-orange-500 transition transform hover:translate-x-2 duration-300"
-                >
-                  <HiOutlineArrowNarrowRight className="mr-2" /> Advisors and Associates
-                </Link>
-              </li> */}
+        <Link
+          to=""
+          className="flex items-center hover:text-orange-500 transition transform hover:translate-x-2 duration-300"
+        >
+          <HiOutlineArrowNarrowRight className="mr-2" /> Management Team
+        </Link>
+      </li> */}
+              {/* <li>
+        <Link
+          to=""
+          className="flex items-center hover:text-orange-500 transition transform hover:translate-x-2 duration-300"
+        >
+          <HiOutlineArrowNarrowRight className="mr-2" /> Advisors and Associates
+        </Link>
+      </li> */}
               <li>
                 <Link
                   to="/feedback"
@@ -81,6 +93,40 @@ const Footer = () => {
                 >
                   <HiOutlineArrowNarrowRight className="mr-2" /> Feedback and
                   Complaints
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to=""
+                  className="flex items-center hover:text-orange-500 transition transform hover:translate-x-2 duration-300"
+                >
+                  <HiOutlineArrowNarrowRight className="mr-2" /> Be Informed
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/privacy-statement"
+                  className="flex items-center hover:text-orange-500 transition transform hover:translate-x-2 duration-300"
+                >
+                  <HiOutlineArrowNarrowRight className="mr-2" /> Privacy
+                  Statement
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/terms-of-service"
+                  className="flex items-center hover:text-orange-500 transition transform hover:translate-x-2 duration-300"
+                >
+                  <HiOutlineArrowNarrowRight className="mr-2" /> Terms of
+                  Service
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/refund-policy"
+                  className="flex items-center hover:text-orange-500 transition transform hover:translate-x-2 duration-300"
+                >
+                  <HiOutlineArrowNarrowRight className="mr-2" /> Refund Policy
                 </Link>
               </li>
             </ul>
@@ -183,19 +229,19 @@ const Footer = () => {
            */}
 
           {/* Be Informed */}
-          <div className="w-full md:w-auto mb-8 md:mb-0">
+          {/* <div className="w-full md:w-auto mb-8 md:mb-0">
             <h3 className="text-lg font-semibold py-3 text-gray-800 mb-4">
               Be Informed
             </h3>
             <ul className="text-gray-600 space-y-3">
-              {/* <li>
+               <li>
                 <Link
                   to=""
                   className="flex items-center hover:text-orange-500 transition transform hover:translate-x-2 duration-300"
                 >
                   <HiOutlineArrowNarrowRight className="mr-2" /> Statutory Documents
                 </Link>
-              </li> */}
+              </li> 
               <li>
                 <Link
                   to="/privacy-statement"
@@ -222,16 +268,16 @@ const Footer = () => {
                   <HiOutlineArrowNarrowRight className="mr-2" /> Refund Policy
                 </Link>
               </li>
-              {/* <li>
+               <li>
                 <Link
                   to=""
                   className="flex items-center hover:text-orange-500 transition transform hover:translate-x-2 duration-300"
                 >
                   <HiOutlineArrowNarrowRight className="mr-2" /> Pay Online
                 </Link>
-              </li> */}
+              </li> 
             </ul>
-          </div>
+          </div> */}
         </div>
 
         {/* Social Media Icons 

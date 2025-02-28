@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import PhoneInput from "react-phone-input-2";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { toast } from "react-toastify";
 import { NavLink } from "react-router-dom";
 import "react-phone-input-2/lib/style.css";
 import Navbar from "./navbar";
@@ -35,29 +34,32 @@ export const ForgotPassword = () => {
     }
 
     try {
-        // Log the payload for debugging
-        console.log("Sending OTP with payload:", { mobile: phone });
-  
-        const response = await fetch("https://margda.in:7000/api/android/forget-password-send-otp", {
+      // Log the payload for debugging
+      console.log("Sending OTP with payload:", { mobile: phone });
+
+      const response = await fetch(
+        "https://margda.in:7000/api/android/forget-password-send-otp",
+        {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ mobile: phone }), // Use the phone number directly
-        });
-  
-        const data = await response.json();
-        console.log("API Response:", data);
-  
-        if (response.ok) {
-          setOtpSent(true);
-          toast.success("OTP sent successfully!");
-        } else {
-          toast.error(data.message || "Failed to send OTP.");
         }
-      } catch (error) {
-        console.error("Error sending OTP:", error);
-        toast.error("An error occurred while sending OTP.");
+      );
+
+      const data = await response.json();
+      console.log("API Response:", data);
+
+      if (response.ok) {
+        setOtpSent(true);
+        toast.success("OTP sent successfully!");
+      } else {
+        toast.error(data.message || "Failed to send OTP.");
       }
-    };
+    } catch (error) {
+      console.error("Error sending OTP:", error);
+      toast.error("An error occurred while sending OTP.");
+    }
+  };
 
   const forgotPasswordOtpverify = async () => {
     try {
@@ -69,11 +71,14 @@ export const ForgotPassword = () => {
       // Log the payload for debugging
       console.log("Verifying OTP with payload:", { mobile: phone, otp });
 
-      const response = await fetch("https://margda.in:7000/api/android/forget-password-verify-otp", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ mobile: phone, otp }),
-      });
+      const response = await fetch(
+        "https://margda.in:7000/api/android/forget-password-verify-otp",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ mobile: phone, otp }),
+        }
+      );
 
       const data = await response.json();
 
@@ -116,7 +121,9 @@ export const ForgotPassword = () => {
               alt="Logo"
               className="w-12"
             />
-            <h1 className="text-2xl sm:text-4xl font-bold ml-4 mb-6 mt-3">Forgot Password</h1>
+            <h1 className="text-2xl sm:text-4xl font-bold ml-4 mb-6 mt-3">
+              Forgot Password
+            </h1>
           </div>
 
           {/* Phone Input */}
@@ -174,20 +181,6 @@ export const ForgotPassword = () => {
               </NavLink>
             </p>
           </div>
-
-          {/* Toast Notifications */}
-          <ToastContainer
-            position="top-center"
-            autoClose={5000}
-            hideProgressBar={false}
-            newestOnTop={false}
-            closeOnClick
-            rtl={false}
-            pauseOnFocusLoss
-            draggable
-            pauseOnHover
-            theme="colored"
-          />
         </div>
       </div>
     </>

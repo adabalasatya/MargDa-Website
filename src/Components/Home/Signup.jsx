@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 import PhoneInput from "react-phone-input-2";
 import { FaEnvelope, FaUser } from "react-icons/fa";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { toast } from "react-toastify";
 import { NavLink } from "react-router-dom";
 import "react-phone-input-2/lib/style.css";
 import Navbar from "./navbar";
@@ -46,10 +45,12 @@ export const Sign = () => {
 
   const validateForm = () => {
     const newErrors = {};
-    if (!formValues.mobile) newErrors.mobile = "Please input your mobile number.";
+    if (!formValues.mobile)
+      newErrors.mobile = "Please input your mobile number.";
     if (!formValues.email) newErrors.email = "Please input your email.";
     if (!formValues.name) newErrors.name = "Please input your name.";
-    if (!formValues.terms) newErrors.terms = "Please check Terms of Use and Privacy Policy.";
+    if (!formValues.terms)
+      newErrors.terms = "Please check Terms of Use and Privacy Policy.";
     return newErrors;
   };
 
@@ -67,7 +68,7 @@ export const Sign = () => {
           ? "https://margda.in:7000/api/android/send-email-otp"
           : "https://margda.in:7000/api/android/send-mobile-otp";
 
-        const payload =
+      const payload =
         type === "email"
           ? { email: formValues.email, name: formValues.name }
           : { mobile: formValues.mobile };
@@ -82,7 +83,11 @@ export const Sign = () => {
 
       if (response.ok) {
         setOtpSent((prev) => ({ ...prev, [type]: true }));
-        toast.success(`${type.charAt(0).toUpperCase() + type.slice(1)} OTP sent successfully!`);
+        toast.success(
+          `${
+            type.charAt(0).toUpperCase() + type.slice(1)
+          } OTP sent successfully!`
+        );
       } else {
         toast.error(data.message || `Failed to send ${type} OTP.`);
       }
@@ -117,7 +122,11 @@ export const Sign = () => {
 
       const data = await response.json();
       if (response.ok) {
-        toast.success(`${type.charAt(0).toUpperCase() + type.slice(1)} OTP verified successfully!`);
+        toast.success(
+          `${
+            type.charAt(0).toUpperCase() + type.slice(1)
+          } OTP verified successfully!`
+        );
       } else {
         toast.error(data.message || `Failed to verify ${type} OTP.`);
       }
@@ -136,21 +145,24 @@ export const Sign = () => {
     }
 
     try {
-      const response = await fetch("https://margda.in:7000/api/android/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: formValues.email,
-          mobile: formValues.mobile,
-          name: formValues.name,
-          emailOtp: otpValues.emailOtp,
-          mobileOtp: otpValues.mobileOtp,
-          optW:formValues.optW,
-          otpE:formValues.optE,
-          otpC:formValues.optC,
-          otpS:formValues.optS
-        }),
-      });
+      const response = await fetch(
+        "https://margda.in:7000/api/android/register",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email: formValues.email,
+            mobile: formValues.mobile,
+            name: formValues.name,
+            emailOtp: otpValues.emailOtp,
+            mobileOtp: otpValues.mobileOtp,
+            optW: formValues.optW,
+            otpE: formValues.optE,
+            otpC: formValues.optC,
+            otpS: formValues.optS,
+          }),
+        }
+      );
 
       const data = await response.json();
       if (response.ok) {
@@ -162,7 +174,6 @@ export const Sign = () => {
       toast.error("An error occurred during registration.");
     }
   };
-  
 
   return (
     <>
@@ -192,7 +203,9 @@ export const Sign = () => {
               alt="Logo"
               className="w-12"
             />
-            <h1 className="text-2xl sm:text-4xl font-bold ml-4 mb-6 mt-3">Sign Up</h1>
+            <h1 className="text-2xl sm:text-4xl font-bold ml-4 mb-6 mt-3">
+              Sign Up
+            </h1>
           </div>
 
           {/* Name Input */}
@@ -329,12 +342,7 @@ export const Sign = () => {
               I consent to receive updates via:
             </label>
             <div className="flex flex-wrap gap-4">
-              {[
-                "Whatsapp",
-                "Email",
-                "Call",
-                "SMS",
-              ].map((option, index) => (
+              {["Whatsapp", "Email", "Call", "SMS"].map((option, index) => (
                 <label key={index} className="flex items-center space-x-2">
                   <input
                     type="checkbox"
@@ -375,20 +383,6 @@ export const Sign = () => {
               </NavLink>
             </p>
           </div>
-
-          {/* Toast Notifications */}
-          <ToastContainer
-            position="top-center"
-            autoClose={5000}
-            hideProgressBar={false}
-            newestOnTop={false}
-            closeOnClick
-            rtl={false}
-            pauseOnFocusLoss
-            draggable
-            pauseOnHover
-            theme="colored"
-          />
         </div>
       </div>
     </>

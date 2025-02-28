@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
 import { FaEdit, FaTrash, FaEye } from "react-icons/fa";
 import { Link } from "react-router-dom";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { toast } from "react-toastify";
 
 const TemplatesFooter = () => {
   const [entriesToShow, setEntriesToShow] = useState(10);
@@ -202,7 +201,8 @@ const TemplatesFooter = () => {
                 <div
                   className="w-full p-4 border border-gray-300 rounded-lg overflow-auto"
                   dangerouslySetInnerHTML={{
-                    __html: viewedTemplateData.matter || "Preview Will be Shown Here",
+                    __html:
+                      viewedTemplateData.matter || "Preview Will be Shown Here",
                   }}
                 />
               </div>
@@ -211,7 +211,9 @@ const TemplatesFooter = () => {
               viewedTemplateData.attach_url.length > 0 &&
               viewedTemplateData.attach_url.map((url, index) => (
                 <div key={index} className="mt-4">
-                  <label className="font-bold mb-2">{`Attachment ${index + 1}`}</label>
+                  <label className="font-bold mb-2">{`Attachment ${
+                    index + 1
+                  }`}</label>
                   <a
                     href={url}
                     target="_blank"
@@ -278,7 +280,9 @@ const TemplatesFooter = () => {
                     <tr key={index} className="hover:bg-gray-100">
                       <td className="px-6 py-4">{template.temptype}</td>
                       <td className="px-6 py-4">{template.template}</td>
-                      <td className="px-6 py-4">{template.share ? "Y" : "N"}</td>
+                      <td className="px-6 py-4">
+                        {template.share ? "Y" : "N"}
+                      </td>
                       <td className="px-6 py-4 text-right">
                         <div className="flex justify-end space-x-4">
                           {template.euser == userID && (
@@ -291,7 +295,9 @@ const TemplatesFooter = () => {
                           )}
                           {template.euser == userID && (
                             <button
-                              onClick={() => handleDeleteTemplate(template.tempID)}
+                              onClick={() =>
+                                handleDeleteTemplate(template.tempID)
+                              }
                               className="text-red-500 hover:text-red-700 cursor-pointer"
                             >
                               <FaTrash />
@@ -318,7 +324,8 @@ const TemplatesFooter = () => {
                 Showing {(page - 1) * entriesToShow + 1} to{" "}
                 {Math.min(page * entriesToShow, filteredTemplates.length)} of{" "}
                 {filteredTemplates.length} entries
-                {showFilteredFrom && ` (filtered from ${templates.length} entries)`}
+                {showFilteredFrom &&
+                  ` (filtered from ${templates.length} entries)`}
               </div>
               <div className="flex space-x-2">
                 <button
@@ -333,7 +340,9 @@ const TemplatesFooter = () => {
                     key={index}
                     onClick={() => handlePageChange(index + 1)}
                     className={`px-4 py-2 border border-gray-300 rounded-lg ${
-                      page === index + 1 ? "bg-blue-500 text-white" : "hover:bg-gray-200"
+                      page === index + 1
+                        ? "bg-blue-500 text-white"
+                        : "hover:bg-gray-200"
                     }`}
                   >
                     {index + 1}
@@ -352,21 +361,9 @@ const TemplatesFooter = () => {
         )}
       </div>
       <div className="mt-6 text-center text-gray-600">
-        Copyright @ 2024 <span className="text-blue-500">Margdarshak</span>. All rights
-        reserved.
+        Copyright @ 2024 <span className="text-blue-500">Margdarshak</span>. All
+        rights reserved.
       </div>
-      <ToastContainer
-        position="top-center"
-        autoClose={5000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="colored"
-      />
     </div>
   );
 };

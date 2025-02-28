@@ -1,0 +1,33 @@
+.rating-stars {
+    display: flex;
+    gap: 5px;
+    cursor: pointer;
+  }
+  
+  .star-wrapper {
+    position: relative;
+    width: 30px;
+    height: 30px;
+    background-color: lightgray;
+    clip-path: polygon(
+      50% 0%,
+      61% 35%,
+      98% 35%,
+      68% 57%,
+      79% 91%,
+      50% 70%,
+      21% 91%,
+      32% 57%,
+      2% 35%,
+      39% 35%
+    );
+  }
+  
+  .star {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    background-color: gold;
+  }
+  

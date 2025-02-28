@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from "react";
 import {
   FaSearch,
   FaCalendarAlt,
@@ -10,275 +10,447 @@ import {
   FaPaperPlane,
   FaReply,
   FaTimesCircle,
-} from 'react-icons/fa';
+} from "react-icons/fa";
 
 const EmailReport = () => {
-  const emails = [
-    {
-      dateTime: '10-12-2024 00:00',
-      smtp: 'Gmail, Outlook, AWS',
-      sender: 'SK Sharma',
-      receiver: 'Email',
-      subject: 'Invitation for a virtual meeting',
-      matter: '<View>',
-      attach: '<Attach> if any',
-      viewTime: 'Last view Date+Time',
-      crm: 'CRM+',
-    },
-    // Add more email data here
-  ];
+  const [emails, setEmails] = useState([]);
+  const [allEmails, setAllEmails] = useState([]);
+  const [teamReport, setTeamReport] = useState([]);
+  const [teamSummary, setTeamSummary] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [recordsPerPage, setRecordsPerPage] = useState(10);
+  const [startDate, setStartDate] = useState(
+    new Date(new Date().setDate(new Date().getDate() - 30))
+      .toISOString()
+      .split("T")[0]
+  );
+  const [endDate, setEndDate] = useState(
+    new Date().toISOString().split("T")[0]
+  );
+  const [searchQuery, setSearchQuery] = useState("");
 
-  const teamReport = [
-    {
-      associate: 'RP Singh',
-      totalSent: 47,
-      totalUnreplied: 23,
-      maxDelay: '12 days',
-    },
-    {
-      associate: 'SK Sharma',
-      totalSent: 2,
-      totalUnreplied: 12,
-      maxDelay: '1 day',
-    },
-    // Add more team report data here
-  ];
+  const localUserData = JSON.parse(localStorage.getItem("userData"));
+  const accessToken = localUserData ? localUserData.access_token : null;
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const response = await fetch(
+          "https://margda.in:7000/api/margda.org/report/email-report",
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
+            body: JSON.stringify({
+              startDate,
+              endDate,
+              searchQuery,
+            }),
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error(`API responded with status ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        if (data.Emails && Array.isArray(data.Emails)) {
+          const transformedEmails = data.Emails.map((email) => ({
+            timestamp: email.edate || null,
+            dateTime: email.edate
+              ? new Date(email.edate).toLocaleString("en-IN", {
+                  timeZone: "Asia/Kolkata",
+                  year: "numeric",
+                  month: "2-digit",
+                  day: "2-digit",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  second: "2-digit",
+                })
+              : "N/A",
+            smtp: email.source
+              ? email.source.startsWith("O")
+                ? "Outlook"
+                : email.source.startsWith("G")
+                ? "Gmail"
+                : email.source.startsWith("A")
+                ? "AWS"
+                : "Unknown"
+              : "N/A",
+            sender: email.from_mail || "N/A",
+            receiver: email.to_mail || "N/A",
+            subject: email.subject || "N/A",
+            matter: email.matter ? "<View>" : "N/A",
+            attach: email.attach ? "<Attach>" : "None",
+            viewTime: email.vtime
+              ? new Date(email.vtime).toLocaleString()
+              : "N/A",
+            crm: email.crmID || "N/A",
+            success: email.success ? "True" : "False",
+            opencount: email.open_count || 0,
+          }));
+          setEmails(transformedEmails);
+          setAllEmails(transformedEmails);
+        }
+
+        // Mock team report data
+        const uniqueSenders = [
+          ...new Set(data.Emails.map((email) => email.from_mail)),
+        ];
+        const mockTeamReport = uniqueSenders.map((sender) => ({
+          associate: sender,
+          totalSent: data.Emails.filter((email) => email.from_mail === sender)
+            .length,
+          totalUnreplied: 0,
+          maxDelay: "0 days",
+        }));
+        setTeamReport(mockTeamReport);
+
+        // Mock team summary data
+        setTeamSummary({
+          topSender: data.Emails.length + " emails",
+          topSenderMember: uniqueSenders[0] || "N/A",
+          topReplier: "0 replies",
+          topReplierMember: "N/A",
+          topNeglecter: "0 unreplied",
+          topNeglecterMember: "N/A",
+          topDelayer: "0 days average",
+          topDelayerMember: "N/A",
+          lowestSender: "0 emails",
+          lowestSenderMember: uniqueSenders[uniqueSenders.length - 1] || "N/A",
+        });
+      } catch (err) {
+        console.error("Error fetching data:", err);
+        setError(`Failed to fetch Email report data: ${err.message}`);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (accessToken) {
+      fetchData();
+    } else {
+      setError("Access token not found. Please log in again.");
+      setLoading(false);
+    }
+  }, [accessToken]);
+
+  function filterByDateRange(data, startDate, endDate, searchQuery) {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    end.setHours(23, 59, 59, 999);
+    start.setHours(23, 59, 59, 999);
+    return data.filter((item) => {
+      const itemTimestamp = new Date(item.timestamp);
+      return (
+        itemTimestamp >= start &&
+        itemTimestamp <= end &&
+        ((item.sender && item.sender.toLowerCase().includes(searchQuery.toLowerCase())) ||
+          (item.receiver && item.receiver.toLowerCase().includes(searchQuery.toLowerCase())) ||
+          (item.subject && item.subject.toLowerCase().includes(searchQuery.toLowerCase())))
+      );
+    });
+  }
+
+  useEffect(() => {
+    setCurrentPage(1);
+    const data = filterByDateRange(allEmails, startDate, endDate, searchQuery);
+    setEmails(data);
+  }, [startDate, endDate, searchQuery]);
+
+  const indexOfLastRecord = currentPage * recordsPerPage;
+  const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
+  const currentRecords = emails.slice(indexOfFirstRecord, indexOfLastRecord);
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+  const handleSearch = (e) => {
+    setSearchQuery(e.target.value);
+  };
+
+  const handleStartDateChange = (e) => {
+    setStartDate(e.target.value);
+  };
+
+  const handleEndDateChange = (e) => {
+    setEndDate(e.target.value);
+  };
+
+  const getTeamMember = (category) => {
+    switch (category) {
+      case "Top Sender":
+        return teamSummary.topSenderMember || "N/A";
+      case "Top Replier":
+        return teamSummary.topReplierMember || "N/A";
+      case "Top Neglecter":
+        return teamSummary.topNeglecterMember || "N/A";
+      case "Top Delayer":
+        return teamSummary.topDelayerMember || "N/A";
+      case "Lowest Sender":
+        return teamSummary.lowestSenderMember || "N/A";
+      default:
+        return "N/A";
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center p-4">
+        <div className="text-orange-500">Loading Email report data...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-4 bg-red-50 border border-red-200 rounded">
+        <div className="text-red-500">{error}</div>
+        <button
+          onClick={() => window.location.reload()}
+          className="mt-2 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+        >
+          Retry
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="p-4">
-      {/* Header Section */}
       <div className="mb-8">
-  <h1 className="text-2xl font-bold mb-4 text-orange-500">Email Report</h1>
-  <div className="flex space-x-16 mb-4">
-    <span className="text-lg font-semibold text-black-700">&lt;Your Email&gt;</span>
-    <span className="text-lg font-semibold text-black-700">&lt;Team Report&gt;</span>
-    <span className="text-lg font-semibold text-black-700">&lt;Team Summary&gt;</span>
-  </div>
-</div>
+        <h1 className="text-2xl font-bold mb-4 text-black-500">Email Report</h1>
+        <div className="flex space-x-16 mb-4">
+          <span className="text-lg font-semibold text-black-700">Your Email</span>
+          <span className="text-lg font-semibold text-black-700">Team Report</span>
+          <span className="text-lg font-semibold text-black-700">Team Summary</span>
+        </div>
+      </div>
 
-      {/* Email Report Section */}
       <div className="mb-8">
         <div className="flex items-center mb-4">
-          <FaCalendarAlt className="mr-2 text-orange-500" />
+          <FaCalendarAlt className="mr-2 text-gray-500" />
           <span className="mr-4">From Date</span>
-          <FaCalendarAlt className="mr-2 text-orange-500" />
+          <input
+            type="date"
+            value={startDate}
+            onChange={handleStartDateChange}
+            className="border p-2 rounded focus:border-orange-500 focus:ring-orange-500"
+          />
+          <FaCalendarAlt className="mr-2 text-gray-500 ml-4" />
           <span className="mr-4">To Date</span>
-          <FaSearch className="mr-2 text-orange-500" />
-            <input
-              type="text"
-              placeholder="Search"
-              className="border p-2 rounded focus:border-orange-500 focus:ring-orange-500"
-            />
+          <input
+            type="date"
+            value={endDate}
+            onChange={handleEndDateChange}
+            className="border p-2 rounded focus:border-orange-500 focus:ring-orange-500"
+          />
+          <FaSearch className="mr-2 text-gray-500 ml-4" />
+          <input
+            type="text"
+            placeholder="Search"
+            value={searchQuery}
+            onChange={handleSearch}
+            className="border p-2 rounded focus:border-orange-500 focus:ring-orange-500"
+          />
         </div>
-        {/* New Section for "Show [ ] records" and "Search [ ]" */}
-        <div className="flex justify-between items-center mb-4">
-          {/* Left Side: Show [ ] records */}
+
+        <div className="flex items-center justify-between mb-4">
           <div className="flex items-center">
             <span className="mr-2">Show</span>
-            <input
-              type="number"
-              className="border p-2 rounded w-20 focus:border-orange-500 focus:ring-orange-500"
-              placeholder="10"
-            />
-            <span className="ml-2">Records</span>
+            <select
+              value={recordsPerPage}
+              onChange={(e) => setRecordsPerPage(Number(e.target.value))}
+              className="border p-2 rounded focus:border-orange-500 focus:ring-orange-500"
+            >
+              <option value={10}>10</option>
+              <option value={25}>25</option>
+              <option value={50}>50</option>
+              <option value={100}>100</option>
+            </select>
+            <span className="ml-2">records</span>
           </div>
-
-          {/* Right Side: Search Bar */}
           <div className="flex items-center">
-            <FaSearch className="mr-2 text-orange-500" />
+            <FaSearch className="mr-2 text-gray-500" />
             <input
               type="text"
               placeholder="Search"
+              value={searchQuery}
+              onChange={handleSearch}
               className="border p-2 rounded focus:border-orange-500 focus:ring-orange-500"
             />
           </div>
         </div>
 
         <div className="overflow-x-auto rounded-lg shadow-md">
-  <table className="w-full border-collapse bg-white">
-    <thead>
-      <tr className="bg-gradient-to-r from-orange-400 to-orange-500 text-white">
-        <th className="py-3 px-4 text-left font-semibold">
-          <FaCalendarAlt className="inline mr-2" />Date-Time
-        </th>
-        <th className="py-3 px-4 text-left font-semibold">
-          <FaEnvelope className="inline mr-2" />SMTP
-        </th>
-        <th className="py-3 px-4 text-left font-semibold">
-          <FaUser className="inline mr-2" />Sender
-        </th>
-        <th className="py-3 px-4 text-left font-semibold">
-          <FaUser className="inline mr-2" />Receiver
-        </th>
-        <th className="py-3 px-4 text-left font-semibold">Subject</th>
-        <th className="py-3 px-4 text-left font-semibold">Matter</th>
-        <th className="py-3 px-4 text-left font-semibold">
-          <FaPaperclip className="inline mr-2" />Attach
-        </th>
-        <th className="py-3 px-4 text-left font-semibold">
-          <FaEye className="inline mr-2" />View+Time
-        </th>
-        <th className="py-3 px-4 text-left font-semibold">CRM</th>
-      </tr>
-    </thead>
-    <tbody>
-      {emails.map((email, index) => (
-        <tr
-          key={index}
-          className={`border-b border-gray-100 ${
-            index % 2 === 0 ? "bg-gray-50" : "bg-white"
-          } hover:bg-orange-50 transition-colors duration-200`}
-        >
-          <td className="py-3 px-4 text-gray-700">{email.dateTime}</td>
-          <td className="py-3 px-4 text-gray-700">{email.smtp}</td>
-          <td className="py-3 px-4 text-gray-700">{email.sender}</td>
-          <td className="py-3 px-4 text-gray-700">{email.receiver}</td>
-          <td className="py-3 px-4 text-gray-700">{email.subject}</td>
-          <td className="py-3 px-4 text-gray-700">{email.matter}</td>
-          <td className="py-3 px-4 text-gray-700">{email.attach}</td>
-          <td className="py-3 px-4 text-gray-700">{email.viewTime}</td>
-          <td className="py-3 px-4 text-gray-700">{email.crm}</td>
-        </tr>
-      ))}
-    </tbody>
-  </table>
-</div>
+          <table className="w-full border-collapse bg-white">
+            <thead>
+              <tr className="bg-blue-500 text-white">
+                <th className="py-3 px-4 text-left font-semibold">Date-Time</th>
+                <th className="py-3 px-4 text-left font-semibold">SMTP</th>
+                <th className="py-3 px-4 text-left font-semibold">Sender</th>
+                <th className="py-3 px-4 text-left font-semibold">Receiver</th>
+                <th className="py-3 px-4 text-left font-semibold">Subject</th>
+                <th className="py-3 px-4 text-left font-semibold">Matter</th>
+                <th className="py-3 px-4 text-left font-semibold">Attach</th>
+                <th className="py-3 px-4 text-left font-semibold">View+Time</th>
+                <th className="py-3 px-4 text-left font-semibold">CRM</th>
+                <th className="py-3 px-4 text-left font-semibold">Success</th>
+                <th className="py-3 px-4 text-left font-semibold">Open Count</th>
+              </tr>
+            </thead>
+            <tbody>
+              {currentRecords.map((email, index) => (
+                <tr
+                  key={index}
+                  className={`border-b border-gray-100 ${index % 2 === 0 ? "bg-gray-50" : "bg-white"} hover:bg-blue-50 transition-colors duration-200`}
+                >
+                  <td className="py-3 px-4 text-black-700">{email.dateTime}</td>
+                  <td className="py-3 px-4 text-black-700">{email.smtp}</td>
+                  <td className="py-3 px-4 text-black-700">{email.sender}</td>
+                  <td className="py-3 px-4 text-black-700">{email.receiver}</td>
+                  <td className="py-3 px-4 text-black-700">{email.subject}</td>
+                  <td className="py-3 px-4 text-black-700">{email.matter}</td>
+                  <td className="py-3 px-4 text-black-700">{email.attach}</td>
+                  <td className="py-3 px-4 text-black-700">{email.viewTime}</td>
+                  <td className="py-3 px-4 text-black-700">{email.crm}</td>
+                  <td className="py-3 px-4 text-black-700">{email.success}</td>
+                  <td className="py-3 px-4 text-black-700">{email.opencount}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
 
-        <div className="mt-4">
-          <span>Showing 1 to 10 records</span>
-          <div className="inline-block float-right">
-            <button className="mr-2 px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600">
+        <div className="mt-4 flex items-center justify-between">
+          <span>
+            Showing {indexOfFirstRecord + 1} to {Math.min(indexOfLastRecord, emails.length)} of {emails.length} records
+          </span>
+          <div className="flex space-x-2">
+            <button
+              onClick={() => paginate(currentPage - 1)}
+              disabled={currentPage === 1}
+              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:bg-blue-300"
+            >
               {"<<"} Previous
             </button>
-            <button className="px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600">
+            <button
+              onClick={() => paginate(currentPage + 1)}
+              disabled={indexOfLastRecord >= emails.length}
+              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:bg-blue-300"
+            >
               Next {">>"}
             </button>
           </div>
         </div>
       </div>
 
-      {/* Team Report Section */}
-<div className="mb-8">
-  <h2 className="text-xl font-bold mb-4 text-orange-500">Your Team's Email Report</h2>
-  
-  {/* Header with all elements in the same line */}
-  <div className="flex items-center mb-4">
-    {/* Associates */}
-    <div className="flex items-center mr-4">
-      <FaUser className="mr-2 text-orange-500" />
-      <span className="text-lg font-semibold text-gray-700">Associates</span>
-    </div>
-    {/* List */}
-    <span className="text-lg font-semibold text-gray-700 mr-4">&lt;List&gt;</span>
-    {/* Search Bar */}
-    <div className="flex items-center mr-4">
-      <FaSearch className="mr-2 text-orange-500" />
-      <input
-        type="text"
-        placeholder="Search"
-        className="border p-2 rounded focus:border-orange-500 focus:ring-orange-500"
-      />
-    </div>
-    {/* From Date */}
-    <div className="flex items-center mr-4">
-      <FaCalendarAlt className="mr-2 text-orange-500" />
-      <span className="text-lg font-semibold text-gray-700">From Date</span>
-    </div>
-    {/* To Date */}
-    <div className="flex items-center">
-      <FaCalendarAlt className="mr-2 text-orange-500" />
-      <span className="text-lg font-semibold text-gray-700">To Date</span>
-    </div>
-  </div>
+      <div className="mb-8">
+        <h2 className="text-xl font-bold mb-4 text-black-500">Your Team's Email Report</h2>
+        <div className="flex items-center mb-4">
+          <FaUser className="mr-2 text-blue-500" />
+          <span className="text-lg font-semibold text-gray-700">Associates</span>
+          <span className="text-lg font-semibold text-gray-700 mx-4">List</span>
+          <FaCalendarAlt className="mr-2 text-gray-500" />
+          <span className="mr-4">From Date</span>
+          <input
+            type="date"
+            value={startDate}
+            onChange={handleStartDateChange}
+            className="border p-2 rounded focus:border-orange-500 focus:ring-orange-500"
+          />
+          <FaCalendarAlt className="mr-2 text-gray-500 ml-4" />
+          <span className="mr-4">To Date</span>
+          <input
+            type="date"
+            value={endDate}
+            onChange={handleEndDateChange}
+            className="border p-2 rounded focus:border-orange-500 focus:ring-orange-500"
+          />
+          <FaSearch className="mr-2 text-gray-500 ml-4" />
+          <input
+            type="text"
+            placeholder="Search"
+            value={searchQuery}
+            onChange={handleSearch}
+            className="border p-2 rounded focus:border-orange-500 focus:ring-orange-500"
+          />
+        </div>
 
-  {/* Table */}
-  <div className="overflow-x-auto rounded-lg shadow-md">
-  <table className="w-full border-collapse bg-white">
-    <thead>
-      <tr className="bg-gradient-to-r from-orange-400 to-orange-500 text-white">
-        <th className="py-3 px-4 text-left font-semibold">
-          <FaUser className="inline mr-2" />Associates
-        </th>
-        <th className="py-3 px-4 text-left font-semibold">Total Sent</th>
-        <th className="py-3 px-4 text-left font-semibold">Total Un-replied</th>
-        <th className="py-3 px-4 text-left font-semibold">Maximum Delays</th>
-      </tr>
-    </thead>
-    <tbody>
-      {teamReport.map((report, index) => (
-        <tr
-          key={index}
-          className={`border-b border-gray-100 ${
-            index % 2 === 0 ? "bg-gray-50" : "bg-white"
-          } hover:bg-orange-50 transition-colors duration-200`}
-        >
-          <td className="py-3 px-4 text-gray-700">{report.associate}</td>
-          <td className="py-3 px-4 text-gray-700">{report.totalSent}</td>
-          <td className="py-3 px-4 text-gray-700">{report.totalUnreplied}</td>
-          <td className="py-3 px-4 text-gray-700">{report.maxDelay}</td>
-        </tr>
-      ))}
-    </tbody>
-  </table>
-</div>
+        <div className="overflow-x-auto rounded-lg shadow-md">
+          <table className="w-full border-collapse bg-white">
+            <thead>
+              <tr className="bg-blue-500 text-white">
+                <th className="py-3 px-4 text-left font-semibold">Associates</th>
+                <th className="py-3 px-4 text-left font-semibold">Total Sent</th>
+                <th className="py-3 px-4 text-left font-semibold">Total Un-replied</th>
+                <th className="py-3 px-4 text-left font-semibold">Maximum Delays</th>
+              </tr>
+            </thead>
+            <tbody>
+              {teamReport.map((report, index) => (
+                <tr
+                  key={index}
+                  className={`border-b border-gray-100 ${index % 2 === 0 ? "bg-gray-50" : "bg-white"} hover:bg-blue-50 transition-colors duration-200`}
+                >
+                  <td className="py-3 px-4 text-black-700">{report.associate}</td>
+                  <td className="py-3 px-4 text-black-700">{report.totalSent}</td>
+                  <td className="py-3 px-4 text-black-700">{report.totalUnreplied}</td>
+                  <td className="py-3 px-4 text-black-700">{report.maxDelay}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
 
-</div>
-
-      {/* Team Summary Section */}
       <section className="mb-6">
         <div className="bg-white p-4 rounded-lg shadow-md">
-        <div className="flex items-center mb-4">
-          <FaCalendarAlt className="mr-2 text-orange-500" />
-          <span className="mr-4">From Date</span>
-          <FaCalendarAlt className="mr-2 text-orange-500" />
-          <span className="mr-4">To Date</span>
-          <FaSearch className="mr-2 text-orange-500" />
-            <input
-              type="text"
-              placeholder="Search"
-              className="border p-2 rounded focus:border-orange-500 focus:ring-orange-500"
-            />
-        </div>
           <h3 className="text-lg font-semibold text-gray-700 mb-4 flex items-center">
-            <FaEnvelope className="text-orange-500 h-5 w-5 mr-2" />
+            <FaUser className="h-5 w-5 mr-2 text-blue-500" />
             Team’s Email Summary
           </h3>
 
           <div className="overflow-x-auto rounded-lg shadow-md">
-  <table className="w-full border-collapse bg-white">
-    <thead>
-      <tr className="bg-gradient-to-r from-orange-400 to-orange-500 text-white">
-        <th className="py-3 px-4 text-left font-semibold">Category</th>
-        <th className="py-3 px-4 text-left font-semibold">Team Member</th>
-        <th className="py-3 px-4 text-left font-semibold">Details</th>
-      </tr>
-    </thead>
-    <tbody>
-      {[
-        { icon: FaPaperPlane, color: "green-500", label: "Top Sender", detail: "32 SMS" },
-        { icon: FaReply, color: "blue-500", label: "Top Replier", detail: "32 SMS" },
-        { icon: FaTimesCircle, color: "red-500", label: "Top Neglecter", detail: "49 SMS" },
-        { icon: FaClock, color: "yellow-500", label: "Top Delayer", detail: "34 SMS" },
-        { icon: FaPaperPlane, color: "gray-500", label: "Lowest Sender", detail: "32 SMS" },
-      ].map((item, index) => (
-        <tr
-          key={index}
-          className={`border-b border-gray-100 ${
-            index % 2 === 0 ? "bg-gray-50" : "bg-white"
-          } hover:bg-orange-50 transition-colors duration-200`}
-        >
-          <td className="py-3 px-4 flex items-center text-gray-700">
-            <item.icon className={`h-5 w-5 mr-2 text-${item.color}`} />
-            {item.label}
-          </td>
-          <td className="py-3 px-4 text-gray-700">RP Singh</td>
-          <td className="py-3 px-4 text-gray-700">{item.detail}</td>
-        </tr>
-      ))}
-    </tbody>
-  </table>
-</div>
-
+            <table className="w-full border-collapse bg-white">
+              <thead>
+                <tr className="bg-blue-500 text-white">
+                  <th className="py-3 px-4 text-left font-semibold">Category</th>
+                  <th className="py-3 px-4 text-left font-semibold">Team Member</th>
+                  <th className="py-3 px-4 text-left font-semibold">Details</th>
+                </tr>
+              </thead>
+              <tbody>
+                {[
+                  { icon: FaPaperPlane, color: "green-500", label: "Top Sender", detail: teamSummary.topSender },
+                  { icon: FaReply, color: "blue-500", label: "Top Replier", detail: teamSummary.topReplier },
+                  { icon: FaTimesCircle, color: "red-500", label: "Top Neglecter", detail: teamSummary.topNeglecter },
+                  { icon: FaClock, color: "yellow-500", label: "Top Delayer", detail: teamSummary.topDelayer },
+                  { icon: FaPaperPlane, color: "gray-500", label: "Lowest Sender", detail: teamSummary.lowestSender },
+                ].map((item, index) => (
+                  <tr
+                    key={index}
+                    className={`border-b border-gray-100 ${index % 2 === 0 ? "bg-gray-50" : "bg-white"} hover:bg-blue-50 transition-colors duration-200`}
+                  >
+                    <td className="py-3 px-4 flex items-center text-gray-700">
+                      <item.icon className={`h-5 w-5 mr-2 text-${item.color}`} />
+                      {item.label}
+                    </td>
+                    <td className="py-3 px-4 text-gray-700">{getTeamMember(item.label)}</td>
+                    <td className="py-3 px-4 text-gray-700">{item.detail}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </section>
     </div>

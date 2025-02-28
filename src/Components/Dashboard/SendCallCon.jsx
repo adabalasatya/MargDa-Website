@@ -1,15 +1,42 @@
 import { useEffect, useState } from "react";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { toast } from "react-toastify";
 
-const CallCon = ({ setShowCallCon, selectedLeads }) => {
+const CallCon = ({
+  setShowCallCon,
+  selectedLeads,
+  unhideData,
+  setSelectedLeads,
+}) => {
   const [token, setToken] = useState(null);
   const [callType, setCallType] = useState("S");
   const [isLoading, setIsLoading] = useState(false);
+  const [remarks, setRemarks] = useState("");
+  const [followUpDateTime, setFollowUpDateTime] = useState("");
+  const [callServices, setCallServices] = useState([
+    { value: "S", name: "SIM" },
+    { value: "A", name: "API" },
+  ]);
 
   useEffect(() => {
     fetchToken();
+    check();
   }, []);
+
+  const check = () => {
+    if (selectedLeads.length > 0) {
+      for (let i = 0; i < selectedLeads.length; i++) {
+        const lead = selectedLeads[i];
+        if (lead.phone && lead.phone.includes("*")) {
+          setCallServices([
+            { value: "S", name: "SIM", disabled: true },
+            { value: "A", name: "API" },
+          ]);
+          setCallType("A");
+          break;
+        }
+      }
+    }
+  };
 
   const fetchToken = async () => {
     const userLocalData = JSON.parse(localStorage.getItem("userData"));
@@ -29,9 +56,6 @@ const CallCon = ({ setShowCallCon, selectedLeads }) => {
       if (response.ok) {
         setToken(data.Token.token);
       } else if (response.status === 404) {
-        toast.error(
-          "Call feature is not available for your account. Please install the Margda app and sign up to enable this feature."
-        );
       }
     } catch (error) {
       toast.error("Failed to fetch token. Please try again.");
@@ -44,14 +68,32 @@ const CallCon = ({ setShowCallCon, selectedLeads }) => {
       return;
     }
 
-    setIsLoading(true);
-    const mobile = selectedLeads[0].mobile;
+    const lead = unhideData.find(
+      (item) =>
+        item.userId == selectedLeads[0].userId &&
+        item.dataId == selectedLeads[0].dataId
+    );
+    const mobile = lead.phone;
     const userLocalData = JSON.parse(localStorage.getItem("userData"));
     const agent = userLocalData ? userLocalData.user_data.mobile : null;
     const accessToken = userLocalData ? userLocalData.access_token : null;
+    if (!followUpDateTime) {
+      toast.warn("Please Enter Follow up date and time");
+      return;
+    }
+    if (!remarks) {
+      toast.warn("Please Enter Remarks");
+      return;
+    }
+    setIsLoading(true);
 
     try {
       if (callType === "S") {
+        if (!token) {
+          return toast.error(
+            "Call feature is not available for your account. Please install the Margda app and sign up to enable this feature."
+          );
+        }
         const response = await fetch(
           "https://margda.in:7000/api/android/push-notification/send-call-notification",
           {
@@ -69,6 +111,7 @@ const CallCon = ({ setShowCallCon, selectedLeads }) => {
         );
         if (response.ok) {
           toast.success("Calling in progress...");
+          setSelectedLeads([]);
         } else {
           const data = await response.json();
           toast.error(data.message || "Failed to initiate call.");
@@ -85,17 +128,23 @@ const CallCon = ({ setShowCallCon, selectedLeads }) => {
             body: JSON.stringify({
               agent_number: agent,
               destination_number: mobile,
+              dataID: lead.dataId,
+              userId: lead.userId,
+              remarks,
+              followUpDateTime,
             }),
           }
         );
         const data = await response.json();
         if (response.ok) {
           toast.success(data.message || "Call initiated successfully.");
+          setSelectedLeads([]);
         } else {
           toast.error(data.message || "Failed to initiate call.");
         }
       }
     } catch (error) {
+      console.log(error);
       toast.error("An error occurred. Please try again.");
     } finally {
       setIsLoading(false);
@@ -104,7 +153,6 @@ const CallCon = ({ setShowCallCon, selectedLeads }) => {
 
   return (
     <>
-      <ToastContainer />
       <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center p-4">
         <div className="bg-white rounded-lg shadow-2xl w-full max-w-md overflow-hidden">
           {/* Header */}
@@ -114,7 +162,7 @@ const CallCon = ({ setShowCallCon, selectedLeads }) => {
             </h2>
             <button
               onClick={() => setShowCallCon(false)}
-              className="text-gray-500 hover:text-gray-700 transition-colors"
+              className="text-gray-500 hover:text-gray-900 transition-colors"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -144,25 +192,79 @@ const CallCon = ({ setShowCallCon, selectedLeads }) => {
                 value={callType}
                 onChange={(e) => setCallType(e.target.value)}
               >
-                <option value="S">SIM</option>
-                <option value="A">API</option>
+                {callServices.map((service, index) => (
+                  <option
+                    key={index}
+                    value={service.value}
+                    disabled={service.disabled}
+                  >
+                    {service.name}
+                  </option>
+                ))}
               </select>
             </div>
 
-            <div className="flex justify-end gap-4">
+            {/* Remarks */}
+            <div className="flex flex-col">
+              <label htmlFor="remarks" className="font-bold mb-2">
+                Remarks
+              </label>
+              <textarea
+                name="remarks"
+                id="remarks"
+                value={remarks}
+                onChange={(e) => setRemarks(e.target.value)}
+                className="px-2 py-2 border border-gray-300 rounded focus:ring-2 focus:outline-none focus:ring-blue-500"
+                rows="2"
+                placeholder="Remarks"
+              />
+            </div>
+
+            {/* Follow Up date and time */}
+            <div className="flex justify-between">
+              <div className="flex flex-col">
+                <label htmlFor="followup-date-time" className="font-bold mb-2">
+                  Follow up date
+                </label>
+                <input
+                  name="followup-date-time"
+                  id="followup-date-time"
+                  value={followUpDateTime}
+                  onChange={(e) => setFollowUpDateTime(e.target.value)}
+                  type="datetime-local"
+                  className="px-3 py-1 border border-gray-400 rounded font-light focus:ring-blue-500 text-base focus:border-blue-500 "
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-4 mt-5">
               <button
                 onClick={() => setShowCallCon(false)}
                 className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors"
               >
                 Cancel
               </button>
-              <button
-                onClick={handleCall}
-                disabled={isLoading}
-                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isLoading ? "Calling..." : "Call"}
-              </button>
+              {callType == "S" && token ? (
+                <button
+                  onClick={handleCall}
+                  disabled={isLoading}
+                  className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isLoading ? "Calling..." : "Call"}
+                </button>
+              ) : callType == "A" ? (
+                <button
+                  onClick={handleCall}
+                  disabled={isLoading}
+                  className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isLoading ? "Calling..." : "Call"}
+                </button>
+              ) : (
+                <span className="bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500">
+                  Not Available
+                </span>
+              )}
             </div>
           </div>
         </div>

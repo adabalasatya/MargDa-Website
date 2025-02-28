@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { FaQrcode, FaSignOutAlt,FaCode } from "react-icons/fa";
+import { FaQrcode, FaSignOutAlt, FaCode } from "react-icons/fa";
 
 const UserProfile = () => {
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
@@ -10,7 +10,9 @@ const UserProfile = () => {
   const userData = JSON.parse(localStorage.getItem("userData"));
   const userName = userData ? userData.user_data.name : "User"; // Access user name
   const profilePicUrl = userData ? userData.user_data.pic_url : null; // Access profile picture URL
-  const userInitial = userData ? userData.user_data.name.charAt(0).toUpperCase() : "U"; // Get user initial
+  const userInitial = userData
+    ? userData.user_data.name.charAt(0).toUpperCase()
+    : "U"; // Get user initial
 
   const toggleProfileMenu = () => {
     setIsProfileMenuOpen(!isProfileMenuOpen);
@@ -54,7 +56,11 @@ const UserProfile = () => {
           viewBox="0 0 24 24"
           stroke="currentColor"
         >
-          <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M19 9l-7 7-7-7"
+          />
         </svg>
       </button>
 
@@ -74,12 +80,18 @@ const UserProfile = () => {
                         className="w-full h-full object-cover"
                       />
                     ) : (
-                      <span className="text-white font-bold text-sm">{userInitial}</span>
+                      <span className="text-white font-bold text-sm">
+                        {userInitial}
+                      </span>
                     )}
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-gray-700">{userData.user_data.name}</p>
-                    <p className="text-xs text-gray-500">{userData.user_data.email}</p>
+                    <p className="text-sm font-medium text-gray-700">
+                      {userData.user_data.name}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      {userData.user_data.email}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -89,21 +101,27 @@ const UserProfile = () => {
               to="/data-share"
               className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors duration-300"
             >
-              <span className="w-5 h-5 mr-2 flex items-center justify-center">📤</span>
+              <span className="w-5 h-5 mr-2 flex items-center justify-center">
+                📤
+              </span>
               <span>Data Share</span>
             </Link>
             <Link
-              to="/profile"
+              to="/before-profile"
               className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors duration-300"
             >
-              <span className="w-5 h-5 mr-2 flex items-center justify-center">👤</span>
+              <span className="w-5 h-5 mr-2 flex items-center justify-center">
+                👤
+              </span>
               <span>Profile</span>
             </Link>
             <Link
               to="/credential"
               className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors duration-300"
             >
-              <span className="w-5 h-5 mr-2 flex items-center justify-center">🔑</span>
+              <span className="w-5 h-5 mr-2 flex items-center justify-center">
+                🔑
+              </span>
               <span>Credential</span>
             </Link>
             {/* <Link
@@ -117,10 +135,12 @@ const UserProfile = () => {
               to="/email-auth"
               className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors duration-300"
             >
-              <span className="w-5 h-5 mr-2 flex items-center justify-center">📧</span>
-              <span>Email Auth</span>
+              <span className="w-5 h-5 mr-2 flex items-center justify-center">
+                📧
+              </span>
+              <span>Email App Password</span>
             </Link>
-           
+
             <Link
               to="/qr-scan"
               className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors duration-300"
@@ -128,6 +148,12 @@ const UserProfile = () => {
               <FaQrcode className="w-5 h-5 mr-2 text-gray-700" />
               <span>WhatsApp Scan</span>
             </Link>
+            <div className="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors duration-300">
+              <span className="w-5 h-5 mr-2 flex items-center justify-center">
+                ⛓️‍💥
+              </span>
+              <span>Refer Code {userData.user_data.refercode}</span>
+            </div>
             {/* Logout Button */}
             <button
               onClick={handleLogout}

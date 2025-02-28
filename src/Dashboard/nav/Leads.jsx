@@ -1,4 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import {
   FaEnvelope,
   FaWhatsapp,
@@ -23,35 +25,67 @@ import {
   FaClipboardList,
   FaSave,
   FaTimes,
+  FaUserGraduate,
+  FaUsers,
+  FaEllipsisV,
+  FaChartBar,
+  FaEyeSlash,
+  FaTasks,
 } from "react-icons/fa";
+import { MdAccessTimeFilled } from "react-icons/md";
+import { FcTimeline } from "react-icons/fc";
+import { TbTimeline } from "react-icons/tb";
+import { PiTextTThin } from "react-icons/pi";
+
+import { TbTimelineEventText } from "react-icons/tb";
+
 import WhatsAppCon from "../../Components/Dashboard/SendWhatsappCon";
 import EmailCon from "../../Components/Dashboard/SendEmailCon";
 import SendSmsCon from "../../Components/Dashboard/SendSmsCon";
 import CallCon from "../../Components/Dashboard/SendCallCon";
 import PhoneInput from "react-phone-number-input";
+import { Link, useNavigate } from "react-router-dom";
 import "react-phone-number-input/style.css";
+import { ScheduleMeeting } from "../../Components/Dashboard/ScheduleMeeting";
 
 const Leads = () => {
   // State variables
+  const navigate = useNavigate();
   const [isPincodeDropdownOpen, setIsPincodeDropdownOpen] = useState(false);
   const [pincodeSearch, setPincodeSearch] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [recordsPerPage, setRecordsPerPage] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
   const [userData, setUserData] = useState([]);
+  const [variables, setVariables] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [selectedRows, setSelectedRows] = useState(new Set());
-  const [selectAll, setSelectAll] = useState(false);
+  const [selectedRows, setSelectedRows] = useState([]);
+  const [selectedTask, setSelectedTask] = useState({});
   const [showWhatsAppSend, setShowWhatsAppSend] = useState(false);
+  const [unhideData, setUnhideData] = useState([]);
   const [showEmailSend, setShowEmailSend] = useState(false);
   const [showSmsSend, setShowSmsSend] = useState(false);
   const [showCallCon, setShowCallCon] = useState(false);
   const [editingId, setEditingId] = useState(null);
+  const [selectedEditTask, setSelectedEditTask] = useState(null);
   const [editingData, setEditingData] = useState({});
-  const [isLoading, setIsLoading] = useState(false);
-  const [isSelectAllChecked, setIsSelectAllChecked] = useState(false);
-  const [enableTableScroll, setEnableTableScroll] = useState(false); // New state for scroll control
+  const [editingTaskId, setEditingTaskId] = useState(null);
+  const [tasks, setTasks] = useState([]);
+  const [showScheduleMeeting, setShowScheduleMeeting] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(null);
+
+  // Dropdown data states
+  const [dataTypes, setDataTypes] = useState([]);
+  const [countries, setCountries] = useState([]);
+  const [states, setStates] = useState([]);
+  const [districts, setDistricts] = useState([]);
+  const [selectedCountry, setSelectedCountry] = useState("");
+  const [selectedState, setSelectedState] = useState("");
+  const [selectedDistrict, setSelectedDistrict] = useState("");
+  const [selectedDataType, setSelectedDataType] = useState("");
+  const [isTaskOpen, setIsTaskOpen] = useState(false);
+  const [newTask, setNewTask] = useState("");
 
   const dropdownRef = useRef(null);
 
@@ -62,12 +96,182 @@ const Leads = () => {
 
   // Fetch data from API
   useEffect(() => {
-    const fetchData = async () => {
+    fetchData();
+    fetch_limit_variables();
+    fetchTasks();
+  }, [accessToken]);
+
+  const fetchTasks = async () => {
+    try {
+      const response = await fetch(
+        "https://margda.in:7000/api/master/tasks/get-tasks",
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      if (result.success && Array.isArray(result.Tasks)) {
+        setTasks(result.Tasks);
+      } else {
+        console.error("Unexpected API response format:", result);
+        setError("Failed to fetch countries. Invalid response format.");
+      }
+    } catch (error) {
+      console.error("Error fetching countries:", error);
+      setError("Failed to fetch countries. Please try again.");
+    }
+  };
+
+  const fetchData = async () => {
+    try {
+      const response = await fetch(
+        "https://margda.in:7000/api/margda.org/get-leads",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          return navigate("/login");
+        }
+        if (response.status == 404) {
+          return setUserData([]);
+        }
+        throw new Error("Failed to fetch data");
+      }
+
+      const data = await response.json();
+
+      if (data.message && data.message === "Leads not found") {
+        setUserData([]);
+      } else if (data.Leads && Array.isArray(data.Leads)) {
+        const transformedData = data.Leads.map((item) => ({
+          id: item.dataID || item.userID,
+          dataId: item.dataID,
+          leadID: item.leadID,
+          userId: item.userID,
+          name: item.name || "N/A",
+          email: item.email || "N/A",
+          phone: item.mobile || "N/A",
+          gender:
+            item.gender === "M"
+              ? "Male"
+              : item.gender === "F"
+              ? "Female"
+              : "Other",
+          whatsapp: item.whatsapp || item.mobile || "N/A",
+          location: {
+            city: item.city || "N/A",
+            state: item.state || "N/A",
+            country: item.country || "N/A",
+            pincode: item.pincode || "N/A",
+          },
+          logs: item.log,
+          remarks: item.remarks || "No remarks",
+          taskID: item.taskID,
+          pic_url: item.pic_url,
+          isView: item.isView,
+          euser: item.euser || null,
+          isShortlisted: item.isShortlisted || false,
+          dataType: item.datatype || "N/A", // Add dataType to each entry
+        }));
+        const unhide = [...transformedData];
+        setUnhideData(unhide);
+
+        const hide = transformedData.map((item) => {
+          if (item.isView) {
+            return item;
+          } else {
+            const newItem = { ...item };
+            // if (newItem.euser === loginUserID || loginUserID == 1) {
+            //   return newItem;
+            // }
+            newItem.phone = newItem.phone
+              ? newItem.phone.slice(0, 4) + "********"
+              : "N/A";
+            newItem.whatsapp = newItem.whatsapp
+              ? newItem.whatsapp.slice(0, 4) + "********"
+              : "N/A";
+            newItem.email = newItem.email
+              ? newItem.email.slice(0, 4) +
+                "********" +
+                newItem.email.slice(
+                  newItem.email.length - 3,
+                  newItem.email.length
+                )
+              : "N/A";
+            return newItem;
+          }
+        });
+        setUserData(hide);
+        setError(null);
+      } else {
+        setUserData([]);
+        setError("Invalid data format received from the server");
+      }
+
+      setLoading(false);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      setError(error.message);
+      setLoading(false);
+    }
+  };
+
+  const fetch_limit_variables = async () => {
+    try {
+      const response = await fetch(
+        "https://margda.in:7000/api/margda/get-limit-variables",
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          return navigate("/login");
+        }
+        if (response.status == 404) {
+          return setVariables([]);
+        }
+      }
+
+      const data = await response.json();
+      if (data.Variables && data.Variables.length > 0) {
+        setVariables(data.Variables);
+      }
+
+      setLoading(false);
+    } catch (error) {
+      setLoading(false);
+    }
+  };
+
+  // Fetch Data Types
+  useEffect(() => {
+    const fetchDataTypes = async () => {
       try {
         const response = await fetch(
-          "https://margda.in:7000/api/margda.org/get-leads",
+          "https://margda.in:7000/api/master/get-datatypes",
           {
-            method: "POST",
+            method: "GET",
             headers: {
               Authorization: `Bearer ${accessToken}`,
               "Content-Type": "application/json",
@@ -76,85 +280,150 @@ const Leads = () => {
         );
 
         if (!response.ok) {
-          if (response.status == 404) {
-            return setUserData([]);
-          }
-          throw new Error("Failed to fetch data");
+          throw new Error("Failed to fetch data types");
         }
 
         const data = await response.json();
-
-        if (data.message && data.message === "Leads not found") {
-          setUserData([]);
-          // setError("Leads not found");
-        } else if (data.Leads && Array.isArray(data.Leads)) {
-          const transformedData = data.Leads.map((item) => ({
-            id: item.dataID || item.userID,
-            dataId: item.dataID,
-            userId: item.userID,
-            name: item.name || "N/A",
-            email: item.email || "N/A",
-            phone: item.mobile || "N/A",
-            gender:
-              item.gender === "M"
-                ? "Male"
-                : item.gender === "F"
-                ? "Female"
-                : "Other",
-            whatsapp: item.whatsapp || item.mobile || "N/A",
-            location: {
-              city: item.city || "N/A",
-              state: item.state || "N/A",
-              country: item.country || "N/A",
-              pincode: item.pincode || "N/A",
-            },
-            log: `Logged in: ${new Date(
-              item.edate || Date.now()
-            ).toLocaleString()}`,
-            remarks: item.remarks || "No remarks",
-            euser: item.euser || null,
-            isShortlisted: item.isShortlisted || false,
-          }));
-          setUserData(transformedData);
-          setError(null);
+        if (data.success && Array.isArray(data.data)) {
+          setDataTypes(data.data);
         } else {
-          setUserData([]);
-          setError("Invalid data format received from the server");
+          throw new Error("Invalid data format for data types");
         }
-
-        setLoading(false);
       } catch (error) {
-        console.error("Error fetching data:", error);
+        console.error("Error fetching data types:", error);
         setError(error.message);
-        setLoading(false);
       }
     };
 
-    fetchData();
+    fetchDataTypes();
   }, [accessToken]);
 
-  // Close dropdown when clicking outside
+  // Fetch Countries
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setIsPincodeDropdownOpen(false);
+    const fetchCountries = async () => {
+      try {
+        const response = await fetch(
+          "https://margda.in:7000/api/master/get-countries",
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch countries");
+        }
+
+        const data = await response.json();
+        if (data.success && Array.isArray(data.data)) {
+          setCountries(data.data);
+        } else {
+          throw new Error("Invalid data format for countries");
+        }
+      } catch (error) {
+        console.error("Error fetching countries:", error);
+        setError(error.message);
       }
     };
 
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+    fetchCountries();
+  }, [accessToken]);
+
+  // Fetch States based on selected country
+  useEffect(() => {
+    const fetchStates = async () => {
+      if (!selectedCountry) return;
+
+      try {
+        const response = await fetch(
+          `https://margda.in:7000/api/master/get-states?country_code=${selectedCountry}`,
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch states");
+        }
+
+        const data = await response.json();
+        if (data.success && Array.isArray(data.data)) {
+          setStates(data.data);
+        } else {
+          throw new Error("Invalid data format for states");
+        }
+      } catch (error) {
+        console.error("Error fetching states:", error);
+        setError(error.message);
+      }
+    };
+
+    fetchStates();
+  }, [selectedCountry, accessToken]);
+
+  // Fetch Districts based on selected state
+  useEffect(() => {
+    const fetchDistricts = async () => {
+      if (!selectedState) return;
+
+      try {
+        const response = await fetch(
+          `https://margda.in:7000/api/master/get-districts?state_code=${selectedState}`,
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch districts");
+        }
+
+        const data = await response.json();
+        if (data.success && Array.isArray(data.data)) {
+          setDistricts(data.data);
+        } else {
+          throw new Error("Invalid data format for districts");
+        }
+      } catch (error) {
+        console.error("Error fetching districts:", error);
+        setError(error.message);
+      }
+    };
+
+    fetchDistricts();
+  }, [selectedState, accessToken]);
+
+  const handleCountryChange = (e) => {
+    setSelectedCountry(e.target.value);
+    setSelectedState(""); // Reset state
+    setSelectedDistrict(""); // Reset district
+  };
+
+  const handleStateChange = (e) => {
+    setSelectedState(e.target.value);
+    setSelectedDistrict(""); // Reset district
+  };
 
   // Handle pincode search
   const handlePincodeSearch = () => {
-    console.log("Searching for pincode:", pincodeSearch);
     setIsPincodeDropdownOpen(false);
   };
 
   // Handle bulk actions
   const handleBulkAction = (action) => {
-    if (selectedRows.size === 0) {
-      alert("Select at least one lead");
+    if (selectedRows.length === 0) {
+      toast.warning("Select at least one lead");
       return;
     }
 
@@ -169,86 +438,30 @@ const Leads = () => {
         setShowSmsSend(true);
         break;
       case "phone":
+        if (selectedRows.length > 1) {
+          toast.warning("Select only one lead to call");
+          return;
+        }
         setShowCallCon(true);
         break;
+      case "meet":
+        setShowScheduleMeeting(true);
+        break;
       default:
-        console.log(`Bulk action "${action}" not implemented`);
-    }
-  };
-
-  // Handle delete
-  const handleDelete = async (item) => {
-    if (!item) {
-      console.error("No ID provided for deletion");
-      return;
-    }
-
-    try {
-      console.log(item);
-      const payload = item.userId
-        ? { userID: item.userId }
-        : item.dataId
-        ? { dataID: item.dataId }
-        : "";
-      console.log(payload);
-      const response = await fetch(
-        "https://margda.in:7000/api/margda.org/delete-lead",
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(payload),
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to delete lead");
-      }
-
-      const data = await response.json();
-
-      if (data.message === "Lead deleted successfully") {
-        setUserData((prev) => prev.filter((preitem) => preitem !== item));
-        if (selectedRows.length > 0) {
-          setSelectedRows([
-            ...selectedRows,
-            selectedRows.filter((pre) => pre.id !== item.id),
-          ]);
-        }
-      } else {
-        throw new Error(data.message || "Failed to delete lead");
-      }
-    } catch (error) {
-      console.error("Error deleting lead:", error);
-      setError(error.message);
     }
   };
 
   // Handle row selection
   const handleRowSelect = (id) => {
-    const newSelectedRows = new Set(selectedRows);
-    if (newSelectedRows.has(id)) {
-      newSelectedRows.delete(id);
-    } else {
-      newSelectedRows.add(id);
-    }
-    setSelectedRows(newSelectedRows);
+    setSelectedRows((prevSelectedLeads) =>
+      prevSelectedLeads.includes(id)
+        ? prevSelectedLeads.filter((lead) => lead !== id)
+        : [...prevSelectedLeads, id]
+    );
   };
 
-  // Handle "Select All" checkbox
-  const handleSelectAll = () => {
-    if (selectedRows.size === currentRecords.length) {
-      setSelectedRows(new Set());
-      setIsSelectAllChecked(false);
-      setEnableTableScroll(false); // Disable scroll when "Select All" is unchecked
-    } else {
-      const allIds = currentRecords.map((item) => item.id);
-      setSelectedRows(new Set(allIds));
-      setIsSelectAllChecked(true);
-      setEnableTableScroll(true); // Enable scroll when "Select All" is checked
-    }
+  const handleSelectAll = (isChecked) => {
+    setSelectedRows(isChecked ? [...userData] : []);
   };
 
   const handleEditInputChange = (e, field) => {
@@ -259,14 +472,25 @@ const Leads = () => {
     }));
   };
 
-  // Filter data based on search query
-  const filteredData = userData.filter((item) =>
-    Object.values(item).some(
+  const toggleMenu = (id) => {
+    setMenuOpen(menuOpen === id ? null : id);
+  };
+
+  // Filter data based on search query and selected data type
+  const filteredData = userData.filter((item) => {
+    const matchesSearchQuery = Object.values(item).some(
       (value) =>
         value &&
         value.toString().toLowerCase().includes(searchQuery.toLowerCase())
-    )
-  );
+    );
+    const matchesDataType = selectedDataType
+      ? item.dataType === selectedDataType
+      : true;
+    const matchesTask = selectedTask.taskID
+      ? item.taskID == selectedTask.taskID
+      : true;
+    return matchesSearchQuery && matchesDataType && matchesTask;
+  });
 
   // Pagination logic
   const indexOfLastRecord = currentPage * recordsPerPage;
@@ -276,6 +500,13 @@ const Leads = () => {
     indexOfLastRecord
   );
   const totalPages = Math.ceil(filteredData.length / recordsPerPage);
+
+  const todayDate = (date) => {
+    const dat = date.getDate();
+    const month = date.getMonth();
+    const year = date.getFullYear();
+    return `${dat}-${Number(month) + 1}-${year}`;
+  };
 
   // Handle next page
   const handleNextPage = () => {
@@ -291,13 +522,125 @@ const Leads = () => {
     }
   };
 
+  const addNewTask = async () => {
+    if (!newTask) {
+      return toast.error("Enter Task Name");
+    }
+    for (const task of tasks) {
+      if (task.task.toLowerCase() == newTask.toLowerCase()) {
+        return toast.error("This task already present");
+      }
+    }
+    try {
+      const response = await fetch(
+        "https://margda.in:7000/api/master/tasks/add-task",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ task: newTask }),
+        }
+      );
+      const data = await response.json();
+      if (response.ok) {
+        await fetchTasks();
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   // Handle records per page change
   const handleRecordsPerPageChange = (e) => {
     const value = parseInt(e.target.value, 10);
-    if (isNaN(value) || value < 1) {
-      setRecordsPerPage(1);
-    } else {
+    if (!isNaN(value) && value > 0) {
       setRecordsPerPage(value);
+      setCurrentPage(1); // Reset to first page when records per page changes
+    } else {
+      setRecordsPerPage(10); // Default or fallback value
+    }
+  };
+
+  const handleView = async (item) => {
+    try {
+      const response = await fetch(
+        "https://margda.in:7000/api/data/view-data",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ dataID: item.dataId, userID: item.userId }),
+        }
+      );
+      const data = await response.json();
+      if (response.ok) {
+        const resposneData = data.data;
+        setUserData((pre) =>
+          pre.map((dataItem) =>
+            (dataItem.dataId && dataItem.dataId === item.dataId) ||
+            (dataItem.userId && dataItem.userId === item.userId)
+              ? {
+                  ...dataItem,
+                  phone: resposneData.mobile,
+                  whatsapp: resposneData.whatsapp,
+                  email: resposneData.email,
+                  isView: true,
+                }
+              : dataItem
+          )
+        );
+        toast.success(data.message);
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleSaveTask = async (item) => {
+    if (!selectedEditTask) {
+      return toast.error("Select a task");
+    }
+    try {
+      const response = await fetch(
+        "https://margda.in:7000/api/margda.org/edit-lead-task",
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            leadID: item.leadID,
+            taskID: selectedEditTask,
+          }),
+        }
+      );
+      const data = await response.json();
+      if (response.ok) {
+        setEditingTaskId(null);
+        setUserData((pre) =>
+          pre.map((dataItem) =>
+            dataItem.leadID == item.leadID
+              ? {
+                  ...dataItem,
+                  taskID: selectedEditTask,
+                }
+              : dataItem
+          )
+        );
+      } else {
+        console.log(data);
+      }
+    } catch (error) {
+      console.log(error);
     }
   };
 
@@ -309,126 +652,260 @@ const Leads = () => {
     return <div className="p-6 text-center text-red-500">Error: {error}</div>;
   }
 
+  const getDifferenceInDays = (date) => {
+    const currentDate = new Date();
+    const givenDate = new Date(date);
+
+    // Calculate the difference in milliseconds
+    const differenceInTime = currentDate - givenDate;
+
+    // Convert milliseconds to days
+    const differenceInDays = Math.floor(
+      differenceInTime / (1000 * 60 * 60 * 24)
+    );
+
+    return differenceInDays < 0 ? 0 : differenceInDays;
+  };
+
   return (
     <div className="p-6 min-h-screen flex flex-col relative">
-      {/* Add Lead Button */}
-      <div>
-        <button className="flex items-center px-5 py-2 bg-blue-600 text-white rounded-full shadow hover:bg-blue-700 transition">
-          <FaUserPlus className="mr-2" />
-          Lead
-        </button>
-      </div>
-
+      <ToastContainer />
       {/* Navbar with Buttons */}
-      <div className="flex justify-end mb-6">
+      <div className="flex justify-end items-center mb-6">
+        {/* Navbar with Buttons */}
         <div className="flex space-x-2">
           <button
             onClick={() => handleBulkAction("email")}
-            className="flex items-center bg-gray-500 text-white px-4 py-2 rounded shadow hover:bg-gray-600"
+            className="flex flex-col items-center bg-gray-500 text-white px-4 py-2 rounded shadow hover:bg-gray-600"
             aria-label="Send Email"
           >
-            <FaEnvelope className="mr-2" />
-            Email
+            <div className="flex items-center">
+              <FaEnvelope className="mr-2" />
+              Email
+              {variables && variables.length > 0 ? (
+                <div className="ml-3">{variables[0].email_limit || 0}</div>
+              ) : (
+                <div className="ml-3">0</div>
+              )}
+            </div>
+            <div>
+              {variables && variables.length > 0 ? (
+                <div>
+                  {variables[0].email_validate
+                    ? todayDate(new Date(variables[0].email_validate))
+                    : todayDate(new Date())}
+                </div>
+              ) : (
+                <div>{todayDate(new Date())}</div>
+              )}
+            </div>
           </button>
 
           <button
             onClick={() => handleBulkAction("whatsapp")}
-            className="flex items-center bg-green-500 text-white px-4 py-2 rounded shadow hover:bg-green-600"
+            className="flex flex-col items-center bg-green-500 text-white px-4 py-2 rounded shadow hover:bg-green-600"
             aria-label="Send WhatsApp"
           >
-            <FaWhatsapp className="mr-2" />
-            WhatsApp
+            <div className="flex items-center">
+              <FaWhatsapp className="mr-2" />
+              WhatsApp
+              {variables && variables.length > 0 ? (
+                <div className="ml-3">{variables[0].whatsaps_limit || 0}</div>
+              ) : (
+                <div className="ml-3">0</div>
+              )}
+            </div>
+            <div>
+              {variables && variables.length > 0 ? (
+                <div>
+                  {variables[0].whatsaps_validate
+                    ? todayDate(new Date(variables[0].whatsaps_validate))
+                    : todayDate(new Date())}
+                </div>
+              ) : (
+                <div>{todayDate(new Date())}</div>
+              )}
+            </div>
           </button>
 
           <button
             onClick={() => handleBulkAction("meet")}
-            className="flex items-center bg-purple-500 text-white px-4 py-2 rounded shadow hover:bg-purple-600"
+            className="flex flex-col items-center bg-purple-500 text-white px-4 py-2 rounded shadow hover:bg-purple-600"
             aria-label="Schedule Meet"
           >
-            <FaVideo className="mr-2" />
-            Meet
+            <div className="flex items-center">
+              <FaVideo className="mr-2" />
+              Meet
+              {variables && variables.length > 0 ? (
+                <div className="ml-3">{variables[0].meet_limit || 0}</div>
+              ) : (
+                <div className="ml-3">0</div>
+              )}
+            </div>
+            <div>
+              {variables && variables.length > 0 ? (
+                <div>
+                  {variables[0].meet_validate
+                    ? todayDate(new Date(variables[0].meet_validate))
+                    : todayDate(new Date())}
+                </div>
+              ) : (
+                <div>{todayDate(new Date())}</div>
+              )}
+            </div>
           </button>
 
           <button
             onClick={() => handleBulkAction("sms")}
-            className="flex items-center bg-orange-500 text-white px-4 py-2 rounded shadow hover:bg-orange-600"
+            className="flex flex-col items-center bg-orange-500 text-white px-4 py-2 rounded shadow hover:bg-orange-600"
             aria-label="Send SMS"
           >
-            <FaSms className="mr-2" />
-            SMS
+            <div className="flex items-center">
+              <FaSms className="mr-2" />
+              SMS
+              {variables && variables.length > 0 ? (
+                <div className="ml-3">{variables[0].sms_limit || 0}</div>
+              ) : (
+                <div className="ml-3">0</div>
+              )}
+            </div>
+            <div>
+              {variables && variables.length > 0 ? (
+                <div>
+                  {variables[0].sms_validate
+                    ? todayDate(new Date(variables[0].sms_validate))
+                    : todayDate(new Date())}
+                </div>
+              ) : (
+                <div>{todayDate(new Date())}</div>
+              )}
+            </div>
           </button>
 
           <button
             onClick={() => handleBulkAction("phone")}
-            className="flex items-center bg-blue-500 text-white px-4 py-2 rounded shadow hover:bg-blue-600"
+            className="flex flex-col items-center bg-blue-500 text-white px-4 py-2 rounded shadow hover:bg-blue-600"
             aria-label="Make Call"
           >
-            <FaPhone className="mr-2" />
-            Call
+            <div className="flex items-center">
+              <FaPhone className="mr-2" />
+              Call
+              {variables && variables.length > 0 ? (
+                <div className="ml-3">
+                  {Number(variables[0].call_limit) / 100 || 0}
+                </div>
+              ) : (
+                <div className="ml-3">0</div>
+              )}
+            </div>
+            <div>
+              {variables && variables.length > 0 ? (
+                <div>
+                  {variables[0].call_validate
+                    ? todayDate(new Date(variables[0].call_validate))
+                    : todayDate(new Date())}
+                </div>
+              ) : (
+                <div>{todayDate(new Date())}</div>
+              )}
+            </div>
           </button>
         </div>
       </div>
 
       {/* Search and Filter Section */}
       <div className="bg-white p-2 shadow rounded-lg mb-6">
-        <div className="flex flex-wrap items-center justify-between space-y-4 md:space-y-2">
+        <div className="flex flex-wrap items-center justify-between gap-2">
           {/* Show Records */}
-          <label className="flex items-center">
-            <span className="text-sm font-semibold mr-2">Show</span>
+          <label className="flex items-center gap-2">
+            <span className="text-sm font-semibold">Show</span>
             <input
               type="number"
               value={recordsPerPage}
               onChange={handleRecordsPerPageChange}
-              className="border border-gray-300 p-2 rounded w-20"
+              className="border border-gray-300 p-2 rounded w-16 text-center"
               min="1"
             />
-            <span className="text-sm font-bold ml-2">Records</span>
+            <span className="text-sm font-bold">Records</span>
           </label>
 
           {/* Search Input */}
-          <div className="relative w-full md:w-48">
-            <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+          <div className="relative flex-1 max-w-[200px]">
+            <FaSearch className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="border border-gray-300 p-2 pl-10 rounded w-full"
+              className="border border-gray-300 p-2 pl-8 rounded w-full"
               placeholder="Search"
             />
           </div>
 
           {/* Filters */}
-          <div className="flex flex-wrap items-center space-x-3">
-            <select className="border border-gray-300 p-2 rounded">
-              <option>Data Type</option>
-              <option>Lead</option>
-              <option>Customer</option>
-              <option>Prospect</option>
+          <div className="flex flex-wrap items-center gap-2">
+            {/* Data Type Dropdown */}
+            <select
+              className="border border-gray-300 p-2 rounded w-32"
+              value={selectedDataType}
+              onChange={(e) => setSelectedDataType(e.target.value)}
+            >
+              <option value="">Data Type</option>
+              {dataTypes.map((dataType) => (
+                <option key={dataType.datatype} value={dataType.datatype}>
+                  {dataType.data}
+                </option>
+              ))}
             </select>
-            <select className="border border-gray-300 p-2 rounded">
-              <option>Country</option>
-              <option>India</option>
-              <option>USA</option>
-              <option>UK</option>
+
+            {/* Country Dropdown */}
+            <select
+              className="border border-gray-300 p-2 rounded w-32"
+              value={selectedCountry}
+              onChange={handleCountryChange}
+            >
+              <option value="">Country</option>
+              {countries.map((country) => (
+                <option key={country.country_code} value={country.country_code}>
+                  {country.country}
+                </option>
+              ))}
             </select>
-            <select className="border border-gray-300 p-2 rounded">
-              <option>State</option>
-              <option>Maharashtra</option>
-              <option>New York</option>
-              <option>London</option>
+
+            {/* State Dropdown */}
+            <select
+              className="border border-gray-300 p-2 rounded w-32"
+              value={selectedState}
+              onChange={handleStateChange}
+              disabled={!selectedCountry}
+            >
+              <option value="">State</option>
+              {states.map((state) => (
+                <option key={state.stateID} value={state.state_code}>
+                  {state.state}
+                </option>
+              ))}
             </select>
-            <select className="border border-gray-300 p-2 rounded">
-              <option>District</option>
-              <option>Mumbai</option>
-              <option>Manhattan</option>
-              <option>Westminster</option>
+
+            {/* District Dropdown */}
+            <select
+              className="border border-gray-300 p-2 rounded w-32"
+              value={selectedDistrict}
+              onChange={(e) => setSelectedDistrict(e.target.value)}
+              disabled={!selectedState}
+            >
+              <option value="">District</option>
+              {districts.map((district) => (
+                <option key={district.districtID} value={district.districtID}>
+                  {district.district}
+                </option>
+              ))}
             </select>
 
             {/* Pincode Dropdown */}
             <div className="relative" ref={dropdownRef}>
               <button
                 onClick={() => setIsPincodeDropdownOpen(!isPincodeDropdownOpen)}
-                className="border border-gray-300 p-2 rounded flex items-center justify-between min-w-[150px] bg-white"
+                className="border border-gray-300 p-2 rounded flex items-center justify-between w-32 bg-white"
               >
                 <span className="text-gray-700">Pincode</span>
                 <FaChevronDown
@@ -437,7 +914,6 @@ const Leads = () => {
                   }`}
                 />
               </button>
-
               {isPincodeDropdownOpen && (
                 <div className="absolute top-full left-0 mt-1 w-64 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
                   <div className="p-3">
@@ -447,7 +923,7 @@ const Leads = () => {
                         type="text"
                         value={pincodeSearch}
                         onChange={(e) => setPincodeSearch(e.target.value)}
-                        className="border border-gray-300 p-2 pl-10 rounded w-full"
+                        className="border border-gray-300 p-2 pl-8 rounded w-full"
                         placeholder="Search Pincode"
                       />
                     </div>
@@ -461,54 +937,93 @@ const Leads = () => {
                 </div>
               )}
             </div>
-          </div>
 
-          <button className="bg-orange-500 text-white px-4 py-2 rounded shadow hover:bg-orange-600">
-            + Task
-          </button>
+            {/* task button */}
+            <div className="relative w-44">
+              {/* Dropdown Header */}
+              <div
+                className="bg-orange-500 text-white border border-gray-300 rounded px-4 py-2 cursor-pointer flex justify-between items-center"
+                onClick={() => setIsTaskOpen(!isTaskOpen)}
+              >
+                <span>{selectedTask.task || "Task"}</span>
+              </div>
+
+              {/* Dropdown Menu */}
+              {isTaskOpen && (
+                <div className="absolute w-full bg-white border border-gray-300 rounded-lg mt-2 shadow-lg z-10 max-h-[400px] overflow-y-auto">
+                  {tasks.map((option, index) => (
+                    <div
+                      key={index}
+                      className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                      onClick={() => {
+                        setSelectedTask(option);
+                        setIsTaskOpen(false);
+                      }}
+                    >
+                      {option.task}
+                    </div>
+                  ))}
+
+                  {/* Input field to add new item */}
+                  <div className="flex items-center px-4 py-2 border-t border-gray-200">
+                    <input
+                      type="text"
+                      className="w-full px-2 py-1 border border-gray-300 rounded-lg outline-none"
+                      value={newTask}
+                      onChange={(e) => setNewTask(e.target.value)}
+                      placeholder="Add new task"
+                    />
+                    <button
+                      className="ml-2 bg-blue-500 text-white px-1 rounded-lg hover:bg-blue-600"
+                      onClick={addNewTask}
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       </div>
 
       {/* Leads Table */}
-      <div
-        className={`bg-white p-6 shadow-lg rounded-lg flex-1 ${
-          enableTableScroll ? "overflow-x-auto" : ""
-        }`}
-      >
-        <table className="w-full text-sm text-left border-separate border-spacing-x-4">
+      <div className="bg-white p-6 shadow-lg rounded-lg flex-1">
+        <table className="w-full text-sm text-left border">
           {/* Table Headers */}
           <thead className="top-0 z-10">
             <tr>
-              <th className="px-6 py-4">
-                <div className="flex items-center space-x-2">
+              <th className="px-4 py-3 border">
+                <div className="flex items-center space-x-2 text-center justify-center">
                   <input
                     type="checkbox"
-                    checked={isSelectAllChecked}
-                    onChange={handleSelectAll}
+                    checked={selectedRows.length === userData.length}
+                    onChange={(e) => handleSelectAll(e.target.checked)}
                     className="form-checkbox h-4 w-4 text-blue-600 rounded"
                   />
-                  <span className="font-medium text-gray-700">Select All</span>
+                  <FaUsers className="text-gray-600" />
+                  <span className="font-semibold text-gray-600">Leads</span>
                 </div>
               </th>
-              <th className="px-6 py-4">
+              {/* <th className="px-6 py-4 border">
                 <div className="flex items-center space-x-2">
                   <FaUserCog className="text-blue-500 w-4 h-4" />
                   <span className="font-medium text-gray-700">Actions</span>
                 </div>
-              </th>
-              <th className="px-6 py-4">
+              </th> */}
+              <th className="px-6 py-4 border">
                 <div className="flex items-center space-x-2">
                   <FaDatabase className="text-green-500 w-4 h-4" />
-                  <span className="font-medium text-gray-700">Data</span>
+                  <span className="font-medium text-gray-700">Details</span>
                 </div>
               </th>
-              <th className="px-6 py-4">
+              <th className="px-6 py-4 border">
                 <div className="flex items-center space-x-2">
                   <FaMapMarkerAlt className="text-yellow-600 w-4 h-4" />
                   <span className="font-medium text-gray-700">Location</span>
                 </div>
               </th>
-              <th className="px-6 py-4">
+              <th className="px-6 py-4 border">
                 <div className="flex items-center space-x-2">
                   <FaCalendarAlt className="text-purple-500 w-4 h-4" />
                   <span className="font-medium text-gray-700">Logs</span>
@@ -518,33 +1033,115 @@ const Leads = () => {
           </thead>
           {/* Table Body */}
           <tbody>
-            {filteredData.map((item, index) => (
+            {currentRecords.map((item, index) => (
               <tr
                 key={item.dataID || item.userID || index}
-                className="border-b hover:bg-gray-50 transition-colors duration-200"
+                className="border-b hover:bg-gray-100 transition-colors duration-200 border"
+                onClick={() => handleRowSelect(item)}
               >
-                <td className="px-6 py-4">
-                  <input
-                    type="checkbox"
-                    checked={selectedRows.has(item.id)}
-                    onChange={() => handleRowSelect(item.id)}
-                    className="form-checkbox h-4 w-4 text-blue-600 rounded"
-                  />
-                </td>
-                <td className="px-6 py-4">
-                  <div className="flex items-center space-x-2">
-                    <>
-                      <button
-                        title="Delete"
-                        className="p-2 bg-red-500 text-white rounded-full shadow hover:bg-red-600 transition"
-                        onClick={() => handleDelete(item)}
-                      >
-                        <FaTrash className="w-4 h-4" />
-                      </button>
-                    </>
+                <td className="px-4 py-2 border">
+                  <div className="flex flex-col items-center space-y-2">
+                    <input
+                      type="checkbox"
+                      checked={selectedRows.includes(item)}
+                      onChange={() => handleRowSelect(item)}
+                      onClick={(e) => e.stopPropagation()}
+                      className="form-checkbox h-4 w-4 text-blue-600 rounded  border"
+                    />
+                    <div className="flex items-center">
+                      {item.userId ? (
+                        <div className="">
+                          <img
+                            src={item.pic_url}
+                            className="w-10 h-10 rounded-full border border-gray-500"
+                            alt={item.name}
+                          />
+                        </div>
+                      ) : (
+                        <div className="text-xl px-3 py-2 text-white border rounded-full bg-amber-500">
+                          {item.name &&
+                            item.name
+                              .split(" ")
+                              .map((item) => item.slice(0, 1))}
+                        </div>
+                      )}
+
+                      <div className="relative">
+                        <FaEllipsisV
+                          className="cursor-pointer"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleMenu(item.userId || item.dataId);
+                          }}
+                        />
+                        {(menuOpen === item.userId ||
+                          menuOpen === item.dataId) && (
+                          <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10">
+                            {item.userId ? (
+                              <ul className="py-1">
+                                <li className="px-4 py-2 hover:bg-gray-100 flex items-center">
+                                  <Link
+                                    to="/user-dashboard"
+                                    state={{
+                                      item: {
+                                        userID: item.userId,
+                                        pic_url: item.pic_url,
+                                        name: item.name,
+                                      },
+                                    }}
+                                    className="w-full flex items-center"
+                                  >
+                                    <FaChartBar className="mr-2" /> Career Map
+                                  </Link>
+                                </li>
+                              </ul>
+                            ) : (
+                              <ul className="py-1">
+                                <li
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    // handleAddUser(row)
+                                  }}
+                                  className="cursor-pointer px-4 py-2 hover:bg-gray-100 flex items-center"
+                                >
+                                  <FaUser className="mr-2" /> Add User
+                                </li>
+                              </ul>
+                            )}
+                            <li
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setEditingTaskId(item);
+                                setMenuOpen(null);
+                                setSelectedEditTask(item.taskID);
+                              }}
+                              className="cursor-pointer px-4 py-2 hover:bg-gray-100 flex items-center"
+                            >
+                              <FaTasks className="mr-2" /> Change Task
+                            </li>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    {!item.isView && (
+                      <div className="relative group">
+                        <button
+                          className="p-2 bg-teal-600 text-white rounded-full shadow hover:bg-teal-800 transition"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleView(item);
+                          }}
+                        >
+                          <FaEyeSlash className="w-4 h-4" />
+                        </button>
+                        <span className="absolute left-1/2 -translate-x-1/2 top-full mb-2 w-max bg-black text-white text-sm py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                          View
+                        </span>
+                      </div>
+                    )}
                   </div>
                 </td>
-                <td className="px-6 py-4">
+                <td className="px-6 py-4 border">
                   <div className="flex items-center space-x-4">
                     <div className="flex flex-col space-y-2">
                       <p className="text-sm font-semibold text-gray-800">
@@ -623,29 +1220,70 @@ const Leads = () => {
                           )}
                         </div>
                         <div className="flex items-center space-x-2">
-                          <FaBirthdayCake className="text-yellow-500 w-4 h-4" />
+                          <FaDatabase className="text-blue-500 w-4 h-4" />
                           <span className="text-xs text-gray-600">
-                            {item.dob}
+                            Data Type:{" "}
+                            {
+                              dataTypes.find(
+                                (type) => type.datatype == item.dataType
+                              )?.data
+                            }
                           </span>
                         </div>
-                        <div className="flex items-center space-x-2">
-                          <FaUserClock className="text-blue-400 w-4 h-4" />
-                          <span className="text-xs text-gray-600">
-                            Age: {item.age}
-                          </span>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <FaLanguage className="text-orange-500 w-4 h-4" />
-                          <span className="text-xs text-gray-600">
-                            {item.language}
-                          </span>
-                        </div>
+                        {editingTaskId &&
+                        ((item.userId && item.userId == editingTaskId.userId) ||
+                          (item.dataId &&
+                            item.dataId == editingTaskId.dataId)) ? (
+                          <div>
+                            <select
+                              name="edit-task"
+                              id="edit-task"
+                              value={selectedEditTask || item.taskID}
+                              onChange={(e) => {
+                                setSelectedEditTask(e.target.value);
+                              }}
+                              onClick={(e) => e.stopPropagation()}
+                              className="border border-gray-300 py-1 px-2 rounded"
+                            >
+                              {!item.taskID && (
+                                <option value="">Select a task</option>
+                              )}
+                              {tasks.map((task, index) => (
+                                <option key={index} value={task.taskID}>
+                                  {task.task}
+                                </option>
+                              ))}
+                            </select>
+                            <button
+                              onClick={() => handleSaveTask(item)}
+                              className="px-2 py-1 bg-blue-500 text-white rounded ml-2"
+                            >
+                              Save Task
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="flex items-center space-x-2">
+                            <FaTasks className="text-blue-500 w-4 h-4" />
+                            <span className="text-xs text-gray-600">
+                              Task:{" "}
+                              {tasks.find((task) => task.taskID == item.taskID)
+                                ?.task || "N/A"}
+                            </span>
+                          </div>
+                        )}
+
+                        {item.userId && (
+                          <div className="flex items-center space-x-2">
+                            <FaUser className="text-green-500 w-4 h-4" />
+                            <span className="text-xs text-gray-600">U</span>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
                 </td>
 
-                <td className="px-8 py-2">
+                <td className="px-8 py-2 border">
                   <div className="flex flex-col space-y-1">
                     <div className="flex items-center space-x-2">
                       <FaMapMarkerAlt className="text-green-400 w-4 h-4" />
@@ -674,23 +1312,57 @@ const Leads = () => {
                   </div>
                 </td>
 
-                <td className="px-4 py-3">
+                <td className="py-3 max-w-[300px]">
                   <div className="flex flex-col space-y-2">
-                    <div className="flex items-center space-x-2">
-                      <FaCalendarAlt className="text-yellow-500 w-4 h-4" />
-                      <span className="text-black">{item.log}</span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <FaStickyNote className="text-red-400 w-4 h-4" />
-                      {editingId === item.id ? (
-                        <input
-                          type="text"
-                          value={editingData.remarks || ""}
-                          onChange={(e) => handleEditInputChange(e, "remarks")}
-                          className="border border-gray-300 p-1 rounded"
-                        />
+                    <div className="flex flex-col gap-2">
+                      {item.logs &&
+                      Array.isArray(item.logs) &&
+                      item.logs.length > 0 ? (
+                        <div key={index} className="flex flex-col gap-2">
+                          <div className="flex gap-2 justify-start">
+                            <span className="flex items-center gap-1">
+                              <FaCalendarAlt className="text-yellow-500 w-4 h-4" />
+                              Follow up
+                            </span>
+                            <span>
+                              {new Date(
+                                item.logs[item.logs.length - 1].fdate
+                              ).toLocaleString()}
+                            </span>
+                          </div>
+                          <div className="flex gap-1 items-center justify-start">
+                            <span className="flex items-center gap-1">
+                              <MdAccessTimeFilled className="text-slate-500 w-4 h-4" />
+                            </span>
+                            Late
+                            <span className="font-semibold">
+                              (
+                              {getDifferenceInDays(
+                                item.logs[item.logs.length - 1].fdate
+                              )}
+                              )
+                            </span>
+                            days
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <FaStickyNote className="text-green-400 w-4 h-4" />{" "}
+                            {item.logs[item.logs.length - 1].remarks
+                              ? item.logs[item.logs.length - 1].remarks
+                              : "No Remarks"}
+                          </div>
+                          <div className="flex gap-1 items-center justify-start">
+                            <TbTimelineEventText className="text-blue-600 w-4 h-4" />
+                            <Link
+                              to={"/client-timeline"}
+                              state={{ item }}
+                              className="underline hover:text-blue-600"
+                            >
+                              Timeline {item.logs.length}
+                            </Link>
+                          </div>
+                        </div>
                       ) : (
-                        <span className="text-black">{item.remarks}</span>
+                        <div className="flex items-center ml-7">No Logs</div>
                       )}
                     </div>
                   </div>
@@ -705,7 +1377,8 @@ const Leads = () => {
       <div className="flex items-center justify-between mt-6">
         <div className="text-sm text-gray-600">
           Showing {indexOfFirstRecord + 1} to{" "}
-          {Math.min(indexOfLastRecord, filteredData.length)} Records
+          {Math.min(indexOfLastRecord, filteredData.length)} of{" "}
+          {filteredData.length} Records
         </div>
         <div className="flex items-center space-x-2">
           <button
@@ -719,19 +1392,9 @@ const Leads = () => {
           >
             {"<<"} Previous
           </button>
-          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-            <button
-              key={page}
-              onClick={() => setCurrentPage(page)}
-              className={`px-4 py-2 ${
-                currentPage === page
-                  ? "bg-orange-500 text-white"
-                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-              } rounded`}
-            >
-              {page}
-            </button>
-          ))}
+          <div className="px-4 py-2 bg-gray-200 text-gray-700 rounded">
+            Page {currentPage} of {totalPages}
+          </div>
           <button
             onClick={handleNextPage}
             disabled={currentPage === totalPages}
@@ -751,6 +1414,9 @@ const Leads = () => {
         <WhatsAppCon
           selectedLeads={Array.from(selectedRows)}
           setSendWhatsApp={setShowWhatsAppSend}
+          unhideData={unhideData}
+          fetchData={fetchData}
+          setSelectedLeads={setSelectedRows}
         />
       )}
 
@@ -760,6 +1426,17 @@ const Leads = () => {
           setSelectedLeads={setSelectedRows}
           selectedLeads={Array.from(selectedRows)}
           setSendEmail={setShowEmailSend}
+          unhideData={unhideData}
+          fetchData={fetchData}
+        />
+      )}
+
+      {showScheduleMeeting && (
+        <ScheduleMeeting
+          selectedLeads={Array.from(selectedRows)}
+          setShowScheduleMeeting={setShowScheduleMeeting}
+          unhideData={unhideData}
+          setSelectedLeads={setSelectedRows}
         />
       )}
 
@@ -768,6 +1445,8 @@ const Leads = () => {
         <SendSmsCon
           selectedLeads={Array.from(selectedRows)}
           setSendSms={setShowSmsSend}
+          unhideData={unhideData}
+          setSelectedLeads={setSelectedRows}
         />
       )}
 
@@ -776,6 +1455,8 @@ const Leads = () => {
         <CallCon
           selectedLeads={Array.from(selectedRows)}
           setShowCallCon={setShowCallCon}
+          unhideData={unhideData}
+          setSelectedLeads={setSelectedRows}
         />
       )}
 

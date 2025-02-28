@@ -27,7 +27,7 @@ const Recharge = () => {
               <td className="py-3 px-4">Get 20% extra</td>
               <td className="py-3 px-4">Get 50% extra</td>
               <td className="py-3 px-4">Get 100% extra</td>
-              <td className="py-3 px-4">Get 200% extra</td>
+              <td className="py-3 px-4">Get 100% extra</td>
             </tr>
             <tr className="border-b">
               <td className="py-3 px-4">20 minutes</td>
