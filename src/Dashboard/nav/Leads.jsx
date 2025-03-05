@@ -1461,8 +1461,10 @@ const Leads = () => {
       )}
 
       {/* Copyright Footer */}
-      <div className="text-center text-sm text-gray-500 mt-8">
-        <p>(c) Copyright 2024 Margdarshak Media</p>
+      <div className="text-center text-sm text-black-500 mt-8">
+        <span>
+          Margdarshak © {new Date().getFullYear()}. All Rights Reserved.
+        </span>
       </div>
     </div>
   );

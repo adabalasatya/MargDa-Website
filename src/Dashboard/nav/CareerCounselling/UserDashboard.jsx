@@ -41,14 +41,14 @@ const UserDashboard = () => {
     "Conventional",
   ]);
 
-  const [attitudeOrder, setAttitudeOrder] = useState([
+  const attitudeOrder = [
     "Achievements",
     "Independence",
     "Recognition",
     "Relationship",
     "Support",
     "Working_Condition",
-  ]);
+  ];
 
   const abilityLabels = [
     "Logical",
@@ -185,11 +185,6 @@ const UserDashboard = () => {
   };
 
   useEffect(() => {
-    // Data Mapping
-    const workAttitudeData = [1.5145, 0.8655, 0.454, 0.461, 0.793, 1.06983];
-    const inbornAbilityData = [4.6, 4.2, 3.1, 3.2, 3.2, 5.8, 3.4, 6.9, 6.8];
-    const learningStylesData = [42, 8, 42, 8];
-
     // Career Aptitude Chart
     if (aptitudeData && aptitudeData.length > 0 && aptitudeData[0]) {
       Highcharts.chart("careerAptitudeChart", {
@@ -384,86 +379,27 @@ const UserDashboard = () => {
     if (localUserData.user_data.userID == userData.userID) {
       return toast.warn("You Can't Assign Test to Self");
     }
-    let todayDate = new Date();
-    const validUpto = `${todayDate.getMonth() + 1}-${
-      todayDate.getDate() + 2
-    }-${todayDate.getFullYear()}`;
-    const newLinks = [
-      {
-        link:
-          type == "Aptitude" ? "Aptitude Assessment" : "Attitude Assessment",
-        linkGroup: "Career Assessment",
-        linkUrl:
-          type == "Aptitude" ? "/aptitude-assesment" : "/attitude-assesment",
-      },
-    ];
     try {
-      if (userData.userID != 2) {
-        const save = await fetch(
-          "https://margda.in:7000/api/master/link/assign-link",
-          {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              userID: userData.userID,
-              Links: newLinks,
-              valid: validUpto,
-            }),
-          }
-        );
-        const data = await save.json();
-        if (save.ok) {
-          toast.success(data.message);
-          const apiUrl =
-            type == "Aptitude"
-              ? "https://margda.in:7000/api/career/aptitude/save-result"
-              : "https://margda.in:7000/api/career/attitude/save-result";
-          const response = await fetch(apiUrl, {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              userID: userData.userID,
-              euser: localUserData.user_data.userID,
-            }),
-          });
-          const data2 = await response.json();
-          if (response.ok) {
-            const resultID = data2.data.resultID;
-          }
-        } else {
-          toast.error(data.message);
-        }
+      const apiUrl =
+        type == "Aptitude"
+          ? "https://margda.in:7000/api/career/aptitude/assign-test"
+          : "https://margda.in:7000/api/career/attitude/assign-test";
+      const response = await fetch(apiUrl, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userID: userData.userID,
+          euser: localUserData.user_data.userID,
+        }),
+      });
+      const data = await response.json();
+      if (response.ok) {
+        toast.success(data.message);
       } else {
-        const apiUrl =
-          type == "Aptitude"
-            ? "https://margda.in:7000/api/career/aptitude/save-result"
-            : "https://margda.in:7000/api/career/attitude/save-result";
-        const response = await fetch(apiUrl, {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            userID: userData.userID,
-            euser: localUserData.user_data.userID,
-          }),
-        });
-        const data2 = await response.json();
-        if (response.ok) {
-          const resultID = data2.data.resultID;
-          toast.success("Link Assigned Successfully");
-        } else {
-          toast.error("Error in assiging link");
-          console.log(data2);
-          // toast.error("Unable to start test");
-        }
+        toast.error(data.message);
       }
     } catch (error) {
       console.log(error);

@@ -44,22 +44,23 @@ const DownloadAppPage = () => {
   const steps = [
     {
       title: "Disable Play Protect",
-      description: "First, you need to disable Google Play Protect to install apps from outside the Play Store",
+      description:
+        "First, you need to disable Google Play Protect to install apps from outside the Play Store",
       substeps: [
         "Open Google Play Store on your Android device",
         "Tap on your profile picture in the top right corner",
         "Select 'Play Protect' from the menu",
         "Tap the settings icon (gear) in the top right corner",
-        "Toggle off 'Scan apps with Play Protect'"
-      ]
+        "Toggle off 'Scan apps with Play Protect'",
+      ],
     },
     {
       title: "Download the APK",
       description: "Download the Margdarshak APK file to your device",
       substeps: [
         "Click the 'Download Full Version APK Here' button on our website",
-        "Wait for the download to complete"
-      ]
+        "Wait for the download to complete",
+      ],
     },
     {
       title: "Install the APK",
@@ -69,8 +70,8 @@ const DownloadAppPage = () => {
         "Tap 'Install' when prompted",
         "If asked to allow installation from unknown sources, tap 'Settings' and enable 'Allow from this source'",
         "Return to the installation and tap 'Install' again",
-        "Wait for the installation to complete and tap 'Open' to launch Margdarshak"
-      ]
+        "Wait for the installation to complete and tap 'Open' to launch Margdarshak",
+      ],
     },
   ];
 
@@ -98,7 +99,9 @@ const DownloadAppPage = () => {
               </span>
             </h1>
             <p className="text-gray-700 mt-4 text-lg leading-relaxed">
-              Discover the power of Margdarshak with expert advice, tailored solutions, and continuous support to navigate life's challenges and reach your goals. Download now for a better tomorrow!
+              Discover the power of Margdarshak with expert advice, tailored
+              solutions, and continuous support to navigate life's challenges
+              and reach your goals. Download now for a better tomorrow!
             </p>
 
             <div className="flex flex-col md:flex-row mt-24 space-y-4 md:space-y-0 md:space-x-4">
@@ -108,8 +111,14 @@ const DownloadAppPage = () => {
                 rel="noopener noreferrer"
                 className="download-button flex items-center justify-center bg-black text-white px-6 py-3 rounded-full shadow-lg hover:shadow-xl hover:bg-blue-700 transition-all duration-300"
               >
-                <img src={PlayStore} alt="Get it on Google Play" className="h-8 mr-2" />
-                <span className="font-semibold">Get Lite Version on Playstore</span>
+                <img
+                  src={PlayStore}
+                  alt="Get it on Google Play"
+                  className="h-8 mr-2"
+                />
+                <span className="font-semibold">
+                  Get Lite Version on Playstore
+                </span>
               </a>
               <a
                 href="https://margda.com/margdarshak_apk/margdarshak.apk"
@@ -117,7 +126,9 @@ const DownloadAppPage = () => {
                 className="download-button flex items-center justify-center bg-black text-white px-6 py-3 rounded-full shadow-lg hover:shadow-xl hover:bg-green-700 transition-all duration-300"
               >
                 <img src={Get} alt="Download APK Here" className="h-8 mr-2" />
-                <span className="font-semibold">Download Full Version APK Here</span>
+                <span className="font-semibold">
+                  Download Full Version APK Here
+                </span>
               </a>
             </div>
           </div>
@@ -141,16 +152,16 @@ const DownloadAppPage = () => {
           Installing Guide
         </div>
         <div className="mt-4 animate-bounce">
-          <svg 
-            className="w-12 h-12 text-blue-600" 
-            fill="none" 
-            stroke="currentColor" 
+          <svg
+            className="w-12 h-12 text-blue-600"
+            fill="none"
+            stroke="currentColor"
             viewBox="0 0 24 24"
           >
-            <path 
-              strokeLinecap="round" 
-              strokeLinejoin="round" 
-              strokeWidth="2" 
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
               d="M19 14l-7 7m0 0l-7-7m7 7V3"
             />
           </svg>
@@ -159,16 +170,26 @@ const DownloadAppPage = () => {
 
       {/* Installing APK */}
       <div className="w-full max-w-4xl mx-auto p-6 bg-gradient-to-b from-gray-50 to-gray-100 rounded-xl shadow-lg  border border-gray-300">
-        <h1 className="text-3xl font-bold text-center mb-8 text-gray-800">How to Install Margdarshak APK</h1>
-        
+        <h1 className="text-3xl font-bold text-center mb-8 text-gray-800">
+          How to Install Margdarshak APK
+        </h1>
+
         <div className="mb-8">
           <div className="flex justify-between mb-2">
             {steps.map((step, index) => (
-              <div 
-                key={index} 
-                className={`relative flex flex-col items-center ${index <= currentStep ? 'text-blue-600' : 'text-gray-400'}`}
+              <div
+                key={index}
+                className={`relative flex flex-col items-center ${
+                  index <= currentStep ? "text-blue-600" : "text-gray-400"
+                }`}
               >
-                <div className={`rounded-full flex items-center justify-center w-10 h-10 ${index <= currentStep ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'}`}>
+                <div
+                  className={`rounded-full flex items-center justify-center w-10 h-10 ${
+                    index <= currentStep
+                      ? "bg-blue-600 text-white"
+                      : "bg-gray-200 text-gray-600"
+                  }`}
+                >
                   {index + 1}
                 </div>
                 <span className="text-xs mt-2 text-center hidden md:block">
@@ -178,7 +199,7 @@ const DownloadAppPage = () => {
             ))}
           </div>
           <div className="h-2 bg-gray-200 rounded-full">
-            <div 
+            <div
               className="h-full bg-blue-600 rounded-full transition-all duration-300"
               style={{ width: `${(currentStep / (steps.length - 1)) * 100}%` }}
             />
@@ -189,8 +210,10 @@ const DownloadAppPage = () => {
           <h2 className="text-2xl font-semibold mb-4 text-gray-800">
             Step {currentStep + 1}: {steps[currentStep].title}
           </h2>
-          <p className="text-lg text-gray-600 mb-6">{steps[currentStep].description}</p>
-          
+          <p className="text-lg text-gray-600 mb-6">
+            {steps[currentStep].description}
+          </p>
+
           <ol className="ml-6 space-y-4">
             {steps[currentStep].substeps.map((substep, index) => (
               <li key={index} className="text-gray-700 flex items-start">
@@ -204,32 +227,46 @@ const DownloadAppPage = () => {
         </div>
 
         <div className="flex justify-between">
-          <button 
-            onClick={goToPreviousStep} 
-            className={`px-6 py-3 rounded-lg font-medium ${currentStep === 0 ? 'bg-gray-200 text-gray-500 cursor-not-allowed' : 'bg-gray-500 text-white hover:bg-gray-600'}`}
+          <button
+            onClick={goToPreviousStep}
+            className={`px-6 py-3 rounded-lg font-medium ${
+              currentStep === 0
+                ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                : "bg-gray-500 text-white hover:bg-gray-600"
+            }`}
             disabled={currentStep === 0}
           >
             Previous
           </button>
-          
-          <button 
-            onClick={goToNextStep} 
-            className={`px-6 py-3 rounded-lg font-medium ${currentStep === steps.length - 1 ? 'bg-green-500 text-white hover:bg-green-600' : 'bg-blue-600 text-white hover:bg-blue-700'}`}
+
+          <button
+            onClick={goToNextStep}
+            className={`px-6 py-3 rounded-lg font-medium ${
+              currentStep === steps.length - 1
+                ? "bg-green-500 text-white hover:bg-green-600"
+                : "bg-blue-600 text-white hover:bg-blue-700"
+            }`}
           >
-            {currentStep === steps.length - 1 ? 'Finish' : 'Next'}
+            {currentStep === steps.length - 1 ? "Finish" : "Next"}
           </button>
         </div>
-        
+
         <div className="mt-8 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-          <h3 className="text-lg font-medium text-yellow-800">Important Note</h3>
+          <h3 className="text-lg font-medium text-yellow-800">
+            Important Note
+          </h3>
           <p className="text-yellow-700 mt-2">
-            Installing apps from outside the Google Play Store may pose security risks. Only download the APK from our official website at <span className="font-bold text-black">margda.com</span>. 
+            Installing apps from outside the Google Play Store may pose security
+            risks. Only download the APK from our official website at{" "}
+            <span className="font-bold text-black">margda.com</span>.
           </p>
         </div>
       </div>
       <footer className="mt-8 text-gray-600 text-sm text-center">
-          <p>© {new Date().getFullYear()} Margdarshak Media. All Rights Reserved.</p>
-        </footer>
+        <p>
+          © {new Date().getFullYear()} Margdarshak Media. All Rights Reserved.
+        </p>
+      </footer>
     </div>
   );
 };

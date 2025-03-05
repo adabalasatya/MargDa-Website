@@ -27,7 +27,6 @@ import Loader from "../../../Components/Loader";
 const CareerMap = () => {
   const [attitudeData, setAttitudeData] = useState([]);
   const [aptitudeData, setAptitudeData] = useState([]);
-  const [links, setLinks] = useState([]);
   const [userData, setUserData] = useState({});
   const [resultID, setResultID] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -39,7 +38,6 @@ const CareerMap = () => {
   const [stream, setStream] = useState(null);
   const [image, setImage] = useState("");
   const localUserData = JSON.parse(localStorage.getItem("userData"));
-  const loginUserID = localUserData ? localUserData.user_data.userID : null;
   const accessToken = localUserData ? localUserData.access_token : null;
   const [aptitudeOrder, setAptitudeOrder] = useState([
     "Realistic",
@@ -50,26 +48,19 @@ const CareerMap = () => {
     "Conventional",
   ]);
 
-  const [attitudeOrder, setAttitudeOrder] = useState([
+  const attitudeOrder = [
     "Achievements",
     "Independence",
     "Recognition",
     "Relationship",
     "Support",
     "Working_Condition",
-  ]);
-
-  const location = useLocation();
+  ];
 
   useEffect(() => {
     fetchTests();
-    if (location.state) {
-      setUserData(location.state.item);
-      fetchData(location.state.item.userID);
-    } else {
-      setUserData(localUserData.user_data);
-      fetchData(localUserData.user_data.userID);
-    }
+    setUserData(localUserData.user_data);
+    fetchData(localUserData.user_data.userID);
   }, []);
 
   const fetchData = async (userID) => {
@@ -91,9 +82,6 @@ const CareerMap = () => {
       const result = await response.json();
 
       if (response.ok) {
-        if (result.Links && Array.isArray(result.Links)) {
-          setLinks(result.Links);
-        }
         if (result.aptitudeResult && result.aptitudeResult.length > 0) {
           const temp = result.aptitudeResult.filter((item) => item.artistic);
           const availableData = temp.length > 0 ? temp[0] : {};
@@ -163,11 +151,6 @@ const CareerMap = () => {
   };
 
   useEffect(() => {
-    // Data Mapping
-    const workAttitudeData = [1.5145, 0.8655, 0.454, 0.461, 0.793, 1.06983];
-    const inbornAbilityData = [4.6, 4.2, 3.1, 3.2, 3.2, 5.8, 3.4, 6.9, 6.8];
-    const learningStylesData = [42, 8, 42, 8];
-
     // Career Aptitude Chart
     if (aptitudeData && aptitudeData.length > 0 && aptitudeData[0]) {
       Highcharts.chart("careerAptitudeChart", {

@@ -480,7 +480,7 @@ const CounsellorsAP = () => {
                 Service Required
               </Link>
               <Link
-                to="/advisor"
+                to="/teleconsultant"
                 className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition duration-300 flex items-center justify-center gap-2 w-full sm:w-auto mt-4 sm:mt-0"
               >
                 <FaUserTie className="text-lg" />

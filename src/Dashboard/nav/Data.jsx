@@ -23,6 +23,7 @@ import {
   FaEye,
   FaEyeSlash,
   FaFacebookMessenger,
+  FaUsers,
 } from "react-icons/fa";
 import { MdVerified } from "react-icons/md";
 import { IoIosSend } from "react-icons/io";
@@ -32,6 +33,7 @@ import "react-phone-number-input/style.css";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import VerifyDataCon from "../../Components/Dashboard/VerifyDataCon";
+import AddDataTeamContainer from "../../Components/Dashboard/Data.jsx/AddDataTeamContainer";
 
 // const initialFormState = {
 //   name: "",
@@ -51,9 +53,8 @@ const Data = () => {
   const [pincodeSearch, setPincodeSearch] = useState("");
   const [recordsPerPage, setRecordsPerPage] = useState(10); // Default to 10 records per page
   const [searchQuery, setSearchQuery] = useState("");
-  // const [isAddFormOpen, setIsAddFormOpen] = useState(false);
   const [isVerifyFromOpen, setIsVerifyFormOpen] = useState(false);
-  // const [formData, setFormData] = useState(initialFormState);
+  const [isAddDataTeamConOpen, setIsAddDataTeamConOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [dataDetails, setDataDetails] = useState([]);
   const [file, setFile] = useState(null);
@@ -76,6 +77,7 @@ const Data = () => {
   const [selectedState, setSelectedState] = useState("");
   const [selectedDistrict, setSelectedDistrict] = useState("");
   const [selectedPincode, setSelectedPincode] = useState("");
+  const [dataFilter, setDataFilter] = useState("");
   // const [share, setShare] = useState(true);
   const [dataLimit, setDataLimit] = useState(0);
   const [verifyItem, setVerifyItem] = useState(null);
@@ -138,6 +140,7 @@ const Data = () => {
   };
 
   const fetchData = async () => {
+    setLoading(true);
     try {
       const response = await fetch(
         "https://margda.in:7000/api/margda.org/get-all-data",
@@ -152,14 +155,15 @@ const Data = () => {
 
       if (!response.ok) {
         if (response.status === 401) {
+          setLoading(false);
           return navigate("/login");
         }
+        setLoading(false);
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
 
       const result = await response.json();
-
-      const transformedData = result.Data.map((item, index) => ({
+      const transformedData = await result.Data.map((item, index) => ({
         id: index + 1,
         dataId: item.dataID,
         userId: item.userID,
@@ -191,6 +195,8 @@ const Data = () => {
         districtID: item.districtID,
         isView: item.isView,
         dsc: item.dsc,
+        team: item.team,
+        euserName: item.euserName || "",
       }));
       transformedData.map((item) => {
         if (item.userId) {
@@ -200,9 +206,11 @@ const Data = () => {
       });
       setDataDetails(transformedData);
       setAllData(transformedData);
+      setLoading(false);
     } catch (error) {
       console.error("Error fetching data:", error);
       setError("Failed to fetch data. Please try again.");
+      setLoading(false);
     }
   };
 
@@ -371,76 +379,6 @@ const Data = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Form handlers
-  // const handleInputChange = (e) => {
-  //   const { name, value } = e.target;
-  //   setFormData((prev) => ({
-  //     ...prev,
-  //     [name]: value,
-  //     whatsapp: name === "phone" ? value : prev.whatsapp,
-  //   }));
-  // };
-
-  // const handlePhoneChange = (value, name) => {
-  //   setFormData((prev) => ({
-  //     ...prev,
-  //     [name]: value,
-  //   }));
-  // };
-
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-  //   setIsLoading(true);
-
-  //   const newRecord = {
-  //     name: formData.name,
-  //     email: formData.email,
-  //     mobile: formData.phone,
-  //     gender:
-  //       formData.gender === "Male"
-  //         ? "M"
-  //         : formData.gender === "Female"
-  //         ? "F"
-  //         : "O",
-  //     whatsapp: formData.whatsapp,
-  //     remarks: formData.remarks,
-  //     share: share,
-  //     datatype: formData.datatype,
-  //   };
-
-  //   try {
-  //     const response = await fetch("https://margda.in:7000/api/addlead", {
-  //       method: "POST",
-  //       headers: {
-  //         Authorization: `Bearer ${accessToken}`,
-  //         "Content-Type": "application/json",
-  //       },
-  //       body: JSON.stringify(newRecord),
-  //     });
-
-  //     if (!response.ok) {
-  //       if (response.status === 409) {
-  //         return alert("Email alert present");
-  //       }
-  //       throw new Error(`HTTP error! Status: ${response.status}`);
-  //     }
-
-  //     const result = await response.json();
-
-  //     // Fetch the latest data after adding a new record
-  //     await fetchData();
-
-  //     setFormData(initialFormState);
-  //     setIsAddFormOpen(false);
-  //   } catch (error) {
-  //     console.error("Error adding new record:", error);
-  //     setError("Failed to add the record. Please try again.");
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // };
-
-  // Save edited record
   const handleSave = async (id) => {
     setSaveLoading(true);
     setError(null);
@@ -641,15 +579,6 @@ const Data = () => {
 
   // Row Selection Handlers
   const toggleRowSelection = (data) => {
-    if (!data.dsc) {
-      setError("You Can't Select unverified Data");
-      return toast.warn("You can't select unverified data");
-    }
-    if (data.email == "N/A" || data.phone == "N/A" || data.whatsapp == "N/A") {
-      setError("You Can't Select Incomplete Data");
-      return toast.warn("You Can't Select Incomplete Data");
-    }
-
     setError("");
     setSelectedRows((prevSelectedData) =>
       prevSelectedData.includes(data)
@@ -659,9 +588,9 @@ const Data = () => {
   };
 
   const toggleSelectAll = (isChecked) => {
-    setError("You Can't Select unverified Data");
-    return toast.warn("You Can't Select unverified Data");
-    // setSelectedRows(isChecked ? [...dataDetails] : []);
+    // setError("You Can't Select unverified Data");
+    // return toast.warn("You Can't Select unverified Data");
+    setSelectedRows(isChecked ? [...dataDetails] : []);
   };
 
   const expectedHeaders = [
@@ -705,6 +634,17 @@ const Data = () => {
 
     try {
       for (const item of selectedRows) {
+        if (!item.dsc) {
+          toast.error(`${item.name}, data is not verified`);
+          continue;
+        } else if (
+          item.email == "N/A" ||
+          item.phone == "N/A" ||
+          item.whatsapp == "N/A"
+        ) {
+          toast.error(`${item.name}, Data is incomplate`);
+          continue;
+        }
         const payload = {
           dataID: item.dataId, // Use the dataId from the record
           userID: item.userId, // Use the userId from the record
@@ -728,8 +668,9 @@ const Data = () => {
         if (!response.ok) {
           // Log the error details
           if (response.status == 402) {
-            return toast.error(result.message);
+            return toast.error(item.name + result.message);
           } else if (response.status == 400) {
+            toast.error(`${item.name}, ${result.message}`);
             continue;
           }
           const errorResponse = await response.json().catch(() => null);
@@ -741,17 +682,11 @@ const Data = () => {
 
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
-
-        // Update local state to reflect the shortlisted status for this ID
-        setDataDetails((prev) =>
-          prev.map((item) =>
-            item === item ? { ...item, isShortlisted: true } : item
-          )
-        );
+        toast.success(`${item.name}, ${result.message}`);
       }
 
       setSelectedRows([]);
-      setError("Records shortlisted successfully!");
+      // setError("Records shortlisted successfully!");
     } catch (error) {
       // Log the error details
       console.error("Error during shortlisting:", error);
@@ -761,28 +696,13 @@ const Data = () => {
     }
   };
 
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [searchQuery]);
-
-  // Filtering and pagination
-  const filteredData = dataDetails.filter((item) => {
-    const matchesSearchQuery = Object.values(item).some((value) =>
-      value?.toString().toLowerCase().includes(searchQuery.toLowerCase())
-    );
-    const matchesDataType = selectedDataType
-      ? item.datatype === selectedDataType
-      : true;
-    return matchesSearchQuery && matchesDataType;
-  });
-
   const indexOfLastRecord = currentPage * recordsPerPage;
   const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
-  const currentRecords = filteredData.slice(
+  const currentRecords = dataDetails.slice(
     indexOfFirstRecord,
     indexOfLastRecord
   );
-  const totalPages = Math.ceil(filteredData.length / recordsPerPage);
+  const totalPages = Math.ceil(dataDetails.length / recordsPerPage);
 
   const handleNextPage = () => {
     if (currentPage < totalPages) {
@@ -797,11 +717,15 @@ const Data = () => {
   };
 
   const handleRecordsPerPageChange = (e) => {
-    const value = parseInt(e.target.value, 10); // Parse the input value as an integer
-    if (value < 1) {
-      setRecordsPerPage(1); // Set to 1 if the value is less than 1
-    } else {
-      setRecordsPerPage(value); // Otherwise, set the value
+    const value = e.target.value;
+    if (value) {
+      if (value < 1) {
+        setRecordsPerPage(1); // Set to 1 if the value is less than 1
+      } else if (value > 500) {
+        setRecordsPerPage(500);
+      } else {
+        setRecordsPerPage(value); // Otherwise, set the value
+      }
     }
   };
 
@@ -872,17 +796,12 @@ const Data = () => {
   const handleSelectCountry = (e) => {
     const countryCode = e.target.value;
     if (countryCode) {
-      const filterData = allData.filter(
-        (data) => data.country_code == countryCode
-      );
-      setDataDetails(filterData);
       setSelectedCountry(countryCode);
       setSelectedState(""); // Reset state selection
       setSelectedDistrict(""); // Reset district selection
       setSelectedPincode(""); // Reset pincode selection
       fetchStates(countryCode); // Fetch states for the selected country
     } else {
-      setDataDetails(allData);
       setSelectedCountry("");
       setSelectedState(""); // Reset state selection
       setSelectedDistrict(""); // Reset district selection
@@ -896,13 +815,7 @@ const Data = () => {
       const selectedState = states.find(
         (item) => item.state_code == state_code
       );
-      const filterData = allData.filter(
-        (data) =>
-          data.stateID == selectedState.stateID &&
-          data.country_code == selectedCountry
-      );
-      setDataDetails(filterData);
-      setSelectedState(state_code);
+      setSelectedState(selectedState);
       setSelectedDistrict(""); // Reset district selection
       setSelectedPincode(""); // Reset pincode selection
       fetchDistricts(state_code); // Fetch districts for the selected state
@@ -918,13 +831,6 @@ const Data = () => {
     const districtID = e.target.value;
     if (districtID) {
       setSelectedDistrict(districtID);
-      const filterData = allData.filter(
-        (data) =>
-          data.stateID == selectedState.stateID &&
-          data.country_code == selectedCountry &&
-          data.districtID == districtID
-      );
-      setDataDetails(filterData);
       setSelectedPincode(""); // Reset pincode selection
     } else {
       setSelectedDistrict(""); // Reset district selection
@@ -997,6 +903,98 @@ const Data = () => {
     }
   };
 
+  const filter = (
+    allData,
+    dataFilter,
+    dataType,
+    country,
+    state,
+    district,
+    searchQuery
+  ) => {
+    const filteredData = allData.filter((item) => {
+      const lowerCaseQuery = searchQuery.toLowerCase().trim();
+      const matchesSearchQuery = Object.values(item).some((value) =>
+        value?.toString().toLowerCase().includes(lowerCaseQuery)
+      );
+      const matchesDataType = dataType ? item.datatype === dataType : true;
+      const matchCountry = country ? item.country_code == country : true;
+      const matchState = state ? item.stateID == state.stateID : true;
+      const matchDistrict = district ? item.districtID == district : true;
+      if (dataFilter == "self") {
+        return (
+          matchesSearchQuery &&
+          item.euser == loginUserID &&
+          matchesDataType &&
+          matchCountry &&
+          matchState &&
+          matchDistrict
+        );
+      } else if (dataFilter == "others") {
+        return (
+          matchesSearchQuery &&
+          item.euser != loginUserID &&
+          matchesDataType &&
+          matchCountry &&
+          matchState &&
+          matchDistrict
+        );
+      } else if (dataFilter == "team") {
+        return (
+          matchesSearchQuery &&
+          item.team &&
+          Array.isArray(item.team) &&
+          item.team.includes(loginUserID) &&
+          matchesDataType &&
+          matchCountry &&
+          matchState &&
+          matchDistrict
+        );
+      }
+      return (
+        matchesSearchQuery &&
+        matchesDataType &&
+        matchCountry &&
+        matchState &&
+        matchDistrict
+      );
+    });
+
+    setDataDetails(filteredData);
+  };
+
+  const handleDataFilterChange = (e) => {
+    setSelectedRows([]);
+    setDataFilter(e.target.value);
+  };
+
+  useEffect(() => {
+    setCurrentPage(1);
+    filter(
+      allData,
+      dataFilter,
+      selectedDataType,
+      selectedCountry,
+      selectedState,
+      selectedDistrict,
+      searchQuery
+    );
+  }, [
+    dataFilter,
+    selectedDataType,
+    selectedCountry,
+    selectedState,
+    selectedDistrict,
+    searchQuery,
+  ]);
+
+  const handleShowAddTeam = () => {
+    if (selectedRows.length == 0) {
+      return toast.error("Select Atleast one data");
+    }
+    setIsAddDataTeamConOpen(true);
+  };
+
   return (
     <div className="p-8 min-h-screen">
       {/* Header Section */}
@@ -1008,12 +1006,7 @@ const Data = () => {
             Data
             <div className="ml-1">{dataLimit}</div>
           </button>
-          {/* <button
-            onClick={() => setIsAddFormOpen(true)}
-            className="flex items-center px-5 py-2 bg-orange-500 text-white rounded-full shadow hover:bg-orange-600 transition"
-          >
-            (+) Add
-          </button> */}
+
           <button
             onClick={() => document.getElementById("csv-upload").click()}
             className="flex items-center px-5 py-2 bg-gray-200 text-gray-700 rounded-full shadow hover:bg-gray-300 transition"
@@ -1088,6 +1081,25 @@ const Data = () => {
             onChange={handleFileUpload}
           />
         </div>
+        {dataFilter == "self" && (
+          <button
+            onClick={handleShowAddTeam}
+            className="flex items-center px-2 ml-1 py-2 bg-blue-500 rounded-full shadow hover:bg-blue-900 transition text-white"
+          >
+            Share to Team
+          </button>
+        )}
+        {/* Search Input - Moved to the right corner */}
+        <div className="relative flex-1 max-w-[200px] ml-4">
+          <FaSearch className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="border border-gray-300 p-2 pl-8 rounded w-full"
+            placeholder="Search"
+          />
+        </div>
       </div>
 
       {csvData.length > 0 && showCsvData && (
@@ -1142,148 +1154,6 @@ const Data = () => {
         </div>
       )}
 
-      {/* Add Form Modal */}
-      {/* {isAddFormOpen && (
-        <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-75 z-50">
-          <div className="bg-white p-8 rounded-3xl shadow-2xl w-11/12 max-w-4xl">
-            <h3 className="text-3xl font-extrabold mb-8 text-gray-900 text-center">
-              Add New Record
-            </h3>
-            <form onSubmit={handleSubmit} className="space-y-8">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Name
-                  </label>
-                  <input
-                    type="text"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all placeholder-gray-400"
-                    placeholder="Enter name"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Phone
-                  </label>
-                  <PhoneInput
-                    international
-                    defaultCountry="IN"
-                    value={formData.phone}
-                    onChange={(value) => handlePhoneChange(value, "phone")}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all placeholder-gray-400"
-                    placeholder="Enter phone number"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    WhatsApp Number
-                  </label>
-                  <PhoneInput
-                    international
-                    defaultCountry="IN"
-                    value={formData.whatsapp}
-                    onChange={(value) => handlePhoneChange(value, "whatsapp")}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all placeholder-gray-400"
-                    placeholder="Enter WhatsApp number"
-                    required
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Email
-                  </label>
-                  <input
-                    type="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all placeholder-gray-400"
-                    placeholder="Enter email"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Gender
-                  </label>
-                  <select
-                    name="gender"
-                    value={formData.gender}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all appearance-none bg-white"
-                    required
-                  >
-                    <option value="">Select Gender</option>
-                    <option value="Female">Female</option>
-                    <option value="Male">Male</option>
-                    <option value="Other">Other</option>
-                  </select>
-                </div>
-                <div>
-                  <label htmlFor="datatype">Data Type</label>
-                  <select
-                    name="datatype"
-                    value={formData.datatype}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all appearance-none bg-white"
-                    required
-                  >
-                    {dataTypes &&
-                      dataTypes.length &&
-                      dataTypes.length > 0 &&
-                      dataTypes.map((item, key) => (
-                        <option key={key} value={item.value}>
-                          {item.name}
-                        </option>
-                      ))}
-                  </select>
-                </div>
-              </div>
-              <div className="flex justify-end space-x-4 mt-8">
-                <div className="flex flex-col w-1/3 justify-center items-center">
-                  <label
-                    htmlFor="share"
-                    className="block text-sm font-semibold text-gray-700 mb-2"
-                  >
-                    Share
-                  </label>
-                  <input
-                    className="w-4 h-4"
-                    type="checkbox"
-                    name="share"
-                    id="share"
-                    checked={share}
-                    onChange={(e) => setShare(e.target.checked)}
-                  />
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setIsAddFormOpen(false)}
-                  className="px-6 w-1/3 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-all duration-200 font-semibold shadow-sm"
-                  disabled={isLoading}
-                >
-                  Close
-                </button>
-                <button
-                  type="submit"
-                  className="px-6 w-1/3 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all duration-200 font-semibold shadow-sm hover:shadow-md"
-                  disabled={isLoading}
-                >
-                  {isLoading ? "Adding..." : "ADD"}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )} */}
-
       {isVerifyFromOpen && (
         <VerifyDataCon
           verifyItem={verifyItem}
@@ -1293,132 +1163,129 @@ const Data = () => {
       )}
 
       {/* Search and Filter Section */}
-      <div className="bg-white p-4 shadow rounded-lg mb-6">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          {/* Show Records - Left (unchanged) */}
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-semibold">Show</span>
-            <input
-              type="number"
-              value={recordsPerPage}
-              onChange={handleRecordsPerPageChange}
-              className="border border-gray-300 p-2 rounded w-16 text-center"
-              min="1"
-            />
-            <span className="text-sm font-bold">Records</span>
-          </div>
-
-          {/* Filters - Moved to the middle (original search bar position) */}
-          <div className="flex flex-wrap items-center ml-4 gap-2 w-full md:w-auto flex-1 md:flex-none md:mx-4">
-            {/* Data Type Dropdown */}
-            <select
-              className="border border-gray-300 p-2 rounded w-32"
-              value={selectedDataType}
-              onChange={(e) => setSelectedDataType(e.target.value)}
-            >
-              <option value="">Data Type</option>
-              {Array.isArray(dataTypes) &&
-                dataTypes.map((dataType) => (
-                  <option key={dataType.id} value={dataType.value}>
-                    {dataType.name}
-                  </option>
-                ))}
-            </select>
-
-            {/* Country Dropdown */}
-            <select
-              className="border border-gray-300 p-2 rounded w-32"
-              value={selectedCountry}
-              onChange={handleSelectCountry}
-            >
-              <option value="">Country</option>
-              {countries.map((country) => (
-                <option key={country.country_code} value={country.country_code}>
-                  {country.country}
-                </option>
-              ))}
-            </select>
-
-            {/* State Dropdown */}
-            <select
-              className="border border-gray-300 p-2 rounded w-32"
-              value={selectedState}
-              onChange={handleStateChange}
-              disabled={!selectedCountry || states.length === 0}
-            >
-              <option value="">State</option>
-              {states.map((state) => (
-                <option key={state.stateID} value={state.state_code}>
-                  {state.state}
-                </option>
-              ))}
-            </select>
-
-            {/* District Dropdown */}
-            <select
-              className="border border-gray-300 p-2 rounded w-32"
-              value={selectedDistrict}
-              onChange={handleDistrictChange}
-              disabled={!selectedState || districts.length === 0}
-            >
-              <option value="">District</option>
-              {districts.map((district) => (
-                <option key={district.districtID} value={district.districtID}>
-                  {district.district}
-                </option>
-              ))}
-            </select>
-
-            {/* Pincode Dropdown */}
-            <div className="relative" ref={dropdownRef}>
-              <button
-                onClick={() => setIsPincodeDropdownOpen(!isPincodeDropdownOpen)}
-                className="border border-gray-300 p-2 rounded flex items-center justify-between w-32 bg-white"
-              >
-                <span className="text-gray-700">Pincode</span>
-                <FaChevronDown
-                  className={`ml-2 transform transition-transform ${
-                    isPincodeDropdownOpen ? "rotate-180" : ""
-                  }`}
-                />
-              </button>
-              {isPincodeDropdownOpen && (
-                <div className="absolute top-full left-0 mt-1 w-64 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
-                  <div className="p-3">
-                    <div className="relative mb-3">
-                      <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                      <input
-                        type="text"
-                        value={pincodeSearch}
-                        onChange={(e) => setPincodeSearch(e.target.value)}
-                        className="border border-gray-300 p-2 pl-8 rounded w-full"
-                        placeholder="Search Pincode"
-                      />
-                    </div>
-                    <button
-                      onClick={() => setIsPincodeDropdownOpen(false)}
-                      className="w-full bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600"
-                    >
-                      Search
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Search Input - Moved to the right corner */}
-          <div className="relative flex-1 max-w-[200px] ml-4">
-            <FaSearch className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="border border-gray-300 p-2 pl-8 rounded w-full"
-              placeholder="Search"
-            />
-          </div>
+      <div className="grid grid-cols-1 md:grid-cols-7 sm:grid-cols-3 gap-3 my-4">
+        {/* Show Records */}
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-semibold">Show</span>
+          <input
+            type="number"
+            value={recordsPerPage}
+            onChange={handleRecordsPerPageChange}
+            className="border border-gray-300 p-2 rounded w-16 text-center"
+            min={1}
+            minLength={1}
+          />
+          <span className="text-sm font-bold">Records</span>
         </div>
+
+        {/* Data Type Dropdown */}
+        <select
+          className="border border-gray-300 p-2 rounded"
+          value={selectedDataType}
+          onChange={(e) => setSelectedDataType(e.target.value)}
+        >
+          <option value="">Data Type</option>
+          {Array.isArray(dataTypes) &&
+            dataTypes.map((dataType) => (
+              <option key={dataType.id} value={dataType.value}>
+                {dataType.name}
+              </option>
+            ))}
+        </select>
+
+        {/* Country Dropdown */}
+        <select
+          className="border border-gray-300 p-2 rounded"
+          value={selectedCountry}
+          onChange={handleSelectCountry}
+        >
+          <option value="">Country</option>
+          {countries.map((country) => (
+            <option key={country.country_code} value={country.country_code}>
+              {country.country}
+            </option>
+          ))}
+        </select>
+
+        {/* State Dropdown */}
+        <select
+          className="border border-gray-300 p-2 rounded"
+          value={selectedState.state_code}
+          onChange={handleStateChange}
+          disabled={!selectedCountry || states.length === 0}
+        >
+          <option value="">State</option>
+          {states.map((state) => (
+            <option key={state.stateID} value={state.state_code}>
+              {state.state}
+            </option>
+          ))}
+        </select>
+
+        {/* District Dropdown */}
+        <select
+          className="border border-gray-300 p-2 rounded"
+          value={selectedDistrict}
+          onChange={handleDistrictChange}
+          disabled={!selectedState || districts.length === 0}
+        >
+          <option value="">District</option>
+          {districts.map((district) => (
+            <option key={district.districtID} value={district.districtID}>
+              {district.district}
+            </option>
+          ))}
+        </select>
+
+        {/* Pincode Dropdown */}
+        <div className="relative mr-0" ref={dropdownRef}>
+          <button
+            onClick={() => setIsPincodeDropdownOpen(!isPincodeDropdownOpen)}
+            className="border border-gray-300 p-2 rounded flex items-center justify-between bg-white"
+          >
+            <span className="text-gray-700">Pincode</span>
+            <FaChevronDown
+              className={`ml-2 transform transition-transform ${
+                isPincodeDropdownOpen ? "rotate-180" : ""
+              }`}
+            />
+          </button>
+          {isPincodeDropdownOpen && (
+            <div className="absolute top-full left-0 mt-1 w-64 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
+              <div className="p-3">
+                <div className="relative mb-3">
+                  <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                  <input
+                    type="text"
+                    value={pincodeSearch}
+                    onChange={(e) => setPincodeSearch(e.target.value)}
+                    className="border border-gray-300 p-2 pl-8 rounded w-full"
+                    placeholder="Search Pincode"
+                  />
+                </div>
+                <button
+                  onClick={() => setIsPincodeDropdownOpen(false)}
+                  className="w-full bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600"
+                >
+                  Search
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Data Filter */}
+        <select
+          className="border border-gray-300 p-2 rounded"
+          value={dataFilter}
+          onChange={handleDataFilterChange}
+          disabled={allData.length == 0}
+        >
+          <option value="">All Data</option>
+          <option value="self">Self Data</option>
+          <option value="team">Team Data</option>
+          <option value="others">Other Data</option>
+        </select>
       </div>
 
       {/* Data Table */}
@@ -1457,12 +1324,14 @@ const Data = () => {
                   <span>Location</span>
                 </div>
               </th>
-              <th className="px-4 py-3">
-                <div className="flex items-center space-x-2">
-                  <FaClipboardList className="text-yellow-600 w-4 h-4" />
-                  <span>Log</span>
-                </div>
-              </th>
+              {dataFilter == "team" && (
+                <th className="px-4 py-3">
+                  <div className="flex items-center space-x-2">
+                    <FaUsers className="text-green-600 w-4 h-4" />
+                    <span>Team Owner</span>
+                  </div>
+                </th>
+              )}
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
@@ -1549,7 +1418,7 @@ const Data = () => {
                             className="p-2 bg-red-500 text-white rounded-full shadow hover:bg-red-600 transition"
                             onClick={(e) => {
                               e.stopPropagation();
-                              handleDelete(item.id);
+                              handleDelete(item.dataId);
                             }}
                           >
                             <FaTrash className="w-4 h-4" />
@@ -1722,30 +1591,11 @@ const Data = () => {
                     </div>
                   </div>
                 </td>
-                <td className="px-4 py-3">
-                  <div className="flex flex-col space-y-2">
-                    <div className="flex items-center space-x-2">
-                      <FaClipboardList className="text-yellow-500 w-4 h-4" />
-                      <span className="text-black">{item.log || "N/A"}</span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <FaStickyNote className="text-red-400 w-4 h-4" />
-                      {editingId === item.id ? (
-                        <input
-                          type="text"
-                          value={editingData.remarks || ""}
-                          onClick={(e) => e.stopPropagation()}
-                          onChange={(e) => handleEditInputChange(e, "remarks")}
-                          className="border border-gray-300 p-1 rounded"
-                        />
-                      ) : (
-                        <span className="text-black">
-                          {item.remarks || "No remarks"}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </td>
+                {dataFilter == "team" && (
+                  <td className="px-8 py-2 text-md font-semibold">
+                    {item.euserName}
+                  </td>
+                )}
               </tr>
             ))}
           </tbody>
@@ -1756,7 +1606,7 @@ const Data = () => {
       <div className="flex items-center justify-between mt-6">
         <div className="text-sm text-gray-600">
           Showing {indexOfFirstRecord + 1} to{" "}
-          {Math.min(indexOfLastRecord, filteredData.length)} Records
+          {Math.min(indexOfLastRecord, dataDetails.length)} Records
         </div>
         <div className="flex items-center space-x-2">
           <button
@@ -1798,9 +1648,18 @@ const Data = () => {
       </div>
 
       {/* Copyright Footer */}
-      <div className="text-center text-sm text-gray-500 mt-8">
-        <p>(c) Copyright 2024 Margdarshak Media</p>
+      <div className="text-center text-sm text-black-500 mt-8">
+        <span>
+          Margdarshak © {new Date().getFullYear()}. All Rights Reserved.
+        </span>
       </div>
+
+      {isAddDataTeamConOpen && (
+        <AddDataTeamContainer
+          selectedRows={selectedRows}
+          setIsAddDataTeamConOpen={setIsAddDataTeamConOpen}
+        />
+      )}
 
       {/* Error Message */}
       {error && (

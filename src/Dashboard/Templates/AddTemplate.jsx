@@ -4,6 +4,7 @@ import { EditorState, RichUtils, getDefaultKeyBinding } from "draft-js";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
+import { FaFileAlt } from "react-icons/fa"; 
 
 const AddTemplate = () => {
   const [templateType, setTemplateType] = useState("");
@@ -176,11 +177,11 @@ const AddTemplate = () => {
   };
 
   return (
-    <div className="flex flex-col bg-gray-50  min-h-screen p-2">
-      <div className="text-3xl font-blod text-center  font-sans mb-6">
-        Template
+    <div className="flex flex-col  min-h-screen p-4">
+      <div className="text-3xl font-bold text-center font-sans mb-6 flex justify-center items-center">
+        <FaFileAlt className="text-blue-500 mr-2" /> Template
       </div>
-      <div className="bg-white rounded shadow-md p-6 w-full max-w-4xl mx-auto">
+      <div className="bg-white rounded shadow-md p-6 w-full max-w-6xl mx-auto border border-blue-300">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="flex flex-col">
             <label htmlFor="template-type" className="font-bold mb-2">
@@ -268,9 +269,7 @@ const AddTemplate = () => {
                   className="px-4 py-2 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500"
                 />
                 {errors.templateId && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {errors.templateId}
-                  </p>
+                  <p className="text-red-500 text-sm mt-1">{errors.templateId}</p>
                 )}
               </div>
             )}
@@ -327,13 +326,11 @@ const AddTemplate = () => {
                   value={message}
                   onChange={(e) => {
                     const newText = e.target.value;
-
                     if (newText.length > 125) {
                       toast.warn("SMS Can't be greater than 125 letters");
-                      return; // Prevent updating the state if limit exceeded
+                      return;
                     }
-
-                    setMessage(newText); // Update state normally if within limit
+                    setMessage(newText);
                   }}
                   className="w-full p-2 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500"
                 ></textarea>
@@ -348,14 +345,13 @@ const AddTemplate = () => {
                   className="w-5 h-5 hidden"
                   onChange={handleHtmlChange}
                 />
-                <div className="border border-gray-300 rounded p-3 h-[300px]  overflow-y-auto">
+                <div className="border border-gray-300 rounded p-3 h-[300px] overflow-y-auto">
                   <Editor
                     editorState={editorState}
                     toolbarClassName="toolbarClassName"
                     wrapperClassName="wrapperClassName"
                     editorClassName="editorClassName"
                     toolbarCustomButtons={[
-                      // eslint-disable-next-line react/jsx-key
                       <label
                         htmlFor="switch-html"
                         className={`text-base font-normal p-1 ${
@@ -371,7 +367,6 @@ const AddTemplate = () => {
                 </div>
               </div>
             )}
-
             <div className="justify-end flex text-sm mr-3 mt-3">
               Length: {message.length}
             </div>
@@ -437,9 +432,7 @@ const AddTemplate = () => {
                 onClick={handleAddAttachmentFilesInput}
                 className="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500"
               >
-                {attachmentFiles.length === 0
-                  ? "Add Attachment"
-                  : "Add another attachment"}
+                {attachmentFiles.length === 0 ? "Add Attachment" : "Add another attachment"}
               </button>
             ) : (
               <div className="text-red-500 mt-4">You can add only 4 files</div>
@@ -476,6 +469,9 @@ const AddTemplate = () => {
           </Link>
         </div>
       </div>
+      <footer className="mt-2 p-2 text-center text-sm text-black-600 p-2 bg-white shadow-lg rounded-t-2xl">
+        <span>Margdarshak © {new Date().getFullYear()}. All Rights Reserved.</span>
+      </footer>
     </div>
   );
 };

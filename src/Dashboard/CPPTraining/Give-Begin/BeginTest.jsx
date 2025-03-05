@@ -18,6 +18,7 @@ const BeginTest = () => {
   const [lessonID, setLessonID] = useState("");
   const [resultID, setResultID] = useState(0);
   const [totalTestMinutes, setTotalTestMinutes] = useState(0);
+  const [isTestFinished, setIsTestFinished] = useState(false);
 
   const localUserData = JSON.parse(localStorage.getItem("userData"));
   const accessToken = localUserData ? localUserData.access_token : null;
@@ -64,6 +65,7 @@ const BeginTest = () => {
       const data = await response.json();
       if (response.ok && data.data) {
         setResultID(data.data.resultID);
+        setIsTestFinished(data.data.finished);
         const answers = data.Answers;
         if (answers && Array.isArray(answers) && answers.length > 0) {
           setAnswers(answers);
@@ -195,9 +197,6 @@ const BeginTest = () => {
   };
 
   const handleSubmitTest = async () => {
-    console.log(answers);
-    const timeRemaingInSeconds = timer.minutes * 60 + timer.seconds;
-    const timetaken = totalTestMinutes * 60 - timeRemaingInSeconds;
     try {
       const response = await fetch(
         "https://margda.in:7000/api/cpp_training/trainee/test/submit_result",
@@ -213,14 +212,18 @@ const BeginTest = () => {
           }),
         }
       );
+      const data = await response.json();
+      if (response.ok) {
+        toast.success(data.message);
+        navigate("/result", {
+          state: {
+            resultID: resultID,
+          },
+        });
+      }
     } catch (error) {
       console.log(error);
     }
-    navigate("/result", {
-      state: {
-        resultID: resultID,
-      },
-    });
   };
 
   const handleAnswerSelect = async (checked, mcqID, answer) => {
@@ -277,6 +280,22 @@ const BeginTest = () => {
     return (
       <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center z-50">
         <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
+  if (isTestFinished) {
+    return (
+      <div className="flex gap-8 flex-col items-center justify-center bg-white text-xl ">
+        <div className="mt-8 rounded shadow p-4 border border-gray-300">
+          You had done this test already
+        </div>
+        <Link
+          className="bg-blue-500 rounded px-2 py-1 text-white"
+          to={"/trainee-dashboard"}
+        >
+          Back
+        </Link>
       </div>
     );
   }

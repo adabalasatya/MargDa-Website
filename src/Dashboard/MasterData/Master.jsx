@@ -4,7 +4,7 @@ import Item from "./MastItem";
 import Brand from "./MastBrand";
 import ServiceType from "./MastServiceType";
 import Service from "./MastService";
-import MastLink from "./MastLink.jsx"
+import MastLink from "./MastLink.jsx";
 
 const MasterData = () => {
   const [selectedOption, setSelectedOption] = useState("");
@@ -86,9 +86,9 @@ const MasterData = () => {
     case "mast_service":
       content = <Service />;
       break;
-      case "mast_link":
-        content = <MastLink />;
-        break;
+    case "mast_link":
+      content = <MastLink />;
+      break;
     default:
       content = null;
   }

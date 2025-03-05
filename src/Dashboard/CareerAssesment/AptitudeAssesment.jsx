@@ -29,8 +29,6 @@ const AptitudeAssesment = () => {
       const data = await response.json();
       if (response.ok && data.data && Array.isArray(data.data)) {
         setAvailableTests(data.data);
-      } else {
-        // toast.error("Unable to start test");
       }
     } catch (error) {
       console.log(error);
@@ -39,34 +37,9 @@ const AptitudeAssesment = () => {
   };
 
   const handleStart = async (test) => {
-    try {
-      const response = await fetch(
-        "https://margda.in:7000/api/career/aptitude/save-result",
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            userID: localUserData.user_data.userID,
-            euser: test.euser,
-          }),
-        }
-      );
-      const data = await response.json();
-      if (response.ok) {
-        const resultID = data.data.resultID;
-        localStorage.setItem("resultID", resultID);
-        localStorage.setItem("euserID", test.euser);
-        navigate("/aptitude-test");
-      } else {
-        // toast.error("Unable to start test");
-      }
-    } catch (error) {
-      console.log(error);
-      toast.error("Unable to start test");
-    }
+    localStorage.setItem("resultID", test.resultID);
+    localStorage.setItem("euserID", test.euser);
+    navigate("/aptitude-test");
   };
 
   return (

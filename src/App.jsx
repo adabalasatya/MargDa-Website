@@ -24,7 +24,7 @@ import AllUsersPage from "./Pages/NavPages/AllUsersPage";
 import PaymentPage from "./Pages/NavPages/PaymentPage";
 import TeamSupportPage from "./Pages/NavPages/TeamSupportPage";
 import SupportTicketPage from "./Pages/NavPages/SupportTicketPage";
-import CareerCounsellingPage from "./Pages/CareerCounsellingPage/CareerCounsellingPage";
+// import CareerCounsellingPage from "./Pages/CareerCounsellingPage/CareerCounsellingPage";
 import UserDashboardPage from "./Pages/CareerCounsellingPage/UserDashboardPage";
 
 //ShopingMart
@@ -45,6 +45,9 @@ import AddTemplatePage from "./Pages/TemplatesPages/AddTemplatePage";
 import AddFooterPage from "./Pages/TemplatesPages/TemplateFooterPage";
 import EditTemplatePage from "./Pages/TemplatesPages/EditTemplatePage";
 
+//Master-Data
+import MasterDataPage from "./Pages/MasterDataPages/MasterDataPage";
+
 //Admin Section
 import AdminDataPage from "./Pages/AdminPages/AdminDataPage";
 import AdminLeadsPage from "./Pages/AdminPages/AdminLeadsPage";
@@ -57,11 +60,6 @@ import WhatsappReport from "./Pages/ReportPages/WhatsappReportPage";
 import MeetingReport from "./Pages/ReportPages/MeetingReportPage";
 import MyWorkTimelinePage from "./Pages/ReportPages/WorkTimeLinePage";
 import ClientTimePage from "./Pages/ReportPages/ClientTimelinePage";
-
-//OutsideSection
-import MasterData from "./Pages/OutSidebarPages/MasterDataPage";
-import SettingPage from "./Pages/OutSidebarPages/SettingPage";
-import Logout from "./Pages/OutSidebarPages/LogoutPage";
 
 //AdvisorsPanel
 import AdvisorsPage from "./Pages/AdvisorsPanelPages/AdvisorsPage";
@@ -112,11 +110,11 @@ import InstCapContestFormPage from "./Pages/InstituteManagementPages/ActionFormP
 import InstCapMcqFormPage from "./Pages/InstituteManagementPages/ActionFormPages/InstCapMcqFormPage";
 
 //Work-Seeker
-import UserWorkPage from "./Pages/WorkSeekerPages/UserWorkPage"
-import UserEducationPage from "./Pages/WorkSeekerPages/UserEducationPage"
-import UserExperiencePage from "./Pages/WorkSeekerPages/UserExperiencePage"
-import UserSkillsPage from "./Pages/WorkSeekerPages/UserSkillsPage"
-import UserReferencePage from "./Pages/WorkSeekerPages/UserReferencePage"
+import UserWorkPage from "./Pages/WorkSeekerPages/UserWorkPage";
+import UserEducationPage from "./Pages/WorkSeekerPages/UserEducationPage";
+import UserExperiencePage from "./Pages/WorkSeekerPages/UserExperiencePage";
+import UserSkillsPage from "./Pages/WorkSeekerPages/UserSkillsPage";
+import UserReferencePage from "./Pages/WorkSeekerPages/UserReferencePage";
 
 //Study
 import StudyCoursePage from "./Pages/StudyPages/StudyCoursePage";
@@ -158,7 +156,21 @@ import ShopPage from "./Pages/NavPages/MartPages/ShopPages/ShopPage";
 import CartPage from "./Pages/NavPages/MartPages/ShopPages/CartPage";
 import PaymentOrderPage from "./Pages/NavPages/MartPages/ShopPages/PaymentOrderPage";
 
+//CommunicationTest
+import CommunicationTestPage from "./Pages/CommunicationTestPage/CommunicationTestPage";
 
+//HrInterview
+import HRGiveTestPage from "./Pages/HRInterviewPages/HRGiveTestPage";
+
+//SelectionProcess
+import HRInteractionPage from "./Pages/SelectionProcessPages/HRInteractionPage";
+
+//Order
+import OrderManagePage from "./Pages/OrdersPages/OrderManagePage";
+
+//Products
+import ManageProductsPage from "./Pages/ProductsPages/ManageProductsPage";
+import CloudTelephonyPage from "./Pages/OutSidebarPages/CloudTelephonyPage";
 
 function App() {
   return (
@@ -192,10 +204,10 @@ function App() {
           <Route path="/payment" element={<PaymentPage />} />
           <Route path="/team-support" element={<TeamSupportPage />} />
           <Route path="/support-ticket" element={<SupportTicketPage />} />
-          <Route
+          {/* <Route
             path="/career-counselling"
             element={<CareerCounsellingPage />}
-          />
+          /> */}
           <Route path="/user-dashboard" element={<UserDashboardPage />} />
           <Route path="/career-map" element={<CareerMapPage />} />
 
@@ -238,6 +250,10 @@ function App() {
           <Route path="/add-template" element={<AddTemplatePage />} />
           <Route path="/add-footer" element={<AddFooterPage />} />
           <Route path="/edit-template" element={<EditTemplatePage />} />
+
+          {/* Master-Data Section with drop-down menu */}
+          <Route path="master-data" element={<MasterDataPage />} />
+          <Route path="cloud-telephony" element={<CloudTelephonyPage />} />
 
           {/* Business */}
           <Route path="/business-data-entry" element={<DataEntryFormPage />} />
@@ -301,12 +317,6 @@ function App() {
           <Route path="/begin-test" element={<BeginTestPage />} />
           <Route path="/result" element={<ResultPage />} />
 
-          {/* OutSide Section with drop-down menu */}
-          <Route path="template" element={<Template />} />
-          <Route path="master-data" element={<MasterData />} />
-          <Route path="settings" element={<SettingPage />} />
-          <Route path="logout" element={<Logout />} />
-
           {/* Career Sections */}
           <Route path="/career-data" element={<CareerDataPage />} />
 
@@ -342,8 +352,26 @@ function App() {
           <Route path="/skill-mcq" element={<SkillMcqPage />} />
           <Route path="/skill-test" element={<SkillTestPage />} />
 
+          {/* CommunicationTest */}
+          <Route
+            path="/communication-test"
+            element={<CommunicationTestPage />}
+          />
+
           {/* Phone Pe Payment Status */}
           <Route path="phonepay/payment-status" element={<PaymentStatus />} />
+
+          {/* HR Interview */}
+          <Route path="/hr-give-test" element={<HRGiveTestPage />} />
+
+          {/* Selection Process */}
+          <Route path="/hr-interaction" element={<HRInteractionPage />} />
+
+          {/* Orders */}
+          <Route path="/manage-order" element={<OrderManagePage />} />
+
+          {/* Product */}
+          <Route path="/manage-product" element={<ManageProductsPage />} />
         </Routes>
       </Router>
     </>

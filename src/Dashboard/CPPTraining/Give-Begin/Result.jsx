@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import {
   FaUserGraduate,
   FaList,
@@ -10,8 +10,12 @@ import {
 
 const ModuleResult = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [isLoading, setIsLoading] = useState(true); // Loading state
   const [lessonName, setLessonName] = useState("");
+  const [attempted, setAttempted] = useState(0);
+  const [corrected, setCorrected] = useState(0);
+  const [answers, setAnswers] = useState([]);
 
   // Sample Data
   const sampleAnswers = [
@@ -40,16 +44,7 @@ const ModuleResult = () => {
     17, 3, 3, 3, 3, 3, 3, 3, 3, 9, 4, 3, 3, 3, 3, 3, 3, 0, 0, 0,
   ];
 
-  const attempted = sampleAnswers.filter((a) => a !== null).length;
-  const correct = sampleAnswers.filter((a) => a === "✔").length;
-  const wrong = attempted - correct;
-  const totalMarks = 40;
-  const correctMarks = correct * 2;
-  const deductedMarks = wrong * 0.5;
-  const percentage = (
-    ((correctMarks - deductedMarks) / totalMarks) *
-    100
-  ).toFixed(2);
+  const [studyInfo, setStudyInfo] = useState(null);
 
   const localUserData = JSON.parse(localStorage.getItem("userData"));
   const accessToken = localUserData ? localUserData.access_token : null;
@@ -58,12 +53,85 @@ const ModuleResult = () => {
     const lessonID = sessionStorage.getItem("lessonID");
     const lessonName = sessionStorage.getItem("lessonName");
     const testMinutes = sessionStorage.getItem("test_minutes");
-    if (lessonID && !isNaN(lessonID) && testMinutes && !isNaN(testMinutes)) {
+    const studyID = sessionStorage.getItem("studyID");
+    const state = location.state;
+    if (
+      lessonID &&
+      !isNaN(lessonID) &&
+      testMinutes &&
+      !isNaN(testMinutes) &&
+      state &&
+      state.resultID &&
+      studyID &&
+      !isNaN(studyID)
+    ) {
+      fetchResultData(state.resultID, lessonID);
       setLessonName(lessonName);
+      fetchStudyInfo(studyID);
     } else {
       navigate("/trainee-dashboard");
     }
   }, [accessToken]);
+
+  const fetchResultData = async (resultID, lessonID) => {
+    try {
+      const response = await fetch(
+        "https://margda.in:7000/api/cpp_training/trainee/test/get_result_data_with_result_id",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ resultID, lessonID }),
+        }
+      );
+      const data = await response.json();
+      if (response.ok && data.data && Array.isArray(data.data)) {
+        setAttempted(data.attemptedCount);
+        setCorrected(data.correctedCount);
+        setAnswers(data.data);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const fetchStudyInfo = async (studyID) => {
+    try {
+      setIsLoading(true);
+
+      const response = await fetch(
+        "https://margda.in:7000/api/cpp_training/trainee/get_study_info",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            studyID: parseInt(studyID),
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (response.ok && data.Study) {
+        setStudyInfo(data.Study);
+      } else {
+        setStudyInfo(null);
+      }
+    } catch (error) {
+      console.error("Fetch MCQs Error:", error);
+      // toast.error("MCQs not available for this lesson");
+
+      setStudyInfo(null);
+      // return navigate("/trainee-dashboard");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -76,6 +144,11 @@ const ModuleResult = () => {
     // Cleanup timer on unmount
     return () => clearTimeout(timer);
   }, []);
+
+  const today = () => {
+    const now = new Date();
+    return `${now.getDate()}-${now.getMonth() + 1}-${now.getFullYear()}`;
+  };
 
   // Render loading animation
   if (isLoading) {
@@ -109,9 +182,7 @@ const ModuleResult = () => {
           </div>
           <div className="flex items-center justify-end text-lg font-semibold text-gray-800">
             <FaCalendar className="mr-3 text-blue-600" /> Date:{" "}
-            <span className="ml-2 text-blue-700">
-              {new Date().toISOString().split("T")[0]}
-            </span>
+            <span className="ml-2 text-blue-700">{today()}</span>
           </div>
         </div>
 
@@ -120,7 +191,7 @@ const ModuleResult = () => {
           <div className="flex flex-col items-center">
             <span className="text-gray-700">Total Questions</span>
             <span className="font-bold text-gray-900 text-lg">
-              {sampleAnswers.length}
+              {studyInfo.test_mcq}
             </span>
           </div>
           <div className="flex flex-col items-center">
@@ -129,33 +200,47 @@ const ModuleResult = () => {
           </div>
           <div className="flex flex-col items-center text-green-600">
             <span>Right Answers</span>
-            <span className="font-bold text-lg">{correct}</span>
+            <span className="font-bold text-lg">{corrected}</span>
           </div>
           <div className="flex flex-col items-center text-red-600">
             <span>Wrong Answers</span>
-            <span className="font-bold text-lg">{wrong}</span>
+            <span className="font-bold text-lg">
+              {Number(attempted) - Number(corrected)}
+            </span>
           </div>
           <div className="flex flex-col items-center">
             <span className="text-gray-700">Total Marks</span>
             <span className="font-bold text-gray-900 text-lg">
-              {totalMarks}
+              {studyInfo.marks_total}
             </span>
           </div>
           <div className="flex flex-col items-center text-green-600">
             <span>Marks Correct</span>
-            <span className="font-bold text-lg">{correctMarks}</span>
+            <span className="font-bold text-lg">
+              {studyInfo.marks_correct * Number(corrected)}
+            </span>
           </div>
           <div className="flex flex-col items-center text-red-600">
             <span>Deducted Marks</span>
-            <span className="font-bold text-lg">{deductedMarks}</span>
+            <span className="font-bold text-lg">
+              {studyInfo.marks_wrong * Number(attempted - corrected)}
+            </span>
           </div>
           <div
             className={`flex flex-col items-center ${
-              percentage >= 0 ? "text-green-600" : "text-red-600"
+              (studyInfo.marks_correct * Number(corrected) * 100) /
+                studyInfo.marks_total >=
+              0
+                ? "text-green-600"
+                : "text-red-600"
             }`}
           >
             <span>Percentage</span>
-            <span className="font-bold text-lg">{percentage}%</span>
+            <span className="font-bold text-lg">
+              {(studyInfo.marks_correct * Number(corrected) * 100) /
+                studyInfo.marks_total}
+              %
+            </span>
           </div>
         </div>
 
@@ -167,7 +252,7 @@ const ModuleResult = () => {
                 <th className="px-3 py-2 text-xs font-semibold uppercase tracking-wide sticky left-0 bg-gradient-to-r from-blue-50 to-blue-100 border-b border-gray-200 shadow-sm">
                   Question
                 </th>
-                {sampleAnswers.map((_, index) => (
+                {answers.map((_, index) => (
                   <th
                     key={index}
                     className="px-3 py-2 text-xs font-semibold uppercase tracking-wide border-b border-gray-200"
@@ -182,14 +267,14 @@ const ModuleResult = () => {
                 <td className="px-3 py-2 font-semibold text-gray-800 text-sm sticky left-0 bg-white border-r border-gray-200 shadow-sm">
                   Answer
                 </td>
-                {sampleAnswers.map((answer, index) => (
+                {answers.map((answer, index) => (
                   <td key={index} className="px-3 py-2">
-                    {answer === "✔" ? (
+                    {answer.isCorrect ? (
                       <FaCheck
                         className="text-green-500 mx-auto transform hover:scale-110 transition duration-150"
                         size={16}
                       />
-                    ) : answer === "X" ? (
+                    ) : !answer.isCorrect ? (
                       <FaTimes
                         className="text-red-500 mx-auto transform hover:scale-110 transition duration-150"
                         size={16}
@@ -204,9 +289,9 @@ const ModuleResult = () => {
                 <td className="px-3 py-2 font-semibold text-gray-800 text-sm sticky left-0 bg-white border-r border-gray-200 shadow-sm">
                   Time (s)
                 </td>
-                {sampleTimeTaken.map((time, index) => (
+                {answers.map((ans, index) => (
                   <td key={index} className="px-3 py-2 text-sm text-gray-700">
-                    {time > 0 ? time : <span className="text-gray-400">-</span>}
+                    {ans.ans_seconds}
                   </td>
                 ))}
               </tr>

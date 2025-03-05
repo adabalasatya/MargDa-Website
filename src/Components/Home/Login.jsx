@@ -69,7 +69,6 @@ const Login = () => {
         const pushNotificationToken = localStorage.getItem(
           "push-notification-token"
         );
-        console.log(userData);
         if (pushNotificationToken) {
           const accessToken = userData.access_token;
           await fetch(

@@ -11,7 +11,7 @@ const SkillTest = () => {
         <FaBook className="text-blue-600 text-4xl" /> Skill Test
       </h2>
 
-      <div className="bg-white shadow-lg rounded-xl w-full max-w-6xl p-10">
+      <div className="bg-white shadow-lg rounded-xl w-full max-w-6xl p-10 border border-gray-300">
         {/* Skill Selection */}
         <div className="mb-6">
           <label className="flex items-center gap-3 text-xl font-medium">
@@ -71,7 +71,8 @@ const SkillTest = () => {
           {/* Negative Marks */}
           <div>
             <label className="flex items-center gap-3 text-lg font-medium">
-              <FaCalculator className="text-blue-600 text-2xl" /> Negative Marks:
+              <FaCalculator className="text-blue-600 text-2xl" /> Negative
+              Marks:
             </label>
             <input
               type="number"
@@ -83,36 +84,36 @@ const SkillTest = () => {
 
         {/* Important Instructions */}
         <div className="bg-gray-50 p-8 rounded-lg">
-          <h3 className="text-xl font-semibold mb-3">Important Instructions:</h3>
+          <h3 className="text-xl font-semibold mb-3">
+            Important Instructions:
+          </h3>
           <ul className="list-decimal pl-6 space-y-2 text-gray-700 text-lg">
-            <li>Your Time Countdown Will begin as soon as you click the 'Begin Test' Button.</li>
-            <li>Your Time Countdown Will begin as soon as you click the 'Begin Test' Button.</li>
-            <li>Your Time Countdown Will begin as soon as you click the 'Begin Test' Button.</li>
-            <li>Your Time Countdown Will begin as soon as you click the 'Begin Test' Button.</li>
+            <li>
+              Your Time Countdown Will begin as soon as you click the 'Begin
+              Test' Button.
+            </li>
+            <li>
+              Your Time Countdown Will begin as soon as you click the 'Begin
+              Test' Button.
+            </li>
+            <li>
+              Your Time Countdown Will begin as soon as you click the 'Begin
+              Test' Button.
+            </li>
+            <li>
+              Your Time Countdown Will begin as soon as you click the 'Begin
+              Test' Button.
+            </li>
           </ul>
         </div>
       </div>
 
-       
-{/* Footer */}
-<footer className="mt-4 w-full bg-gray-100 py-4 border-t flex flex-col md:flex-row justify-between items-center text-gray-600 text-sm px-4">
-        <span>Margdarshak © {new Date().getFullYear()}</span>
-        <div className="flex gap-4">
-          <a href="#" className="hover:text-blue-600">
-            Support
-          </a>
-          <a href="#" className="hover:text-blue-600">
-            Help Center
-          </a>
-          <a href="#" className="hover:text-blue-600">
-            Privacy
-          </a>
-          <a href="#" className="hover:text-blue-600">
-            Terms
-          </a>
-        </div>
-      </footer>
-      
+      {/* Copyright Footer */}
+      <div className="text-center text-sm text-black-500 mt-0 p-4">
+        <span>
+          Margdarshak © {new Date().getFullYear()}. All Rights Reserved.
+        </span>
+      </div>
     </div>
   );
 };

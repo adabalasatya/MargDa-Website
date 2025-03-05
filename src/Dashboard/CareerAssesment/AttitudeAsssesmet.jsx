@@ -39,34 +39,9 @@ const AttitudeAssesment = () => {
   };
 
   const handleStart = async (test) => {
-    try {
-      const response = await fetch(
-        "https://margda.in:7000/api/career/aptitude/save-result",
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            userID: localUserData.user_data.userID,
-            euser: test.euser,
-          }),
-        }
-      );
-      const data = await response.json();
-      if (response.ok) {
-        const resultID = data.data.resultID;
-        localStorage.setItem("resultID", test.resultID);
-        localStorage.setItem("euserID", test.euser);
-        navigate("/attitude-test");
-      } else {
-        // toast.error("Unable to start test");
-      }
-    } catch (error) {
-      console.log(error);
-      //   toast.error("Unable to start test");
-    }
+    localStorage.setItem("resultID", test.resultID);
+    localStorage.setItem("euserID", test.euser);
+    navigate("/attitude-test");
   };
 
   return (

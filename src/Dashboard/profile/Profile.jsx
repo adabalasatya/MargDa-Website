@@ -4,7 +4,17 @@ import PhoneInput from "react-phone-input-2";
 import { toast } from "react-toastify";
 import Select from "react-select";
 import { useNavigate } from "react-router-dom";
-import { FaUser, FaRegImage, FaVenusMars } from "react-icons/fa";
+import {
+  FaUser,
+  FaVenusMars,
+  FaPhone,
+  FaWhatsapp,
+  FaEnvelope,
+  FaMapMarkerAlt,
+  FaGlobe,
+} from "react-icons/fa";
+import { FaCakeCandles } from "react-icons/fa6";
+import CreatableSelect from "react-select/creatable";
 
 const ProfilePage = () => {
   // State to manage form values
@@ -21,13 +31,15 @@ const ProfilePage = () => {
     country_code: "",
     stateID: "",
     districtID: "",
-    street_block: "",
+    place: "",
   });
 
   const [file, setFile] = useState(null);
   const [countries, setCountries] = useState([]);
   const [allStates, setAllStates] = useState([]);
   const [states, setStates] = useState([]);
+  const [pinCodeOptions, setPinCodeOptions] = useState([]);
+  const [placesOptions, setPlacesOptions] = useState([]);
   const [districts, setDistricts] = useState([]);
   const [allDistricts, setAllDistricts] = useState([]);
   const localUserData = JSON.parse(localStorage.getItem("userData"));
@@ -38,24 +50,8 @@ const ProfilePage = () => {
     fetchCountries();
     fetchStates();
     fetchDistricts();
-    // fetchUserData();
   }, [accessToken]);
 
-  // const fetchUserData = async () => {
-  //   try {
-  //     const response = await fetch("https://margda.in:7000/api/getuserdata", {
-  //       method: "GET",
-  //       headers: {
-  //         Authorization: `Bearer ${accessToken}`,
-  //       },
-  //     });
-  //     const data = await response.json();
-  //     // console.log(data);
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // };
-  // Load user data from localStorage on component mount
   useEffect(() => {
     const storedUserData = localStorage.getItem("userData");
     if (storedUserData) {
@@ -70,10 +66,11 @@ const ProfilePage = () => {
         address: userData.user_data.address || "",
         pincode: userData.user_data.pincode || "",
         pic_url: userData.user_data.pic_url,
-        street_block: userData.user_data.street_block || null,
+        street_block: userData.user_data.place || null,
         country_code: userData.user_data.country_code || null,
         districtID: userData.user_data.districtID || null,
         stateID: userData.user_data.stateID || null,
+        place: userData.user_data.place || null,
       });
       if (userData.user_data.country_code) {
         const filterStates = allStates.filter(
@@ -82,14 +79,17 @@ const ProfilePage = () => {
         setStates(filterStates);
       }
       if (userData.user_data.stateID) {
-        const state = allStates.find(
-          (state) => state.stateID == userData.user_data.stateID
-        );
+        if (allStates.length > 0) {
+          const state = allStates.find(
+            (state) => state.stateID == userData.user_data.stateID
+          );
 
-        const filterDistricts = allDistricts.filter(
-          (district) => district.state_code == state.state_code
-        );
-        setDistricts(filterDistricts);
+          const filterDistricts = allDistricts.filter(
+            (district) => district.state_code == state.state_code
+          );
+          fetchPinCodes(state.state_code);
+          setDistricts(filterDistricts);
+        }
       }
     } else {
       navigate("/login");
@@ -134,6 +134,9 @@ const ProfilePage = () => {
     if (!formValues.stateID) {
       return toast.warn("Select Your State");
     }
+    if (!formValues.pincode) {
+      return toast.warn("Select Your Pin Code");
+    }
     const formData = new FormData();
     if (file) {
       formData.append("image", file);
@@ -149,7 +152,7 @@ const ProfilePage = () => {
     formData.append("country_code", formValues.country_code);
     formData.append("stateID", formValues.stateID);
     formData.append("districtID", formValues.districtID);
-    formData.append("street_block", formValues.street_block || null);
+    formData.append("place", formValues.place || null);
 
     try {
       const response = await fetch(`https://margda.in:7000/api/updateuser`, {
@@ -178,7 +181,7 @@ const ProfilePage = () => {
           userData.user_data.country_code = formValues.country_code;
           userData.user_data.stateID = formValues.stateID;
           userData.user_data.districtID = formValues.districtID;
-          userData.user_data.street_block = formValues.street_block;
+          userData.user_data.place = formValues.place;
           localStorage.setItem("userData", JSON.stringify(userData));
         }
         toast.success(result.message);
@@ -306,6 +309,65 @@ const ProfilePage = () => {
     }
   };
 
+  const fetchPinCodes = async (stateCode) => {
+    try {
+      const response = await fetch(
+        "https://margda.in:7000/api/pincode/get_pincode_with_statecode",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ state_code: stateCode }),
+        }
+      );
+      const data = await response.json();
+      if (response.ok) {
+        const pincodes = data.PinCodes;
+        pincodes.map((item) => {
+          item.label = `${item.pincode}, ${item.postoffice}`;
+          item.value = item.pinID;
+        });
+        setPinCodeOptions(pincodes);
+      } else {
+        console.log(data);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const fetchPlaces = async (pincode) => {
+    try {
+      const response = await fetch(
+        "https://margda.in:7000/api/pincode/get_places_with_pincode",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ pincode }),
+        }
+      );
+      const data = await response.json();
+      if (response.ok) {
+        const places = data.Places;
+        places.map((item) => {
+          item.label = item.place;
+          item.value = item.placeID;
+        });
+        console.log(places);
+        setPlacesOptions(places);
+      } else {
+        console.log(data);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const handleCountryChange = (selectedCountry) => {
     const country_code = selectedCountry.value;
     setFormValues((pre) => ({
@@ -326,7 +388,9 @@ const ProfilePage = () => {
       ...pre,
       stateID: selectedState.stateID,
       districtID: "",
+      pincode: "",
     }));
+    fetchPinCodes(state_code);
     const filterDistricts = allDistricts.filter(
       (district) => district.state_code == state_code
     );
@@ -339,6 +403,14 @@ const ProfilePage = () => {
       ...pre,
       districtID: districtID,
     }));
+  };
+
+  const handlePinCodeChange = (selectedPincode) => {
+    setFormValues((pre) => ({
+      ...pre,
+      pincode: selectedPincode.pincode,
+    }));
+    fetchPlaces(selectedPincode.pincode);
   };
 
   return (
@@ -409,12 +481,14 @@ const ProfilePage = () => {
                       className="w-full border border-gray-300 rounded px-2 py-1 sm:px-3 sm:py-2 focus:ring-2 focus:ring-blue-400 outline-none text-xs sm:text-sm"
                     />
                   </div>
+
                   {/* Mobile */}
                   <div>
                     <label
                       htmlFor="mobile"
-                      className="text-xs sm:text-sm font-medium text-gray-700 block text-left"
+                      className="flex items-center space-x-2 text-gray-700 font-medium text-base"
                     >
+                      <FaPhone className="text-green-500 text-base mr-2" />
                       Mobile
                     </label>
                     <input
@@ -427,7 +501,6 @@ const ProfilePage = () => {
                 </div>
                 <div className="flex flex-col gap-5">
                   {/* Gender */}
-
                   <div className="space-y-1">
                     <label
                       htmlFor="gender"
@@ -450,12 +523,14 @@ const ProfilePage = () => {
                       <option value="O">Other</option>
                     </select>
                   </div>
+
                   {/* Whatsapp */}
                   <div>
                     <label
                       htmlFor="whatsap"
-                      className="text-xs sm:text-sm font-medium text-gray-700 block text-left"
+                      className="flex items-center space-x-2 text-gray-700 font-medium text-base"
                     >
+                      <FaWhatsapp className="text-green-700 text-base mr-2" />
                       WhatsApp Number
                     </label>
 
@@ -474,13 +549,14 @@ const ProfilePage = () => {
                 </div>
               </div>
 
-              {/*  Email DOB Section */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4">
+                {/* Email */}
                 <div>
                   <label
                     htmlFor="email"
-                    className="text-xs sm:text-sm font-medium text-gray-700 block text-left"
+                    className="flex items-center space-x-2 text-gray-700 font-medium text-base"
                   >
+                    <FaEnvelope className="text-violet-700 text-base mr-2" />
                     Email
                   </label>
                   <input
@@ -492,11 +568,14 @@ const ProfilePage = () => {
                     className="w-full border border-gray-300 rounded px-2 py-1 sm:px-3 sm:py-2 focus:ring-2 focus:ring-blue-400 outline-none text-xs sm:text-sm"
                   />
                 </div>
+
+                {/* Date Of Birth */}
                 <div>
                   <label
                     htmlFor="dob"
-                    className="text-xs sm:text-sm font-medium text-gray-700 block text-left"
+                    className="flex items-center space-x-2 text-gray-700 font-medium text-base"
                   >
+                    <FaCakeCandles className="text-yellow-700 text-base mr-2" />
                     Date of Birth
                   </label>
                   <input
@@ -509,33 +588,14 @@ const ProfilePage = () => {
                     className="w-full border border-gray-300 rounded px-2 py-1 sm:px-3 sm:py-2 focus:ring-2 focus:ring-blue-400 outline-none text-xs sm:text-sm"
                   />
                 </div>
-                <div>
-                  <label
-                    htmlFor="pincode"
-                    className="text-xs sm:text-sm font-medium text-gray-700 block text-left"
-                  >
-                    Pin Code
-                  </label>
-                  <input
-                    type="text"
-                    name="pincode"
-                    id="pincode"
-                    required
-                    value={formValues.pincode}
-                    onChange={handleOnInputChange}
-                    placeholder="Pin Code"
-                    className="w-full border border-gray-300 rounded px-2 py-1 sm:px-3 sm:py-2 focus:ring-2 focus:ring-blue-400 outline-none text-xs sm:text-sm"
-                  />
-                </div>
-              </div>
 
-              {/*  Address, */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4">
+                {/* Country */}
                 <div>
                   <label
                     htmlFor="country"
-                    className="text-xs sm:text-sm font-medium text-gray-700 block text-left"
+                    className="flex items-center space-x-2 text-gray-700 font-medium text-base"
                   >
+                    <FaGlobe className="text-amber-600 text-base mr-2" />
                     Country
                   </label>
                   <Select
@@ -551,12 +611,22 @@ const ProfilePage = () => {
                     placeholder="Country"
                   />
                 </div>
+              </div>
 
+              {/* <CreatableSelect
+                options={items}
+                onCreateOption={handleCreate}
+                isClearable
+              /> */}
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4">
+                {/* State */}
                 <div>
                   <label
                     htmlFor="state"
-                    className="text-xs sm:text-sm font-medium text-gray-700 block text-left"
+                    className="flex items-center space-x-2 text-gray-700 font-medium text-base"
                   >
+                    <FaMapMarkerAlt className="text-green-600 text-base mr-2" />
                     State
                   </label>
                   <Select
@@ -573,11 +643,13 @@ const ProfilePage = () => {
                   />
                 </div>
 
+                {/* District */}
                 <div>
                   <label
                     htmlFor="district"
-                    className="text-xs sm:text-sm font-medium text-gray-700 block text-left"
+                    className="flex items-center space-x-2 text-gray-700 font-medium text-base"
                   >
+                    <FaMapMarkerAlt className="text-green-600 text-base mr-2" />
                     District
                   </label>
                   <Select
@@ -593,41 +665,74 @@ const ProfilePage = () => {
                     placeholder="District"
                   />
                 </div>
+
+                {/* Pin Code */}
+                <div>
+                  <label
+                    htmlFor="pincode"
+                    className="flex items-center space-x-2 text-gray-700 font-medium text-base"
+                  >
+                    <FaMapMarkerAlt className="text-green-600 text-base mr-2" />
+                    Pin Code
+                  </label>
+                  <Select
+                    value={
+                      pinCodeOptions.find(
+                        (option) => option.pincode === formValues.pincode
+                      ) || null
+                    }
+                    onChange={handlePinCodeChange}
+                    id="pincode"
+                    options={pinCodeOptions}
+                    className="w-full  rounded overflow-y-visible focus:ring-2 focus:ring-blue-400 outline-none text-xs sm:text-sm"
+                    placeholder="Pin Code"
+                  />
+                </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4">
+                {/* Places */}
+                <div>
+                  <label
+                    htmlFor="place"
+                    className="flex items-center space-x-2 text-gray-700 font-medium text-base"
+                  >
+                    <FaMapMarkerAlt className="text-green-600 text-base mr-2" />
+                    Place
+                  </label>
+                  <input
+                    type="text"
+                    id="place"
+                    name="place"
+                    required
+                    value={formValues.place}
+                    onChange={handleOnInputChange}
+                    placeholder="Place"
+                    className="w-full border border-gray-300 rounded px-2 py-1 sm:px-3 sm:py-2 focus:ring-2 focus:ring-blue-400 outline-none text-xs sm:text-sm"
+                  />
+                  {/* <CreatableSelect
+                    options={placesOptions}
+                    onCreateOption={handleCreate}
+                    isClearable
+                  /> */}
+                </div>
+
+                {/* Address */}
                 <div>
                   <label
                     htmlFor="address"
-                    className="text-xs sm:text-sm font-medium text-gray-700 block text-left"
+                    className="flex items-center space-x-2 text-gray-700 font-medium text-base"
                   >
+                    <FaMapMarkerAlt className="text-green-600 text-base mr-2" />
                     Address
                   </label>
                   <input
                     type="text"
                     id="address"
                     name="address"
-                    required
                     value={formValues.address}
                     onChange={handleOnInputChange}
-                    placeholder="Your address"
-                    className="w-full border border-gray-300 rounded px-2 py-1 sm:px-3 sm:py-2 focus:ring-2 focus:ring-blue-400 outline-none text-xs sm:text-sm"
-                  />
-                </div>
-                <div>
-                  <label
-                    htmlFor="street"
-                    className="text-xs sm:text-sm font-medium text-gray-700 block text-left"
-                  >
-                    Street
-                  </label>
-                  <input
-                    type="text"
-                    id="street"
-                    name="street_block"
-                    value={formValues.street_block}
-                    onChange={handleOnInputChange}
-                    placeholder="Street"
+                    placeholder="Address"
                     className="w-full border border-gray-300 rounded px-2 py-1 sm:px-3 sm:py-2 focus:ring-2 focus:ring-blue-400 outline-none text-xs sm:text-sm"
                   />
                 </div>

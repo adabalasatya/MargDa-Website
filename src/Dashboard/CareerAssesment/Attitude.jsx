@@ -20,34 +20,8 @@ const Attitude = () => {
   const euserID = localStorage.getItem("euserID");
 
   useEffect(() => {
-    // save_result();
     fetchQuestions();
   }, []);
-
-  // const save_result = async () => {
-  //   try {
-  //     const response = await fetch(
-  //       "https://margda.in:7000/api/career/attitude/save-result",
-  //       {
-  //         method: "POST",
-  //         headers: {
-  //           Authorization: `Bearer ${accessToken}`,
-  //           "Content-Type": "application/json",
-  //         },
-  //       }
-  //     );
-  //     const data = await response.json();
-  //     if (response.ok) {
-  //       const resultID = data.data.resultID;
-  //       setResultID(resultID);
-  //     } else {
-  //       toast.error("Unable to start test");
-  //     }
-  //   } catch (error) {
-  //     console.log(error);
-  //     toast.error("Unable to start test");
-  //   }
-  // };
 
   const updateAnswer = async (
     qorderID,

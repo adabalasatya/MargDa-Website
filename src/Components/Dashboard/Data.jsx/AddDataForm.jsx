@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { FaSearch } from "react-icons/fa";
 import PhoneInput from "react-phone-number-input";
 import { toast } from "react-toastify";
 
@@ -41,7 +42,6 @@ const AddDataForm = ({ setIsAddDataFormOpen }) => {
 
       const result = await response.json();
       if (result.success && Array.isArray(result.data)) {
-        // Map the API response to the expected format
         const formattedDataTypes = result.data.map((item) => ({
           id: item.datatype, // Use datatype as the unique ID
           value: item.datatype, // Use datatype as the value
@@ -50,23 +50,19 @@ const AddDataForm = ({ setIsAddDataFormOpen }) => {
         setDataTypes(formattedDataTypes);
       } else {
         console.error("Unexpected API response format:", result);
-        // setError("Failed to fetch data types. Invalid response format.");
       }
     } catch (error) {
       console.error("Error fetching data types:", error);
-      //   setError("Failed to fetch data types. Please try again.");
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsLoading(true);
-    // return;
     if (!formData.phone || !formData.whatsapp) {
       return toast.warn("Phone number and whatsapp numbers are required");
     }
 
-    // return;
+    setIsLoading(true);
 
     const newRecord = {
       name: formData.name,
@@ -145,7 +141,7 @@ const AddDataForm = ({ setIsAddDataFormOpen }) => {
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-75 z-50">
-      <div className="bg-white p-8 rounded-md shadow-2xl w-11/12 max-w-4xl">
+      <div className="bg-white p-8 rounded-md shadow-2xl max-w-7xl">
         <h3 className="text-3xl font-extrabold mb-8 text-gray-900 text-center">
           Add New Record
         </h3>
@@ -264,11 +260,11 @@ const AddDataForm = ({ setIsAddDataFormOpen }) => {
                 onChange={handleInputChange}
               />
             </div>
+
             <button
               type="button"
               onClick={() => setIsAddDataFormOpen(false)}
               className="px-6 w-1/3 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-all duration-200 font-semibold shadow-sm"
-              disabled={isLoading}
             >
               Close
             </button>

@@ -83,13 +83,60 @@ const UserLinkForm = ({ user, onClose }) => {
     {
       name: "Skill",
       links: ["Add Skill", "Skill MCQ", "Skill Test", "Skill Report"],
-      linkUrl: ["#", "/skill-mcq", "#", "#"],
+      linkUrl: ["#", "/skill-mcq", "/skill-test", "#"],
+    },
+    {
+      name: "Orders",
+      links: ["Manage Order"],
+      linkUrl: ["//manage-order"],
+    },
+    {
+      name: "Product",
+      links: ["Manage Product"],
+      linkUrl: ["/manage-product"],
     },
     {
       name: "Advisors Panel",
       links: ["Be an Advisor"],
       linkUrl: ["/advisor"],
     },
+
+    {
+      name: "Communication Test",
+      links: ["Communication Test"],
+      linkUrl: ["/communication-test"],
+    },
+
+    {
+      name: "HR Interview",
+      links: ["Give Test"],
+      linkUrl: ["/hr-give-test"],
+    },
+
+    {
+      name: "Selection Process",
+      links: ["HR Interaction"],
+      linkUrl: ["/hr-interaction"],
+    },
+
+    {
+      name: "Work Seeker",
+      links: [
+        "User Work",
+        "User Experience",
+        "User Education",
+        "User Skills",
+        "User Reference",
+      ],
+      linkUrl: [
+        "/user-work",
+        "/user-experience",
+        "/user-education",
+        "/user-skills",
+        "/user-reference",
+      ],
+    },
+
     {
       name: "Study",
       links: [

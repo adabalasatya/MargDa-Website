@@ -341,10 +341,10 @@ const AllUsers = () => {
       {/* Data Table */}
       <div className="bg-white rounded-lg shadow-md p-6 mt-9">
         {currentRecords.length > 0 ? (
-          <div className="max-h-[600px] overflow-y-auto">
+          <div className="bg-white rounded-lg shadow-md p-6">
             <table className="w-full text-sm text-left border-spacing-x-4">
               <thead>
-                <tr className="text-gray-600 sticky top-0 bg-white z-10">
+                <tr className="text-gray-600 top-0 bg-white z-10">
                   <th className="px-4 py-3">
                     <div className="flex items-center space-x-2">
                       <FaUserCog className="text-blue-600 w-4 h-4" />
@@ -367,12 +367,6 @@ const AllUsers = () => {
                     <div className="flex items-center space-x-2">
                       <FaMapMarkerAlt className="text-green-600 w-4 h-4" />
                       <span>Location</span>
-                    </div>
-                  </th>
-                  <th className="px-4 py-3">
-                    <div className="flex items-center space-x-2">
-                      <FaClipboardList className="text-yellow-600 w-4 h-4" />
-                      <span>Log</span>
                     </div>
                   </th>
                 </tr>
@@ -486,10 +480,12 @@ const AllUsers = () => {
                     </td>
                     <td className="px-8 py-2">
                       <div className="flex flex-col space-y-1">
-                        <div className="flex items-center space-x-2">
-                          <FaUser />
-                          <span>LoginID:</span>
-                          <span> {item.login}</span>
+                        <div className="flex flex-col items-center justify-start space-x-2">
+                          <div className="flex items-center gap-2 justify-start">
+                            <FaUser />
+                            <span> {item.login}</span>
+                          </div>
+                          <span>ID: {item.userID}</span>
                         </div>
                       </div>
                     </td>
@@ -518,23 +514,6 @@ const AllUsers = () => {
                           <p className="text-xs text-black">
                             Pincode: {item.placeID || "N/A"}
                           </p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="flex flex-col space-y-2">
-                        <div className="flex items-center space-x-2">
-                          <FaClipboardList className="text-yellow-500 w-4 h-4" />
-                          <span className="text-black">
-                            {new Date(item.edate).toLocaleString() || "N/A"}
-                          </span>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <FaStickyNote className="text-red-400 w-4 h-4" />
-
-                          <span className="text-black">
-                            {item.remarks || "No remarks"}
-                          </span>
                         </div>
                       </div>
                     </td>
@@ -611,6 +590,12 @@ const AllUsers = () => {
       {showLinkForm && (
         <UserLinkForm user={selectedUser} onClose={handleCloseLinkForm} />
       )}
+      {/* Copyright Footer */}
+      <div className="text-center text-sm text-black-500 mt-8">
+        <span>
+          Margdarshak © {new Date().getFullYear()}. All Rights Reserved.
+        </span>
+      </div>
     </div>
   );
 };

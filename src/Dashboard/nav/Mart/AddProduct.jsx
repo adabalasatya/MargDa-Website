@@ -15,6 +15,8 @@ import {
   FaFile,
   FaVideo,
   FaLink,
+  FaFileAlt,
+  FaImage,
 } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -320,7 +322,7 @@ const AddProductForm = () => {
 
       <form
         onSubmit={handleSubmit}
-        className="bg-white shadow-lg max-w-5xl mx-auto rounded-lg p-8 mb-6"
+        className="bg-white shadow-lg max-w-5xl mx-auto rounded-lg p-8 mb-6 border border-gray-300"
       >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Seller Select List */}
@@ -403,7 +405,7 @@ const AddProductForm = () => {
               className="block text-gray-700 text-sm font-bold mb-2 flex items-center"
               htmlFor="Quantity"
             >
-              <FaMoneyBill className="mr-2 text-red-500" /> Quantity
+              <FaFileAlt className="mr-2 text-gray-500" /> Quantity
             </label>
             <input
               type="text"
@@ -422,7 +424,7 @@ const AddProductForm = () => {
               className="block text-gray-700 text-sm font-bold mb-2 flex items-center"
               htmlFor="mrp"
             >
-              <FaMoneyBill className="mr-2 text-red-500" /> MRP (₹)
+              <FaMoneyBill className="mr-2 text-green-500" /> MRP (₹)
             </label>
             <input
               type="number"
@@ -461,7 +463,7 @@ const AddProductForm = () => {
               className="block text-gray-700 text-sm font-bold mb-2 flex items-center"
               htmlFor="payout"
             >
-              <FaMoneyBill className="mr-2 text-red-500" /> Payout (₹)
+              <FaMoneyBill className="mr-2 text-blue-500" /> Payout (₹)
             </label>
             <input
               type="number"
@@ -607,9 +609,9 @@ const AddProductForm = () => {
       </form>
 
       {/* Table Section */}
-      <div className="bg-white shadow-lg max-w-7xl mx-auto rounded-lg pt-6 pb-8 mb-4">
+      <div className="bg-white shadow-lg max-w-7xl mx-auto mr-6 rounded-lg pt-6 pb-8 mb-4 border border-gray-300">
         <div className="flex justify-between items-center mb-6">
-          <div className="flex items-center">
+          <div className="flex items-center ml-4">
             <span className="text-gray-700 mr-2">Show</span>
             <select
               className="border rounded py-1 px-2"
@@ -622,33 +624,72 @@ const AddProductForm = () => {
             </select>
             <span className="text-gray-700 ml-2">records</span>
           </div>
-          <div className="relative">
+          <div className="relative mr-4">
             <input
               type="text"
               placeholder="Search..."
-              className="border rounded py-2 pl-8 pr-4 w-64"
+              className="border rounded py-2 pl-8 pr-4 w-48"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
             <FaSearch className="absolute left-2 top-3 text-gray-500" />
           </div>
         </div>
-        <table className="min-w-full">
+        <table className="min-w-full border px-4 py-2">
           <thead>
             <tr>
-              <th className="px-4 py-2 text-left">Seller</th>
-              <th className="px-4 py-2 text-left">Item</th>
-              <th className="px-4 py-2 text-left">Brand</th>
-              <th className="px-4 py-2 text-left">MRP</th>
-              <th className="px-4 py-2 text-left">Tax</th>
-              <th className="px-4 py-2 text-left">Payout</th>
-              <th className="px-4 py-2 text-left">Details</th>
-              <th className="px-4 py-2 text-left">Pics</th>
-              <th className="px-4 py-2 text-left">Brochure</th>
-              <th className="px-4 py-2 text-left">Video</th>
-              <th className="px-4 py-2 text-left">Refund URL</th>
-              <th className="px-4 py-2 text-left">Web URL</th>
-              <th className="px-4 py-2 text-left">Action</th>
+              <th className="px-4 py-2 text-left border-r border-gray-300">
+                <FaUser className="mr-2 text-purple-500" />
+                Seller
+              </th>
+              <th className="px-4 py-2 text-left border-r border-gray-300">
+                <FaBox className="mr-2 text-green-500" />
+                Item
+              </th>
+              <th className="px-4 py-2 text-left border-r border-gray-300">
+                <FaTag className="mr-2 text-yellow-500" />
+                Brand
+              </th>
+              <th className="px-4 py-2 text-left border-r border-gray-300">
+                <FaMoneyBill className="mr-2 text-green-500" />
+                MRP
+              </th>
+              <th className="px-4 py-2 text-left border-r border-gray-300">
+                <FaMoneyBill className="mr-2 text-red-500" />
+                Tax
+              </th>
+              <th className="px-4 py-2 text-left border-r border-gray-300">
+                <FaMoneyBill className="mr-2 text-blue-500" />
+                Payout
+              </th>
+              <th className="px-4 py-2 text-left border-r border-gray-300">
+                <FaFile className="mr-2 text-blue-500" />
+                Details
+              </th>
+              <th className="px-4 py-2 text-left border-r border-gray-300">
+                <FaImage className="mr-2 text-blue-500" />
+                Pics
+              </th>
+              <th className="px-4 py-2 text-left border-r border-gray-300">
+                <FaFileAlt className="mr-2 text-blue-500" />
+                Brochure
+              </th>
+              <th className="px-4 py-2 text-left border-r border-gray-300">
+                <FaVideo className="mr-2 text-purple-500" />
+                Video
+              </th>
+              <th className="px-4 py-2 text-left border-r border-gray-300">
+                <FaLink className="mr-2 text-green-500" />
+                Refund URL
+              </th>
+              <th className="px-4 py-2 text-left border-r border-gray-300">
+                <FaLink className="mr-2 text-green-500" />
+                Web URL
+              </th>
+              <th className="px-4 py-2 text-left border-r border-gray-300">
+                <FaEdit className="mr-2 text-blue-500" />
+                Action
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -698,32 +739,32 @@ const AddProductForm = () => {
             ))}
           </tbody>
         </table>
-        <div className="flex justify-between items-center mt-6">
-          <div className="text-gray-700">
-            Showing {paginatedRecords.length} of {filteredRecords.length}{" "}
-            records
-          </div>
-          <div className="flex items-center">
-            <button
-              className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-1 px-2 rounded disabled:opacity-50"
-              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-              disabled={currentPage === 1}
-            >
-              <FaArrowLeft className="text-white" />
-            </button>
-            <span className="mx-4 text-gray-700">
-              Page {currentPage} of {totalPages}
-            </span>
-            <button
-              className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-1 px-2 rounded disabled:opacity-50"
-              onClick={() =>
-                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-              }
-              disabled={currentPage === totalPages}
-            >
-              <FaArrowRight className="text-white" />
-            </button>
-          </div>
+      </div>
+
+      <div className="flex justify-between items-center mt-2 p-4">
+        <div className="text-black-700 ml-2">
+          Showing {paginatedRecords.length} of {filteredRecords.length} records
+        </div>
+        <div className="flex items-center mr-2">
+          <button
+            className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-1 px-2 rounded disabled:opacity-50"
+            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+          >
+            <FaArrowLeft className="text-white" />
+          </button>
+          <span className="mx-4 text-gray-700">
+            Page {currentPage} of {totalPages}
+          </span>
+          <button
+            className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-1 px-2 rounded disabled:opacity-50"
+            onClick={() =>
+              setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+            }
+            disabled={currentPage === totalPages}
+          >
+            <FaArrowRight className="text-white" />
+          </button>
         </div>
       </div>
     </div>

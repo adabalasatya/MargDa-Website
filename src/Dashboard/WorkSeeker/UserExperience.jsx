@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { FaEdit, FaTrash, FaEye, FaCalendar, FaUserTie, FaBriefcase, FaUsers, FaFile, FaSearch } from "react-icons/fa";
+import { FaEdit, FaTrash, FaEye, FaCalendar, FaUserTie, FaBriefcase, FaUsers, FaFile, FaSearch, FaListUl, FaBuilding, FaUser } from "react-icons/fa";
 
 const UserExperience = () => {
   // Sample data for demonstration (50 records)
@@ -12,7 +12,7 @@ const UserExperience = () => {
     employer: `Employer ${Math.floor(index / 5) + 1}`,
     employerContact: `Contact ${Math.floor(index / 5) + 1}`,
     keyResponsibility: `Responsibility ${index + 1}`,
-    expDocUrl: `https://example.com/doc${index + 1}`
+    expDocUrl: `https://example.com/doc${index + 1}`,
   }));
 
   // Pagination state
@@ -43,7 +43,7 @@ const UserExperience = () => {
     keyResponsibility: "",
     employer: "",
     employerContact: "",
-    file: null
+    file: null,
   });
 
   // Handle select changes
@@ -70,57 +70,55 @@ const UserExperience = () => {
   };
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen font-sans">
+    <div className="p-6  min-h-screen font-sans">
       {/* Centered Header with UserExperience Icon */}
       <div className="flex justify-center items-center mb-6">
-        <FaUserTie className="text-blue-600 text-3xl mr-3" /> {/* UserExperience Icon */}
-        <h2 className="font-bold text-2xl text-gray-800">User Experience</h2>
+        <FaUserTie className="text-blue-600 text-3xl mr-3" />
+        <h2 className="font-bold text-3xl text-gray-800">User Experience</h2>
       </div>
 
       {/* Form Section */}
-      <div className="bg-white p-6 rounded-lg shadow-lg">
+      <div className="bg-white p-6 rounded-lg shadow-lg border border-gray-300">
         <form onSubmit={handleSubmit}>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700">Date From</label>
+              <label className="block text-sm font-medium text-black-700">Date From *</label>
               <div className="relative mt-1">
-                <FaCalendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <FaCalendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-black-400" />
                 <input
                   type="date"
                   name="dateFrom"
                   value={formData.dateFrom}
                   onChange={handleInputChange}
-                  className="border border-gray-300 p-3 w-full rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pl-10"
+                  className="border border-gray-300 p-3 w-full rounded-lg  pl-10"
                 />
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">Date To</label>
+              <label className="block text-sm font-medium text-black-700">Date To *</label>
               <div className="relative mt-1">
-                <FaCalendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <FaCalendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-black-400" />
                 <input
                   type="date"
                   name="dateTo"
                   value={formData.dateTo}
                   onChange={handleInputChange}
-                  className="border border-gray-300 p-3 w-full rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pl-10"
+                  className="border border-gray-300 p-3 w-full rounded-lg  pl-10"
                 />
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">Sector</label>
+              <label className="block text-sm font-medium text-black-700">Sector *</label>
               <div className="relative mt-1">
-                <FaBriefcase className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <FaBriefcase className="absolute left-3 top-1/2 transform -translate-y-1/2 text-black-400" />
                 <select
                   value={formData.sector}
                   onChange={(e) => handleSelectChange("sector", e.target.value)}
-                  className="border border-gray-300 p-3 w-full rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pl-10"
+                  className="border border-gray-300 p-3 w-full rounded-lg  pl-10"
                 >
                   <option value="">Search or Select Sector</option>
                   {sectorOptions.map((option) => (
-                    <option key={option} value={option}>
-                      {option}
-                    </option>
+                    <option key={option} value={option}>{option}</option>
                   ))}
                 </select>
               </div>
@@ -129,33 +127,31 @@ const UserExperience = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700">Post</label>
+              <label className="block text-sm font-medium text-black-700">Post *</label>
               <div className="relative mt-1">
-                <FaUsers className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <FaUsers className="absolute left-3 top-1/2 transform -translate-y-1/2 text-black-400" />
                 <select
                   value={formData.post}
                   onChange={(e) => handleSelectChange("post", e.target.value)}
-                  className="border border-gray-300 p-3 w-full rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pl-10"
+                  className="border border-gray-300 p-3 w-full rounded-lg  pl-10"
                 >
                   <option value="">Search or Select Post</option>
                   {postOptions.map((option) => (
-                    <option key={option} value={option}>
-                      {option}
-                    </option>
+                    <option key={option} value={option}>{option}</option>
                   ))}
                 </select>
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">Key Responsibility</label>
+              <label className="block text-sm font-medium text-black-700">Key Responsibility *</label>
               <div className="relative mt-1">
-                <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-black-400" />
                 <input
                   type="text"
                   name="keyResponsibility"
                   value={formData.keyResponsibility}
                   onChange={handleInputChange}
-                  className="border border-gray-300 p-3 w-full rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pl-10"
+                  className="border border-gray-300 p-3 w-full rounded-lg  pl-10"
                   placeholder="Enter key responsibility"
                 />
               </div>
@@ -164,50 +160,46 @@ const UserExperience = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700">Employer</label>
+              <label className="block text-sm font-medium text-black-700">Employer *</label>
               <div className="relative mt-1">
-                <FaUserTie className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <FaUserTie className="absolute left-3 top-1/2 transform -translate-y-1/2 text-black-400" />
                 <select
                   value={formData.employer}
                   onChange={(e) => handleSelectChange("employer", e.target.value)}
-                  className="border border-gray-300 p-3 w-full rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pl-10"
+                  className="border border-gray-300 p-3 w-full rounded-lg  pl-10"
                 >
                   <option value="">Search or Select Employer</option>
                   {employerOptions.map((option) => (
-                    <option key={option} value={option}>
-                      {option}
-                    </option>
+                    <option key={option} value={option}>{option}</option>
                   ))}
                 </select>
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">Employer Contact</label>
+              <label className="block text-sm font-medium text-black-700">Employer Contact *</label>
               <div className="relative mt-1">
-                <FaUsers className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <FaUsers className="absolute left-3 top-1/2 transform -translate-y-1/2 text-black-400" />
                 <select
                   value={formData.employerContact}
                   onChange={(e) => handleSelectChange("employerContact", e.target.value)}
-                  className="border border-gray-300 p-3 w-full rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pl-10"
+                  className="border border-gray-300 p-3 w-full rounded-lg  pl-10"
                 >
                   <option value="">Search or Select Contact</option>
                   {employerContactOptions.map((option) => (
-                    <option key={option} value={option}>
-                      {option}
-                    </option>
+                    <option key={option} value={option}>{option}</option>
                   ))}
                 </select>
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">Experience Doc</label>
+              <label className="block text-sm font-medium text-black-700">Experience Doc *</label>
               <div className="relative mt-1">
-                <FaFile className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <FaFile className="absolute left-3 top-1/2 transform -translate-y-1/2 text-black-400" />
                 <input
                   type="file"
                   name="file"
                   onChange={handleFileChange}
-                  className="border border-gray-300 p-3 w-full rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pl-10"
+                  className="border border-gray-300 p-3 w-full rounded-lg  pl-10"
                   accept=".pdf,.doc,.docx"
                 />
               </div>
@@ -232,16 +224,40 @@ const UserExperience = () => {
       </div>
 
       {/* Table Section */}
-      <div className="bg-white p-6 mt-6 rounded-lg shadow-lg">
+      <div className="bg-white p-6 mt-6 rounded-lg shadow-lg border border-gray-300">
         <table className="w-full border-collapse">
           <thead>
             <tr className="bg-gray-100">
-              <th className="border-b p-4 text-left text-sm font-medium text-gray-600">Action</th>
-              <th className="border-b p-4 text-left text-sm font-medium text-gray-600">Date from – to</th>
-              <th className="border-b p-4 text-left text-sm font-medium text-gray-600">Sector-Post</th>
-              <th className="border-b p-4 text-left text-sm font-medium text-gray-600">Employer</th>
-              <th className="border-b p-4 text-left text-sm font-medium text-gray-600">KR</th>
-              <th className="border-b p-4 text-left text-sm font-medium text-gray-600">Exp Doc</th>
+              <th className="border-b p-4 text-left text-sm font-medium text-black-600">
+                <div className="flex items-center">
+                  <FaListUl className="mr-2" /> Action
+                </div>
+              </th>
+              <th className="border-b p-4 text-left text-sm font-medium text-black-600">
+                <div className="flex items-center">
+                  <FaCalendar className="mr-2" /> Date from – to
+                </div>
+              </th>
+              <th className="border-b p-4 text-left text-sm font-medium text-black-600">
+                <div className="flex items-center">
+                  <FaBuilding className="mr-2" /> Sector-Post
+                </div>
+              </th>
+              <th className="border-b p-4 text-left text-sm font-medium text-black-600">
+                <div className="flex items-center">
+                  <FaUser className="mr-2" /> Employer
+                </div>
+              </th>
+              <th className="border-b p-4 text-left text-sm font-medium text-black-600">
+                <div className="flex items-center">
+                  <FaBriefcase className="mr-2" /> KR
+                </div>
+              </th>
+              <th className="border-b p-4 text-left text-sm font-medium text-black-600">
+                <div className="flex items-center">
+                  <FaFile className="mr-2" /> Exp Doc
+                </div>
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -285,9 +301,9 @@ const UserExperience = () => {
           <button
             onClick={() => paginate(currentPage - 1)}
             disabled={currentPage === 1}
-            className="text-blue-500 hover:text-blue-700 px-2 py-1 rounded disabled:text-gray-300 disabled:cursor-not-allowed"
+            className="text-blue-500 hover:text-blue-700 px-2 py-1 rounded disabled:text-blue-400 disabled:cursor-not-allowed"
           >
-             &lt;&lt; Previous
+            &lt;&lt; Previous
           </button>
           {Array.from({ length: totalPages }, (_, i) => (
             <button
@@ -303,7 +319,7 @@ const UserExperience = () => {
           <button
             onClick={() => paginate(currentPage + 1)}
             disabled={currentPage === totalPages}
-            className="text-blue-500 hover:text-blue-700 px-2 py-1 rounded disabled:text-gray-300 disabled:cursor-not-allowed"
+            className="text-blue-500 hover:text-blue-700 px-2 py-1 rounded disabled:text-blue-400 disabled:cursor-not-allowed"
           >
             Next &gt;&gt;
           </button>

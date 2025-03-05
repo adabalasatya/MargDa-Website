@@ -4,7 +4,6 @@ import { toast } from "react-toastify";
 
 const CredentialPage = () => {
   const userData = JSON.parse(localStorage.getItem("userData"));
-  const loginUserID = userData ? userData.user_data.userID : null;
   const accessToken = userData ? userData.access_token : null;
   const username = userData.user_data.login;
 
