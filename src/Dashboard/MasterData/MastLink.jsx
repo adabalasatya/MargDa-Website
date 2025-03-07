@@ -38,7 +38,7 @@ const MastLink = () => {
 
   return (
     <div className="p-4 bg-gray-10 min-h-screen">
-      <div className="max-w-7xl mx-auto bg-white rounded-lg shadow-lg">
+      <div className="max-w-7xl mx-auto bg-white rounded-lg shadow-lg border border-blue-300 ">
         <div className="p-6">
           <h1 className="text-3xl font-bold mb-6 flex items-center">
             <Hash className="mr-2 text-blue-500 w-8 h-8" /> 
@@ -83,7 +83,7 @@ const MastLink = () => {
             </button>
           </form>
 
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center justify-between mb-8">
             <div className="flex items-center">
               <span className="mr-2">Show</span>
               <select className="border border-gray-300 rounded-md p-1">
@@ -93,7 +93,7 @@ const MastLink = () => {
               <span className="ml-2">entries</span>
             </div>
             <div className="relative w-64">
-              <Search className="absolute top-3 left-3 text-gray-400 w-5 h-5" />
+              <Search className="absolute top-3 left-3 text-blue-500 w-5 h-5" />
               <input 
                 type="text" 
                 placeholder="Search..." 

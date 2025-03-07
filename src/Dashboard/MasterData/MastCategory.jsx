@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { FaList, FaSearch } from "react-icons/fa";
 
 const Category = ({ accessToken, onCategoryAdded, onCategoryDeleted, onCategoryEdited }) => {
   const [category, setCategory] = useState("");
@@ -141,8 +142,11 @@ const Category = ({ accessToken, onCategoryAdded, onCategoryDeleted, onCategoryE
   return (
     <div className="p-6 bg-gray-10 min-h-screen">
       {/* Category Form */}
-      <div className="bg-white p-6 rounded-xl shadow-md">
-        <h2 className="text-xl font-semibold mb-4">Add New Category</h2>
+      <div className="bg-white p-6 rounded-xl shadow-md border border-blue-300">
+      <h2 className="text-xl font-semibold mb-6 flex items-center">
+          <FaList className="mr-2 text-blue-500" /> 
+          Add New Category
+        </h2>
         <div className="flex items-center gap-4">
           <input 
             type="text" 
@@ -162,27 +166,35 @@ const Category = ({ accessToken, onCategoryAdded, onCategoryDeleted, onCategoryE
 
       {/* Controls */}
       <div className="flex justify-between items-center mt-6">
-        <select 
+        <div>
+          <label className="ml-2">
+            Show
+          <select 
           value={recordsPerPage} 
           onChange={(e) => setRecordsPerPage(parseInt(e.target.value))}
-          className="border border-gray-300 rounded-lg py-2 px-4"
+          className="m-2 border border-gray-300 rounded-md py-1 px-2"
         >
-          <option value={5}>Show 5</option>
-          <option value={10}>Show 10</option>
-          <option value={20}>Show 20</option>
+          <option value={10}> 10</option>
+          <option value={20}> 20</option>
+          <option value={30}> 30</option>
         </select>
-
-        <input 
-          type="text" 
-          value={searchQuery} 
-          onChange={(e) => setSearchQuery(e.target.value)} 
-          placeholder="Search Categories..." 
-          className="border border-gray-300 rounded-lg py-2 px-4 focus:ring-0 focus:ring-blue-500"
-        />
+        Records
+          </label>
+        </div>
+        <div className="relative">
+          <input 
+            type="text" 
+            value={searchQuery} 
+            onChange={(e) => setSearchQuery(e.target.value)} 
+            placeholder="Search Categories..." 
+            className="border border-gray-300 rounded-lg py-2 pl-10 pr-4 focus:ring-0 focus:ring-blue-500 w-64" 
+          />
+          <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-blue-500" /> 
+        </div>
       </div>
 
       {/* Category List */}
-      <div className="overflow-auto mt-6 bg-white p-6 rounded-xl shadow-md">
+      <div className="overflow-auto mt-6 bg-white p-6 rounded-xl shadow-md border border-blue-300"> 
         <table className="w-full border-collapse">
           <thead className="bg-gray-200">
             <tr>
@@ -224,7 +236,7 @@ const Category = ({ accessToken, onCategoryAdded, onCategoryDeleted, onCategoryE
       </div>
 
       {/* Pagination */}
-      <div className="mt-4 flex justify-between items-center">
+      <div className="mt-4 flex justify-between items-center ml-2">
         <p>Showing {indexOfFirstRecord + 1} to {Math.min(indexOfLastRecord, filteredRecords.length)} of {filteredRecords.length} records</p>
         <div>
           <button onClick={() => handlePageChange(currentPage - 1)}

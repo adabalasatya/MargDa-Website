@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
+import { FaTools, FaSearch } from "react-icons/fa";
 
 const Service = () => {
   const [serviceName, setServiceName] = useState("");
@@ -209,206 +210,209 @@ const Service = () => {
   };
 
   return (
-    <div className="p-6 bg-gray-10 min-h-screen">
-      <div className="max-w-3xl mx-auto bg-white p-6 rounded-lg shadow-md">
-        <h2 className="text-xl font-semibold text-gray-700 mb-4">
+   <div className="p-6 bg-gray-10 min-h-screen">
+  {/* Increased max-width from max-w-3xl to max-w-5xl */}
+  <div className="max-w-5xl mx-auto bg-white p-6 rounded-lg shadow-md border border-blue-300">
+  <h2 className="text-xl font-semibold text-gray-700 mb-6 flex items-center">
+          <FaTools className="mr-2 text-blue-500" /> {/* Icon for h2 */}
           Manage Services
         </h2>
 
-        <div className="grid gap-4">
+    <div className="grid gap-4">
+      <select
+        value={servicetype}
+        onChange={(e) => setServicetype(e.target.value)}
+        className="border p-2 rounded-lg w-full" // Added w-full
+      >
+        <option value="">Select Service Type</option>
+        {serviceTypes.map((type) => (
+          <option key={type.servicetypeID} value={type.servicetypeID}>
+            {type.servicetype}
+          </option>
+        ))}
+      </select>
+
+      <input
+        type="text"
+        value={serviceName}
+        onChange={(e) => setServiceName(e.target.value)}
+        placeholder="Service"
+        className="border p-2 rounded-lg w-full" // Added w-full
+      />
+
+      <button
+        onClick={() => saveItem(serviceName, servicetype)}
+        className="bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition w-full" // Added w-full
+      >
+        Add Service
+      </button>
+    </div>
+  </div>
+
+  {/* Increased max-width from max-w-3xl to max-w-5xl */}
+  <div className="max-w-5xl mx-auto bg-white p-6 rounded-lg shadow-md mt-6 border border-blue-300">
+    <div className="flex justify-between items-center mb-8">
+      <div>
+        <label>
+          Show
           <select
-            value={servicetype}
-            onChange={(e) => setServicetype(e.target.value)}
-            className="border p-2 rounded-lg"
+            value={recordsPerPage}
+            onChange={(e) => setRecordsPerPage(Number(e.target.value))}
+            className="m-2 border border-gray-300 rounded-md py-1 px-2"
           >
-            <option value="">Select Service Type</option>
-            {serviceTypes.map((type) => (
-              <option key={type.servicetypeID} value={type.servicetypeID}>
-                {type.servicetype}
-              </option>
-            ))}
+            <option value={10}>10</option>
+            <option value={20}>20</option>
+            <option value={50}>50</option>
+            <option value={100}>100</option>
           </select>
-
-          <input
-            type="text"
-            value={serviceName}
-            onChange={(e) => setServiceName(e.target.value)}
-            placeholder="Service"
-            className="border p-2 rounded-lg"
-          />
-
-          <button
-            onClick={() => saveItem(serviceName, servicetype)}
-            className="bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition"
-          >
-            Add Service
-          </button>
-        </div>
+          Records
+        </label>
       </div>
-
-      <div className="max-w-3xl mx-auto bg-white p-6 rounded-lg shadow-md mt-6">
-        <div className="flex justify-between items-center mb-4">
-          <div>
-            <label>
-              Show
-              <select
-                value={recordsPerPage}
-                onChange={(e) => setRecordsPerPage(Number(e.target.value))}
-                className="border p-1 ml-2"
-              >
-                <option value={10}>10</option>
-                <option value={20}>20</option>
-                <option value={50}>50</option>
-                <option value={100}>100</option>
-              </select>
-              records
-            </label>
-          </div>
-          <div>
+      <div>
+      <div className="relative">
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search"
-              className="border p-2 rounded-lg"
+              className="border p-2 rounded-lg pl-10 w-64" 
             />
+            <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-blue-500" /> 
           </div>
-        </div>
-
-        {loading ? (
-          <p className="mt-4 text-center">Loading...</p>
-        ) : (
-          <>
-            <table className="w-full mt-4 border-collapse border border-gray-200">
-              <thead className="bg-gray-200">
-                <tr>
-                  <th className="p-2 border">Service</th>
-                  <th className="p-2 border">Service Type</th>
-                  <th className="p-2 border">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {currentRecords.map((record) => (
-                  <tr key={record.serviceID} className="text-center">
-                    <td className="p-2 border">
-                      {editableRecordId === record.serviceID ? (
-                        <input
-                          value={editedService}
-                          onChange={(e) => setEditedService(e.target.value)}
-                          className="border p-1"
-                        />
-                      ) : (
-                        record.service
-                      )}
-                    </td>
-
-                    <td className="p-2 border">
-                      {editableRecordId === record.serviceID ? (
-                        <select
-                          value={editedServicetype}
-                          onChange={(e) => setEditedServicetype(e.target.value)}
-                          className="border p-1"
-                        >
-                          {serviceTypes.map((type) => (
-                            <option
-                              key={type.servicetypeID}
-                              value={type.servicetypeID}
-                            >
-                              {type.servicetype}
-                            </option>
-                          ))}
-                        </select>
-                      ) : (
-                        serviceTypes.map((type) => {
-                          if (type.servicetypeID == record.servicetype) {
-                            return type.servicetype;
-                          }
-                        })
-                      )}
-                    </td>
-
-                    <td className="p-2 border space-x-2">
-                      {editableRecordId === record.serviceID ? (
-                        <>
-                          <button
-                            onClick={() => handleEditItem(record.serviceID)}
-                            className="text-green-600"
-                          >
-                            Save
-                          </button>
-                          <button
-                            onClick={cancelEdit}
-                            className="text-gray-600"
-                          >
-                            Cancel
-                          </button>
-                        </>
-                      ) : (
-                        <>
-                          <button
-                            onClick={() => enableEdit(record)}
-                            className="text-blue-600"
-                          >
-                            Edit
-                          </button>
-                          <button
-                            onClick={() => handleDeleteItem(record.serviceID)}
-                            className="text-red-600"
-                          >
-                            Delete
-                          </button>
-                        </>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-
-            <div className="flex justify-between items-center mt-4">
-              <div>
-                <p>
-                  Showing {(currentPage - 1) * recordsPerPage + 1} to{" "}
-                  {Math.min(currentPage * recordsPerPage, services.length)} of{" "}
-                  {services.length} records
-                </p>
-              </div>
-              <div>
-                <button
-                  onClick={() =>
-                    handlePageChange(currentPage > 1 ? currentPage - 1 : 1)
-                  }
-                  className="px-3 py-1 border rounded-lg"
-                >
-                  &lt;&lt; Previous
-                </button>
-                {[...Array(totalPages)].map((_, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => handlePageChange(idx + 1)}
-                    className={`px-3 py-1 border rounded-lg ${
-                      currentPage === idx + 1 ? "bg-blue-500 text-white" : ""
-                    }`}
-                  >
-                    {idx + 1}
-                  </button>
-                ))}
-                <button
-                  onClick={() =>
-                    handlePageChange(
-                      currentPage < totalPages ? currentPage + 1 : totalPages
-                    )
-                  }
-                  className="px-3 py-1 border rounded-lg"
-                >
-                  Next &gt;&gt;
-                </button>
-              </div>
-            </div>
-          </>
-        )}
       </div>
     </div>
+
+    {loading ? (
+      <p className="mt-4 text-center">Loading...</p>
+    ) : (
+      <>
+        <table className="w-full mt-4 border-collapse border border-gray-200 table-auto"> {/* Added table-auto */}
+          <thead className="bg-gray-200">
+            <tr>
+              <th className="p-2 border">Service</th>
+              <th className="p-2 border">Service Type</th>
+              <th className="p-2 border">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {currentRecords.map((record) => (
+              <tr key={record.serviceID} className="text-center">
+                <td className="p-2 border">
+                  {editableRecordId === record.serviceID ? (
+                    <input
+                      value={editedService}
+                      onChange={(e) => setEditedService(e.target.value)}
+                      className="border p-1 w-full" // Added w-full
+                    />
+                  ) : (
+                    record.service
+                  )}
+                </td>
+
+                <td className="p-2 border">
+                  {editableRecordId === record.serviceID ? (
+                    <select
+                      value={editedServicetype}
+                      onChange={(e) => setEditedServicetype(e.target.value)}
+                      className="border p-1 w-full" // Added w-full
+                    >
+                      {serviceTypes.map((type) => (
+                        <option
+                          key={type.servicetypeID}
+                          value={type.servicetypeID}
+                        >
+                          {type.servicetype}
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    serviceTypes.map((type) =>
+                      type.servicetypeID == record.servicetype
+                        ? type.servicetype
+                        : null
+                    )
+                  )}
+                </td>
+
+                <td className="p-2 border space-x-2">
+                  {editableRecordId === record.serviceID ? (
+                    <>
+                      <button
+                        onClick={() => handleEditItem(record.serviceID)}
+                        className="text-green-600"
+                      >
+                        Save
+                      </button>
+                      <button onClick={cancelEdit} className="text-gray-600">
+                        Cancel
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <button
+                        onClick={() => enableEdit(record)}
+                        className="text-blue-600"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDeleteItem(record.serviceID)}
+                        className="text-red-600"
+                      >
+                        Delete
+                      </button>
+                    </>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        <div className="flex justify-between items-center mt-4">
+          <div>
+            <p>
+              Showing {(currentPage - 1) * recordsPerPage + 1} to{" "}
+              {Math.min(currentPage * recordsPerPage, services.length)} of{" "}
+              {services.length} records
+            </p>
+          </div>
+          <div>
+            <button
+              onClick={() =>
+                handlePageChange(currentPage > 1 ? currentPage - 1 : 1)
+              }
+              className="px-3 py-1 border rounded-lg"
+            >
+              {"<< Previous"}
+            </button>
+            {[...Array(totalPages)].map((_, idx) => (
+              <button
+                key={idx}
+                onClick={() => handlePageChange(idx + 1)}
+                className={`px-3 py-1 border rounded-lg ${
+                  currentPage === idx + 1 ? "bg-blue-500 text-white" : ""
+                }`}
+              >
+                {idx + 1}
+              </button>
+            ))}
+            <button
+              onClick={() =>
+                handlePageChange(
+                  currentPage < totalPages ? currentPage + 1 : totalPages
+                )
+              }
+              className="px-3 py-1 border rounded-lg"
+            >
+              {"Next >>"}
+            </button>
+          </div>
+        </div>
+      </>
+    )}
+  </div>
+</div>
   );
 };
 

@@ -8,17 +8,23 @@ import {
   FaClock,
   FaArrowDown,
   FaArrowUp,
+  FaEdit,
 } from "react-icons/fa";
+import { toast } from "react-toastify";
 
 const CallReport = () => {
   const [calls, setCalls] = useState([]);
+  const [selectedRecord, setSelectedRecord] = useState(null);
   const [allCalls, setAllCalls] = useState([]);
   const [teamReport, setTeamReport] = useState([]);
   const [teamSummary, setTeamSummary] = useState({});
+  const [remark, setRemark] = useState("");
+  const [followUpDateTime, setFollowUpDateTime] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [recordsPerPage, setRecordsPerPage] = useState(10);
+  const [showRemarkForm, setShowRemarkForm] = useState(false);
   const [startDate, setStartDate] = useState(
     new Date(new Date().setDate(new Date().getDate() - 30))
       .toISOString()
@@ -32,208 +38,207 @@ const CallReport = () => {
   const localUserData = JSON.parse(localStorage.getItem("userData"));
   const accessToken = localUserData ? localUserData.access_token : null;
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        setError(null);
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
 
-        const response = await fetch(
-          "https://margda.in:7000/api/margda.org/report/call-report",
-          {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-              "Content-Type": "application/json",
-              Accept: "application/json",
-            },
-            body: JSON.stringify({
-              startDate,
-              endDate,
-              searchQuery,
-            }),
-          }
+      const response = await fetch(
+        "https://margda.in:7000/api/margda.org/report/call-report",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`API responded with status ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      if (data && data.Calls) {
+        const sortedCalls = data.Calls.sort(
+          (a, b) => new Date(b.call_start) - new Date(a.call_start)
+        ).map((call) => ({
+          ...call,
+          timestamp: call.call_start || null,
+          dateTime: call.call_start
+            ? new Date(call.call_start).toLocaleString("en-IN", {
+                timeZone: "Asia/Kolkata",
+                year: "numeric",
+                month: "2-digit",
+                day: "2-digit",
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit",
+              })
+            : "N/A",
+        }));
+        setCalls(sortedCalls);
+        setAllCalls(sortedCalls);
+
+        // Team report logic
+        const outgoingCalls = sortedCalls.filter(
+          (call) => call.calltype === "O"
+        );
+        const incomingCalls = sortedCalls.filter(
+          (call) => call.calltype === "I"
         );
 
-        if (!response.ok) {
-          throw new Error(`API responded with status ${response.status}`);
-        }
+        const totalOutgoingCalls = outgoingCalls.length;
+        const totalIncomingCalls = incomingCalls.length;
 
-        const data = await response.json();
+        const totalOutgoingTalkTime = outgoingCalls.reduce(
+          (sum, call) => sum + call.duration,
+          0
+        );
+        const totalIncomingTalkTime = incomingCalls.reduce(
+          (sum, call) => sum + call.duration,
+          0
+        );
 
-        if (data && data.Calls) {
-          const sortedCalls = data.Calls.sort(
-            (a, b) => new Date(b.call_start) - new Date(a.call_start)
-          ).map(call => ({
-            ...call,
-            timestamp: call.call_start || null,
-            dateTime: call.call_start
-              ? new Date(call.call_start).toLocaleString("en-IN", {
-                  timeZone: "Asia/Kolkata",
-                  year: "numeric",
-                  month: "2-digit",
-                  day: "2-digit",
-                  hour: "2-digit",
-                  minute: "2-digit",
-                  second: "2-digit",
-                })
-              : "N/A",
-          }));
-          setCalls(sortedCalls);
-          setAllCalls(sortedCalls);
+        const averageOutgoingTalkTime =
+          totalOutgoingCalls > 0
+            ? (totalOutgoingTalkTime / totalOutgoingCalls).toFixed(2)
+            : 0;
+        const averageIncomingTalkTime =
+          totalIncomingCalls > 0
+            ? (totalIncomingTalkTime / totalIncomingCalls).toFixed(2)
+            : 0;
 
-          // Team report logic
-          const outgoingCalls = sortedCalls.filter(
-            (call) => call.calltype === "O"
-          );
-          const incomingCalls = sortedCalls.filter(
-            (call) => call.calltype === "I"
-          );
+        const teamReportData = [
+          {
+            callType: "Outgoing",
+            totalCalls: totalOutgoingCalls,
+            totalTalkTime: totalOutgoingTalkTime,
+            averageTime: averageOutgoingTalkTime,
+          },
+          {
+            callType: "Incoming",
+            totalCalls: totalIncomingCalls,
+            totalTalkTime: totalIncomingTalkTime,
+            averageTime: averageIncomingTalkTime,
+          },
+        ];
+        setTeamReport(teamReportData);
 
-          const totalOutgoingCalls = outgoingCalls.length;
-          const totalIncomingCalls = incomingCalls.length;
+        // Team summary logic
+        const callerStats = {};
+        const receiverStats = {};
 
-          const totalOutgoingTalkTime = outgoingCalls.reduce(
-            (sum, call) => sum + call.duration,
-            0
-          );
-          const totalIncomingTalkTime = incomingCalls.reduce(
-            (sum, call) => sum + call.duration,
-            0
-          );
-
-          const averageOutgoingTalkTime =
-            totalOutgoingCalls > 0
-              ? (totalOutgoingTalkTime / totalOutgoingCalls).toFixed(2)
-              : 0;
-          const averageIncomingTalkTime =
-            totalIncomingCalls > 0
-              ? (totalIncomingTalkTime / totalIncomingCalls).toFixed(2)
-              : 0;
-
-          const teamReportData = [
-            {
-              callType: "Outgoing",
-              totalCalls: totalOutgoingCalls,
-              totalTalkTime: totalOutgoingTalkTime,
-              averageTime: averageOutgoingTalkTime,
-            },
-            {
-              callType: "Incoming",
-              totalCalls: totalIncomingCalls,
-              totalTalkTime: totalIncomingTalkTime,
-              averageTime: averageIncomingTalkTime,
-            },
-          ];
-          setTeamReport(teamReportData);
-
-          // Team summary logic
-          const callerStats = {};
-          const receiverStats = {};
-
-          sortedCalls.forEach((call) => {
-            if (call.calltype === "O") {
-              if (!callerStats[call.caller]) {
-                callerStats[call.caller] = {
-                  totalCalls: 0,
-                  totalTalkTime: 0,
-                  details: call.details,
-                };
-              }
-              callerStats[call.caller].totalCalls += 1;
-              callerStats[call.caller].totalTalkTime += call.duration;
+        sortedCalls.forEach((call) => {
+          if (call.calltype === "O") {
+            if (!callerStats[call.umobile]) {
+              callerStats[call.umobile] = {
+                totalCalls: 0,
+                totalTalkTime: 0,
+                details: call.details,
+              };
             }
+            callerStats[call.umobile].totalCalls += 1;
+            callerStats[call.umobile].totalTalkTime += call.duration;
+          }
 
-            if (call.calltype === "I") {
-              if (!receiverStats[call.receiver]) {
-                receiverStats[call.receiver] = {
-                  totalCalls: 0,
-                  totalTalkTime: 0,
-                  details: call.details,
-                };
-              }
-              receiverStats[call.receiver].totalCalls += 1;
-              receiverStats[call.receiver].totalTalkTime += call.duration;
+          if (call.calltype === "I") {
+            if (!receiverStats[call.cmobile]) {
+              receiverStats[call.cmobile] = {
+                totalCalls: 0,
+                totalTalkTime: 0,
+                details: call.details,
+              };
             }
-          });
+            receiverStats[call.cmobile].totalCalls += 1;
+            receiverStats[call.cmobile].totalTalkTime += call.duration;
+          }
+        });
 
-          const topCaller = Object.keys(callerStats).reduce((a, b) =>
-            callerStats[a].totalCalls > callerStats[b].totalCalls ? a : b
-          );
-          const lowestCaller = Object.keys(callerStats).reduce((a, b) =>
-            callerStats[a].totalCalls < callerStats[b].totalCalls ? a : b
-          );
+        const topCaller = Object.keys(callerStats).reduce((a, b) =>
+          callerStats[a].totalCalls > callerStats[b].totalCalls ? a : b
+        );
+        const lowestCaller = Object.keys(callerStats).reduce((a, b) =>
+          callerStats[a].totalCalls < callerStats[b].totalCalls ? a : b
+        );
 
-          const topReceiver = Object.keys(receiverStats).reduce((a, b) =>
-            receiverStats[a].totalCalls > receiverStats[b].totalCalls ? a : b
-          );
-          const lowestReceiver = Object.keys(receiverStats).reduce((a, b) =>
-            receiverStats[a].totalCalls < receiverStats[b].totalCalls ? a : b
-          );
+        const topReceiver = Object.keys(receiverStats).reduce((a, b) =>
+          receiverStats[a].totalCalls > receiverStats[b].totalCalls ? a : b
+        );
+        const lowestReceiver = Object.keys(receiverStats).reduce((a, b) =>
+          receiverStats[a].totalCalls < receiverStats[b].totalCalls ? a : b
+        );
 
-          const topTalkerOutgoing = Object.keys(callerStats).reduce((a, b) =>
-            callerStats[a].totalTalkTime > callerStats[b].totalTalkTime ? a : b
-          );
-          const lowestTalkerOutgoing = Object.keys(callerStats).reduce((a, b) =>
-            callerStats[a].totalTalkTime < callerStats[b].totalTalkTime ? a : b
-          );
+        const topTalkerOutgoing = Object.keys(callerStats).reduce((a, b) =>
+          callerStats[a].totalTalkTime > callerStats[b].totalTalkTime ? a : b
+        );
+        const lowestTalkerOutgoing = Object.keys(callerStats).reduce((a, b) =>
+          callerStats[a].totalTalkTime < callerStats[b].totalTalkTime ? a : b
+        );
 
-          const topTalkerIncoming = Object.keys(receiverStats).reduce((a, b) =>
-            receiverStats[a].totalTalkTime > receiverStats[b].totalTalkTime ? a : b
-          );
-          const lowestTalkerIncoming = Object.keys(receiverStats).reduce((a, b) =>
-            receiverStats[a].totalTalkTime < receiverStats[b].totalTalkTime ? a : b
-          );
+        const topTalkerIncoming = Object.keys(receiverStats).reduce((a, b) =>
+          receiverStats[a].totalTalkTime > receiverStats[b].totalTalkTime
+            ? a
+            : b
+        );
+        const lowestTalkerIncoming = Object.keys(receiverStats).reduce((a, b) =>
+          receiverStats[a].totalTalkTime < receiverStats[b].totalTalkTime
+            ? a
+            : b
+        );
 
-          const teamSummaryData = {
-            topCaller: {
-              name: topCaller,
-              details: callerStats[topCaller]?.details || "No details",
-            },
-            topReceiver: {
-              name: topReceiver,
-              details: receiverStats[topReceiver]?.details || "No details",
-            },
-            topTalkerOutgoing: {
-              name: topTalkerOutgoing,
-              details: callerStats[topTalkerOutgoing]?.details || "No details",
-            },
-            topTalkerIncoming: {
-              name: topTalkerIncoming,
-              details: receiverStats[topTalkerIncoming]?.details || "No details",
-            },
-            lowestCaller: {
-              name: lowestCaller,
-              details: callerStats[lowestCaller]?.details || "No details",
-            },
-            lowestReceiver: {
-              name: lowestReceiver,
-              details: receiverStats[lowestReceiver]?.details || "No details",
-            },
-            lowestTalkerOutgoing: {
-              name: lowestTalkerOutgoing,
-              details: callerStats[lowestTalkerOutgoing]?.details || "No details",
-            },
-            lowestTalkerIncoming: {
-              name: lowestTalkerIncoming,
-              details: receiverStats[lowestTalkerIncoming]?.details || "No details",
-            },
-          };
-          setTeamSummary(teamSummaryData);
-        } else {
-          setCalls([]);
-          setAllCalls([]);
-          setTeamReport([]);
-          setTeamSummary({});
-        }
-      } catch (err) {
-        console.error("Error fetching data:", err);
-        setError(`Failed to fetch Call report data: ${err.message}`);
-      } finally {
-        setLoading(false);
+        const teamSummaryData = {
+          topCaller: {
+            name: topCaller,
+            details: callerStats[topCaller]?.details || "No details",
+          },
+          topReceiver: {
+            name: topReceiver,
+            details: receiverStats[topReceiver]?.details || "No details",
+          },
+          topTalkerOutgoing: {
+            name: topTalkerOutgoing,
+            details: callerStats[topTalkerOutgoing]?.details || "No details",
+          },
+          topTalkerIncoming: {
+            name: topTalkerIncoming,
+            details: receiverStats[topTalkerIncoming]?.details || "No details",
+          },
+          lowestCaller: {
+            name: lowestCaller,
+            details: callerStats[lowestCaller]?.details || "No details",
+          },
+          lowestReceiver: {
+            name: lowestReceiver,
+            details: receiverStats[lowestReceiver]?.details || "No details",
+          },
+          lowestTalkerOutgoing: {
+            name: lowestTalkerOutgoing,
+            details: callerStats[lowestTalkerOutgoing]?.details || "No details",
+          },
+          lowestTalkerIncoming: {
+            name: lowestTalkerIncoming,
+            details:
+              receiverStats[lowestTalkerIncoming]?.details || "No details",
+          },
+        };
+        setTeamSummary(teamSummaryData);
+      } else {
+        setCalls([]);
+        setAllCalls([]);
+        setTeamReport([]);
+        setTeamSummary({});
       }
-    };
-
+    } catch (err) {
+      console.error("Error fetching data:", err);
+      setError(`Failed to fetch Call report data: ${err.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+  useEffect(() => {
     if (accessToken) {
       fetchData();
     } else {
@@ -252,8 +257,10 @@ const CallReport = () => {
       return (
         itemTimestamp >= start &&
         itemTimestamp <= end &&
-        ((item.caller && item.caller.toLowerCase().includes(searchQuery.toLowerCase())) ||
-          (item.receiver && item.receiver.toLowerCase().includes(searchQuery.toLowerCase())))
+        ((item.umobile &&
+          item.umobile.toLowerCase().includes(searchQuery.toLowerCase())) ||
+          (item.cmobile &&
+            item.cmobile.toLowerCase().includes(searchQuery.toLowerCase())))
       );
     });
   }
@@ -280,6 +287,51 @@ const CallReport = () => {
 
   const handleEndDateChange = (e) => {
     setEndDate(e.target.value);
+  };
+
+  const handleShowRemarkForm = (record) => {
+    setSelectedRecord(record);
+    setShowRemarkForm(true);
+  };
+
+  const handleRemarkSubmit = async () => {
+    if (!remark) {
+      return toast.error("Enter Remark");
+    } else if (!followUpDateTime) {
+      return toast.error("Enter Follow Up date and time");
+    } else if (!selectedRecord.cmobile) {
+      return toast.error("You Can't Update Remark for this record");
+    }
+    try {
+      const response = await fetch(
+        "https://margda.in:7000/api/margda.org/report/call-add-remark",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            callsID: selectedRecord.callsID,
+            remarks: remark,
+            receiverMobile: selectedRecord.cmobile,
+            fdate: followUpDateTime,
+          }),
+        }
+      );
+      const data = await response.json();
+      if (response.ok) {
+        toast.success(data.message);
+        setShowRemarkForm(false);
+        setRemark("");
+        setFollowUpDateTime("");
+        await fetchData();
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   if (loading) {
@@ -309,9 +361,15 @@ const CallReport = () => {
       <div className="mb-8">
         <h1 className="text-2xl font-bold mb-4 text-black-500">Call Report</h1>
         <div className="flex space-x-16 mb-4">
-          <span className="text-lg font-semibold text-black-700">Your Calls</span>
-          <span className="text-lg font-semibold text-black-700">Team Report</span>
-          <span className="text-lg font-semibold text-black-700">Team Summary</span>
+          <span className="text-lg font-semibold text-black-700">
+            Your Calls
+          </span>
+          <span className="text-lg font-semibold text-black-700">
+            Team Report
+          </span>
+          <span className="text-lg font-semibold text-black-700">
+            Team Summary
+          </span>
         </div>
       </div>
 
@@ -376,10 +434,16 @@ const CallReport = () => {
               <tr className="bg-blue-500 text-white">
                 <th className="py-3 px-4 text-left font-semibold">Date-Time</th>
                 <th className="py-3 px-4 text-left font-semibold">Call Type</th>
-                <th className="py-3 px-4 text-left font-semibold">Caller</th>
-                <th className="py-3 px-4 text-left font-semibold">Receiver</th>
+                <th className="py-3 px-4 text-left font-semibold">
+                  Your Mobile
+                </th>
+                <th className="py-3 px-4 text-left font-semibold">
+                  Client Mobile
+                </th>
                 <th className="py-3 px-4 text-left font-semibold">Duration</th>
                 <th className="py-3 px-4 text-left font-semibold">Record</th>
+                <th className="py-3 px-4 text-left font-semibold">Remarks</th>
+                <th className="py-3 px-4 text-left font-semibold">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -387,20 +451,38 @@ const CallReport = () => {
                 currentRecords.map((call, index) => (
                   <tr
                     key={index}
-                    className={`border-b border-gray-100 ${index % 2 === 0 ? "bg-gray-50" : "bg-white"} hover:bg-blue-50 transition-colors duration-200`}
+                    className={`border-b border-gray-100 ${
+                      index % 2 === 0 ? "bg-gray-50" : "bg-white"
+                    } hover:bg-blue-50 transition-colors duration-200`}
                   >
-                    <td className="py-3 px-4 text-black-700">{call.dateTime}</td>
-                    <td className="py-3 px-4 text-black-700">{call.calltype}</td>
-                    <td className="py-3 px-4 text-black-700">{call.caller}</td>
-                    <td className="py-3 px-4 text-black-700">{call.receiver}</td>
-                    <td className="py-3 px-4 text-black-700">{call.duration}</td>
+                    <td className="py-3 px-4 text-black-700">
+                      {call.dateTime}
+                    </td>
+                    <td className="py-3 px-4 text-black-700">
+                      {call.calltype == "I"
+                        ? "Incoming"
+                        : call.calltype == "M"
+                        ? "Missed"
+                        : call.calltype == "O"
+                        ? "Outgoing"
+                        : call.calltype == "R"
+                        ? "Rejected"
+                        : call.calltype}
+                    </td>
+                    <td className="py-3 px-4 text-black-700">{call.umobile}</td>
+                    <td className="py-3 px-4 text-black-700">{call.cmobile}</td>
+                    <td className="py-3 px-4 text-black-700">
+                      {call.duration}
+                    </td>
                     <td className="py-3 px-4 text-black-700">
                       {call.call_url &&
                       call.call_url.startsWith("https://cloud") ? (
                         <ReactAudioPlayer
                           src={call.call_url}
                           controls
-                          onError={(e) => console.error("Error playing audio:", e)}
+                          onError={(e) =>
+                            console.error("Error playing audio:", e)
+                          }
                         />
                       ) : call.call_url &&
                         call.call_url.startsWith("https://drive") ? (
@@ -417,6 +499,27 @@ const CallReport = () => {
                         "No recording"
                       )}
                     </td>
+
+                    <td className="py-3 px-4 text-black-700">
+                      <div className="flex items-center justify-center">
+                        {call.remarks || "N/A"}
+                      </div>
+                    </td>
+                    <td className="py-3 px-4 text-black-700">
+                      <div className="flex items-center justify-center gap-4">
+                        <div className="relative group flex items-center">
+                          <button
+                            className="text-green-600 hover:text-green-800"
+                            onClick={() => handleShowRemarkForm(call)}
+                          >
+                            <FaEdit />
+                            <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-1 w-max bg-black text-white text-sm py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                              Update Remark
+                            </span>
+                          </button>
+                        </div>
+                      </div>
+                    </td>
                   </tr>
                 ))
               ) : (
@@ -432,7 +535,9 @@ const CallReport = () => {
 
         <div className="mt-4 flex items-center justify-between">
           <span>
-            Showing {indexOfFirstRecord + 1} to {Math.min(indexOfLastRecord, calls.length)} of {calls.length} records
+            Showing {indexOfFirstRecord + 1} to{" "}
+            {Math.min(indexOfLastRecord, calls.length)} of {calls.length}{" "}
+            records
           </span>
           <div className="flex space-x-2">
             <button
@@ -454,10 +559,14 @@ const CallReport = () => {
       </div>
 
       <div className="mb-8">
-        <h2 className="text-xl font-bold mb-4 text-black-500">Your Team's Call Report</h2>
+        <h2 className="text-xl font-bold mb-4 text-black-500">
+          Your Team's Call Report
+        </h2>
         <div className="flex items-center mb-4">
           <FaUser className="mr-2 text-blue-500" />
-          <span className="text-lg font-semibold text-gray-700">Associates</span>
+          <span className="text-lg font-semibold text-gray-700">
+            Associates
+          </span>
           <span className="text-lg font-semibold text-gray-700 mx-4">List</span>
           <FaCalendarAlt className="mr-2 text-gray-500" />
           <span className="mr-4">From Date</span>
@@ -490,21 +599,37 @@ const CallReport = () => {
             <thead>
               <tr className="bg-blue-500 text-white">
                 <th className="py-3 px-4 text-left font-semibold">Call Type</th>
-                <th className="py-3 px-4 text-left font-semibold">Total Calls</th>
-                <th className="py-3 px-4 text-left font-semibold">Total Talk Time</th>
-                <th className="py-3 px-4 text-left font-semibold">Average Time</th>
+                <th className="py-3 px-4 text-left font-semibold">
+                  Total Calls
+                </th>
+                <th className="py-3 px-4 text-left font-semibold">
+                  Total Talk Time
+                </th>
+                <th className="py-3 px-4 text-left font-semibold">
+                  Average Time
+                </th>
               </tr>
             </thead>
             <tbody>
               {teamReport.map((report, index) => (
                 <tr
                   key={index}
-                  className={`border-b border-gray-100 ${index % 2 === 0 ? "bg-gray-50" : "bg-white"} hover:bg-blue-50 transition-colors duration-200`}
+                  className={`border-b border-gray-100 ${
+                    index % 2 === 0 ? "bg-gray-50" : "bg-white"
+                  } hover:bg-blue-50 transition-colors duration-200`}
                 >
-                  <td className="py-3 px-4 text-black-700">{report.callType}</td>
-                  <td className="py-3 px-4 text-black-700">{report.totalCalls}</td>
-                  <td className="py-3 px-4 text-black-700">{report.totalTalkTime}</td>
-                  <td className="py-3 px-4 text-black-700">{report.averageTime}</td>
+                  <td className="py-3 px-4 text-black-700">
+                    {report.callType}
+                  </td>
+                  <td className="py-3 px-4 text-black-700">
+                    {report.totalCalls}
+                  </td>
+                  <td className="py-3 px-4 text-black-700">
+                    {report.totalTalkTime}
+                  </td>
+                  <td className="py-3 px-4 text-black-700">
+                    {report.averageTime}
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -523,28 +648,84 @@ const CallReport = () => {
             <table className="w-full border-collapse bg-white">
               <thead>
                 <tr className="bg-blue-500 text-white">
-                  <th className="py-3 px-4 text-left font-semibold">Category</th>
-                  <th className="py-3 px-4 text-left font-semibold">Team Member</th>
+                  <th className="py-3 px-4 text-left font-semibold">
+                    Category
+                  </th>
+                  <th className="py-3 px-4 text-left font-semibold">
+                    Team Member
+                  </th>
                   <th className="py-3 px-4 text-left font-semibold">Details</th>
                 </tr>
               </thead>
               <tbody>
                 {[
-                  { icon: FaArrowUp, color: "gray-500", label: "Top Caller", detail: teamSummary.topCaller?.name, details: teamSummary.topCaller?.details },
-                  { icon: FaArrowUp, color: "gray-500", label: "Top Receiver", detail: teamSummary.topReceiver?.name, details: teamSummary.topReceiver?.details },
-                  { icon: FaArrowUp, color: "gray-500", label: "Top Talker (Outgoing)", detail: teamSummary.topTalkerOutgoing?.name, details: teamSummary.topTalkerOutgoing?.details },
-                  { icon: FaArrowUp, color: "gray-500", label: "Top Talker (Incoming)", detail: teamSummary.topTalkerIncoming?.name, details: teamSummary.topTalkerIncoming?.details },
-                  { icon: FaArrowDown, color: "gray-500", label: "Lowest Caller", detail: teamSummary.lowestCaller?.name, details: teamSummary.lowestCaller?.details },
-                  { icon: FaArrowDown, color: "gray-500", label: "Lowest Receiver", detail: teamSummary.lowestReceiver?.name, details: teamSummary.lowestReceiver?.details },
-                  { icon: FaArrowDown, color: "gray-500", label: "Lowest Talker (Outgoing)", detail: teamSummary.lowestTalkerOutgoing?.name, details: teamSummary.lowestTalkerOutgoing?.details },
-                  { icon: FaArrowDown, color: "gray-500", label: "Lowest Talker (Incoming)", detail: teamSummary.lowestTalkerIncoming?.name, details: teamSummary.lowestTalkerIncoming?.details },
+                  {
+                    icon: FaArrowUp,
+                    color: "gray-500",
+                    label: "Top Caller",
+                    detail: teamSummary.topCaller?.name,
+                    details: teamSummary.topCaller?.details,
+                  },
+                  {
+                    icon: FaArrowUp,
+                    color: "gray-500",
+                    label: "Top Receiver",
+                    detail: teamSummary.topReceiver?.name,
+                    details: teamSummary.topReceiver?.details,
+                  },
+                  {
+                    icon: FaArrowUp,
+                    color: "gray-500",
+                    label: "Top Talker (Outgoing)",
+                    detail: teamSummary.topTalkerOutgoing?.name,
+                    details: teamSummary.topTalkerOutgoing?.details,
+                  },
+                  {
+                    icon: FaArrowUp,
+                    color: "gray-500",
+                    label: "Top Talker (Incoming)",
+                    detail: teamSummary.topTalkerIncoming?.name,
+                    details: teamSummary.topTalkerIncoming?.details,
+                  },
+                  {
+                    icon: FaArrowDown,
+                    color: "gray-500",
+                    label: "Lowest Caller",
+                    detail: teamSummary.lowestCaller?.name,
+                    details: teamSummary.lowestCaller?.details,
+                  },
+                  {
+                    icon: FaArrowDown,
+                    color: "gray-500",
+                    label: "Lowest Receiver",
+                    detail: teamSummary.lowestReceiver?.name,
+                    details: teamSummary.lowestReceiver?.details,
+                  },
+                  {
+                    icon: FaArrowDown,
+                    color: "gray-500",
+                    label: "Lowest Talker (Outgoing)",
+                    detail: teamSummary.lowestTalkerOutgoing?.name,
+                    details: teamSummary.lowestTalkerOutgoing?.details,
+                  },
+                  {
+                    icon: FaArrowDown,
+                    color: "gray-500",
+                    label: "Lowest Talker (Incoming)",
+                    detail: teamSummary.lowestTalkerIncoming?.name,
+                    details: teamSummary.lowestTalkerIncoming?.details,
+                  },
                 ].map((item, index) => (
                   <tr
                     key={index}
-                    className={`border-b border-gray-100 ${index % 2 === 0 ? "bg-gray-50" : "bg-white"} hover:bg-blue-50 transition-colors duration-200`}
+                    className={`border-b border-gray-100 ${
+                      index % 2 === 0 ? "bg-gray-50" : "bg-white"
+                    } hover:bg-blue-50 transition-colors duration-200`}
                   >
                     <td className="py-3 px-4 flex items-center text-gray-700">
-                      <item.icon className={`h-5 w-5 mr-2 text-${item.color}`} />
+                      <item.icon
+                        className={`h-5 w-5 mr-2 text-${item.color}`}
+                      />
                       {item.label}
                     </td>
                     <td className="py-3 px-4 text-gray-700">{item.detail}</td>
@@ -556,6 +737,61 @@ const CallReport = () => {
           </div>
         </div>
       </section>
+
+      {showRemarkForm && (
+        <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-75 z-50">
+          <div className="bg-white p-8 rounded-md shadow-2xl max-w-7xl min-w-2xl">
+            <div className="text-xl">
+              Add Remark for {selectedRecord.cmobile}
+            </div>
+            <div className="flex flex-col gap-4">
+              <div className="mt-4">
+                <label
+                  htmlFor="remark"
+                  className="block font-semibold text-sm font-medium text-gray-700 mb-1"
+                >
+                  Remark
+                </label>
+                <input
+                  type="text"
+                  value={remark}
+                  onChange={(e) => setRemark(e.target.value)}
+                  className="w-full p-1.5 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  placeholder="Remark"
+                />
+              </div>
+              <div>
+                <label htmlFor="follow"> Follow Up Date Time</label>
+                <input
+                  className="w-full p-1.5 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  type="datetime-local"
+                  name="follow"
+                  value={followUpDateTime}
+                  onChange={(e) => setFollowUpDateTime(e.target.value)}
+                  id="follow"
+                />
+              </div>
+            </div>
+            <div className="flex justify-end space-x-4 mt-8">
+              <button
+                type="button"
+                onClick={() => setShowRemarkForm(false)}
+                className="px-6 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-all duration-200 font-semibold shadow-sm"
+              >
+                Close
+              </button>
+              <button
+                type="submit"
+                onClick={handleRemarkSubmit}
+                className="px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all duration-200 font-semibold shadow-sm hover:shadow-md"
+                disabled={loading}
+              >
+                {loading ? "Updating..." : "Update"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

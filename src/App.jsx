@@ -4,12 +4,16 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 //Home
 import Home from "./Pages/Home";
 import OurApp from "./Pages/HomePages/OurAppPage";
+
 import Aboutus from "./Pages/FooterPages/AboutUs";
 import DigitalWorkplacePricingPage from "./Pages/FooterPages/DigitalWorkplacePricingPage";
+import BusinessProposalPage from "./Pages/FooterPages/BusinessProposalPage"
 import Feedback from "./Pages/FooterPages/Feedback";
 import PrivacyStatement from "./Pages/FooterPages/PrivacyStatement";
 import TermsofService from "./Pages/FooterPages/TermsofService";
 import RefundPolicy from "./Pages/FooterPages/RefundPolicy";
+import SubscriptionPage from "./Pages/FooterPages/SubscriptionPage"
+import PayOnlinePage from "./Pages/FooterPages/PayOnlinePage"
 
 import Login from "./Components/Home/Login";
 import Sign from "./Components/Home/Signup";
@@ -181,15 +185,16 @@ function App() {
           {/* Home */}
           <Route path="/" element={<Home />} />
           <Route path="/our-app" element={<OurApp />} />
+
           <Route path="/about-us" element={<Aboutus />} />
-          <Route
-            path="/digital-workplace"
-            element={<DigitalWorkplacePricingPage />}
-          />
+          <Route path="/digital-workplace" element={<DigitalWorkplacePricingPage />}/>
+          <Route path="/business-proposal" element={<BusinessProposalPage />}/>
           <Route path="/feedback" element={<Feedback />} />
           <Route path="/privacy-statement" element={<PrivacyStatement />} />
           <Route path="/terms-of-service" element={<TermsofService />} />
           <Route path="/refund-policy" element={<RefundPolicy />} />
+          <Route path="/subscription" element={<SubscriptionPage />} />
+          <Route path="/pay-online" element={<PayOnlinePage />} />
 
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Sign />} />

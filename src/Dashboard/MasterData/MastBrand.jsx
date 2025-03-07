@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { FaTrademark, FaSearch } from "react-icons/fa";
 
 const Brand = ({ accessToken, onBrandAdded, onBrandDeleted, onBrandEdited }) => {
   const [brand, setBrand] = useState("");
@@ -143,11 +144,14 @@ const Brand = ({ accessToken, onBrandAdded, onBrandDeleted, onBrandEdited }) => 
   };
 
   return (
-    <div className="p-6 max-w-4xl mx-auto bg-white shadow-lg rounded-lg">
-      <h2 className="text-2xl font-bold mb-4 text-center text-gray-700">Brand Management</h2>
+    <div className="p-6 max-w-4xl mx-auto bg-white shadow-lg rounded-lg border border-blue-300">
+       <h2 className="text-2xl font-bold mb-6 text-gray-700 flex items-center">
+        <FaTrademark className="mr-2 text-blue-500" /> 
+        Brand Management
+      </h2>
 
       {/* Brand Input & Add Button */}
-      <div className="flex gap-2 mb-4">
+      <div className="flex gap-2 mb-8">
         <input
           type="text"
           value={brand}
@@ -164,14 +168,14 @@ const Brand = ({ accessToken, onBrandAdded, onBrandDeleted, onBrandEdited }) => 
       </div>
 
       {/* Show Records & Search Bar */}
-      <div className="flex justify-between items-center mb-4">
+      <div className="flex justify-between items-center mb-8">
         {/* Show Records */}
         <div className="flex items-center">
           <span className="mr-2">Show</span>
           <select
             value={recordsPerPage}
             onChange={(e) => setRecordsPerPage(Number(e.target.value))}
-            className="border border-gray-300 rounded-lg py-2 px-4 focus:ring-2 focus:ring-blue-500"
+            className="border border-gray-300 rounded-lg py-1 px-2 focus:ring-2 focus:ring-blue-500"
           >
             {[10, 25, 50].map((option) => (
               <option key={option} value={option}>
@@ -179,17 +183,20 @@ const Brand = ({ accessToken, onBrandAdded, onBrandDeleted, onBrandEdited }) => 
               </option>
             ))}
           </select>
-          <span className="ml-2">records</span>
+          <span className="ml-2">Records</span>
         </div>
 
         {/* Search Bar */}
-        <input
-          type="text"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="Search brands..."
-          className="w-1/3 border border-gray-300 rounded-lg py-2 px-4 focus:ring-0 focus:ring-blue-500"
-        />
+          <div className="relative w-1/3">
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search brands..."
+            className="w-full border border-gray-300 rounded-lg py-2 pl-10 px-4 focus:ring-0 focus:ring-blue-500" 
+          />
+          <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-blue-500" /> 
+        </div>
       </div>
 
       {/* Table */}
