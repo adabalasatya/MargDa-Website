@@ -103,8 +103,8 @@ const UserLinkForm = ({ user, onClose }) => {
 
     {
       name: "Communication Test",
-      links: ["Communication Test"],
-      linkUrl: ["/communication-test"],
+      links: ["Communication Test", "Verify Communication Test"],
+      linkUrl: ["/communication-test", "/verify-communication-test"],
     },
 
     {
@@ -211,12 +211,18 @@ const UserLinkForm = ({ user, onClose }) => {
         "Attitude Assessment",
         "Ability Analyzer",
         "Career Map",
+        "Verify Reference",
+        "Dermeto Ability Verify",
+        "Career Report"
       ],
       linkUrl: [
         "/aptitude-assesment",
         "/attitude-assesment",
-        "#",
+        "/inborn-ability-analyser",
         "/career-map",
+        "/verify-reference",
+        "/dermato-ability-verify",
+        "/career-report-admin"
       ],
     },
     {

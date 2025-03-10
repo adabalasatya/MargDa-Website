@@ -1052,21 +1052,19 @@ const Teleconsultant = () => {
                       </div>
 
                       <div className="text-sm text-black-500">
-                        Service: <strong>{consultant.serviceName}</strong>
+                        <strong>Service:</strong> {consultant.serviceName}
                       </div>
                       <div className="text-sm text-black-600">
-                        Heading: <strong>{consultant.heading}</strong>
+                        <strong> Heading:</strong> {consultant.heading}
                       </div>
                       <div className="text-sm text-black-500">
-                        Details: <strong>{consultant.details}</strong>
+                        <strong>Details:</strong> {consultant.details}
                       </div>
                       <div className="text-sm text-black-500">
-                        Timing:{" "}
-                        <strong>
-                          {consultant.avail_time[0] +
-                            " - " +
-                            consultant.avail_time[1]}
-                        </strong>
+                        <strong>Timing:</strong>{" "}
+                        {consultant.avail_time[0] +
+                          " - " +
+                          consultant.avail_time[1]}
                       </div>
                     </div>
                   </td>

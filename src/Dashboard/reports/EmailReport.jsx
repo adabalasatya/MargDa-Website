@@ -16,6 +16,25 @@ import {
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
+// Function to strip HTML tags and decode entities
+const stripHtml = (html) => {
+  // Remove HTML tags
+  const plainText = html.replace(/<[^>]+>/g, "");
+  // Decode common HTML entities
+  const entities = {
+    "&lt;": "<",
+    "&gt;": ">",
+    "&amp;": "&",
+    "&quot;": '"',
+    "&#39;": "'",
+    "&nbsp;": " ",
+  };
+  return plainText.replace(
+    /&(?:lt|gt|amp|quot|#39|nbsp);/g,
+    (match) => entities[match] || match
+  );
+};
+
 const EmailReport = () => {
   const navigate = useNavigate();
   const [emails, setEmails] = useState([]);
@@ -44,6 +63,8 @@ const EmailReport = () => {
     new Date().toISOString().split("T")[0]
   );
   const [searchQuery, setSearchQuery] = useState("");
+  const [showMessageModal, setShowMessageModal] = useState(false);
+  const [selectedMessage, setSelectedMessage] = useState("");
 
   const localUserData = JSON.parse(localStorage.getItem("userData"));
   const accessToken = localUserData ? localUserData.access_token : null;
@@ -65,17 +86,10 @@ const EmailReport = () => {
       const response = await fetch(
         "https://margda.in:7000/api/margda.org/report/email-report",
         {
-          method: "POST",
+          method: "GET",
           headers: {
             Authorization: `Bearer ${accessToken}`,
-            "Content-Type": "application/json",
-            Accept: "application/json",
           },
-          body: JSON.stringify({
-            startDate,
-            endDate,
-            searchQuery,
-          }),
         }
       );
 
@@ -289,6 +303,13 @@ const EmailReport = () => {
     }
   };
 
+  const handleShowMessage = (message) => {
+    // Clean the HTML content before setting it
+    const cleanedMessage = stripHtml(message);
+    setSelectedMessage(cleanedMessage);
+    setShowMessageModal(true);
+  };
+
   return (
     <div className="p-4">
       {loading && <Loader />}
@@ -368,17 +389,39 @@ const EmailReport = () => {
               <table className="w-full border-collapse bg-white table-fixed">
                 <thead>
                   <tr className="bg-blue-500 text-white">
-                    <th className="py-3 px-4 text-left font-semibold w-[15%]">Date-Time</th>
-                    <th className="py-3 px-4 text-left font-semibold w-[8%]">SMTP</th>
-                    <th className="py-3 px-4 text-left font-semibold w-[8%]">Type</th>
-                    <th className="py-3 px-4 text-left font-semibold w-[15%]">Sender</th>
-                    <th className="py-3 px-4 text-left font-semibold w-[15%]">Receiver</th>
-                    <th className="py-3 px-4 text-left font-semibold w-[15%]">Subject</th>
-                    <th className="py-3 px-4 text-left font-semibold w-[10%]">Matter</th>
-                    <th className="py-3 px-4 text-left font-semibold w-[8%]">Success</th>
-                    <th className="py-3 px-4 text-left font-semibold w-[8%]">Open Count</th>
-                    <th className="py-3 px-4 text-left font-semibold w-[10%]">Remarks</th>
-                    <th className="py-3 px-4 text-left font-semibold w-[8%]">Actions</th>
+                    <th className="py-3 px-4 text-left font-semibold w-[15%]">
+                      Date-Time
+                    </th>
+                    <th className="py-3 px-4 text-left font-semibold w-[8%]">
+                      SMTP
+                    </th>
+                    <th className="py-3 px-4 text-left font-semibold w-[8%]">
+                      Type
+                    </th>
+                    <th className="py-3 px-4 text-left font-semibold w-[15%]">
+                      Sender
+                    </th>
+                    <th className="py-3 px-4 text-left font-semibold w-[15%]">
+                      Receiver
+                    </th>
+                    <th className="py-3 px-4 text-left font-semibold w-[15%]">
+                      Subject
+                    </th>
+                    <th className="py-3 px-4 text-left font-semibold w-[10%]">
+                      Matter
+                    </th>
+                    <th className="py-3 px-4 text-left font-semibold w-[8%]">
+                      Success
+                    </th>
+                    <th className="py-3 px-4 text-left font-semibold w-[8%]">
+                      Open Count
+                    </th>
+                    <th className="py-3 px-4 text-left font-semibold w-[10%]">
+                      Remarks
+                    </th>
+                    <th className="py-3 px-4 text-left font-semibold w-[8%]">
+                      Actions
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -422,7 +465,16 @@ const EmailReport = () => {
                         {email.subject ? email.subject : "N/A"}
                       </td>
                       <td className="py-3 px-4 text-black-700 break-words">
-                        {email.matter ? "View" : "N/A"}
+                        {email.matter ? (
+                          <button
+                            className="text-blue-600 hover:text-blue-800 underline"
+                            onClick={() => handleShowMessage(email.matter)}
+                          >
+                            View
+                          </button>
+                        ) : (
+                          "N/A"
+                        )}
                       </td>
                       <td className="py-3 px-4 text-black-700 break-words">
                         {email.success ? "Send" : "Failed"}
@@ -479,6 +531,7 @@ const EmailReport = () => {
             </div>
           </div>
 
+          {/* Team Report and Summary sections remain unchanged */}
           <div className="mb-8">
             <h2 className="text-xl font-bold mb-4 text-black-500">
               Your Team's Email Report
@@ -521,10 +574,18 @@ const EmailReport = () => {
               <table className="w-full border-collapse bg-white table-fixed">
                 <thead>
                   <tr className="bg-blue-500 text-white">
-                    <th className="py-3 px-4 text-left font-semibold w-[40%]">Associates</th>
-                    <th className="py-3 px-4 text-left font-semibold w-[20%]">Total Sent</th>
-                    <th className="py-3 px-4 text-left font-semibold w-[20%]">Total Un-replied</th>
-                    <th className="py-3 px-4 text-left font-semibold w-[20%]">Maximum Delays</th>
+                    <th className="py-3 px-4 text-left font-semibold w-[40%]">
+                      Associates
+                    </th>
+                    <th className="py-3 px-4 text-left font-semibold w-[20%]">
+                      Total Sent
+                    </th>
+                    <th className="py-3 px-4 text-left font-semibold w-[20%]">
+                      Total Un-replied
+                    </th>
+                    <th className="py-3 px-4 text-left font-semibold w-[20%]">
+                      Maximum Delays
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -565,9 +626,15 @@ const EmailReport = () => {
                 <table className="w-full border-collapse bg-white table-fixed">
                   <thead>
                     <tr className="bg-blue-500 text-white">
-                      <th className="py-3 px-4 text-left font-semibold w-[33%]">Category</th>
-                      <th className="py-3 px-4 text-left font-semibold w-[33%]">Team Member</th>
-                      <th className="py-3 px-4 text-left font-semibold w-[33%]">Details</th>
+                      <th className="py-3 px-4 text-left font-semibold w-[33%]">
+                        Category
+                      </th>
+                      <th className="py-3 px-4 text-left font-semibold w-[33%]">
+                        Team Member
+                      </th>
+                      <th className="py-3 px-4 text-left font-semibold w-[33%]">
+                        Details
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
@@ -631,6 +698,26 @@ const EmailReport = () => {
         </>
       ) : (
         <div>Emails Not Available</div>
+      )}
+
+      {/* Modal for showing full message */}
+      {showMessageModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-70">
+          <div className="bg-white p-6 rounded-lg w-[60%] max-h-[80%] overflow-y-auto">
+            <h2 className="text-xl font-bold mb-4">Email Message</h2>
+            <div className="text-gray-700 whitespace-pre-wrap">
+              {selectedMessage || "No message content available"}
+            </div>
+            <div className="mt-6 flex justify-end">
+              <button
+                className="bg-blue-500 px-4 py-2 text-white rounded hover:bg-blue-700"
+                onClick={() => setShowMessageModal(false)}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       {showExtractDataBox && (

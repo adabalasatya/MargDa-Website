@@ -1,8 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
 const EmailAuth = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const stateData = location.state; // Receiving data
   const [gmail, setGmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -55,6 +59,9 @@ const EmailAuth = () => {
       const data = await response.json();
       if (response.ok) {
         toast.success(data.message);
+        if (stateData && stateData.from && stateData.from == "email-report") {
+          navigate("/email-report");
+        }
       } else {
         toast.info(data.message);
       }

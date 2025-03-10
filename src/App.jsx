@@ -7,13 +7,13 @@ import OurApp from "./Pages/HomePages/OurAppPage";
 
 import Aboutus from "./Pages/FooterPages/AboutUs";
 import DigitalWorkplacePricingPage from "./Pages/FooterPages/DigitalWorkplacePricingPage";
-import BusinessProposalPage from "./Pages/FooterPages/BusinessProposalPage"
+import BusinessProposalPage from "./Pages/FooterPages/BusinessProposalPage";
 import Feedback from "./Pages/FooterPages/Feedback";
 import PrivacyStatement from "./Pages/FooterPages/PrivacyStatement";
 import TermsofService from "./Pages/FooterPages/TermsofService";
 import RefundPolicy from "./Pages/FooterPages/RefundPolicy";
-import SubscriptionPage from "./Pages/FooterPages/SubscriptionPage"
-import PayOnlinePage from "./Pages/FooterPages/PayOnlinePage"
+import SubscriptionPage from "./Pages/FooterPages/SubscriptionPage";
+import PayOnlinePage from "./Pages/FooterPages/PayOnlinePage";
 
 import Login from "./Components/Home/Login";
 import Sign from "./Components/Home/Signup";
@@ -82,6 +82,12 @@ import "react-toastify/dist/ReactToastify.css";
 import AptitudeAssesment from "./Pages/CareerAssesmentPages/AptitudeAssesmentPage";
 import AptitudeTest from "./Pages/CareerAssesmentPages/AptitudeTestPage";
 import AttitudePage from "./Pages/CareerAssesmentPages/AttitudePage";
+import InbornAbilityAnalyserPage from "./Pages/CareerAssesmentPages/InbornAbilityAnalyserPage"
+import VerifyReferencePage from "./Pages/CareerAssesmentPages/VerifyReferencePage";
+import EditReferencePage from "./Pages/CareerAssesmentPages/EditReferencePage";
+import DermetoAbilityVerifyPage from "./Pages/CareerAssesmentPages/DermetoAbilityVerifyPage";
+import EditAbilityDermatoPage from "./Pages/CareerAssesmentPages/EditAbilityDermatoPage"
+import CareerReportPage from "./Pages/CareerAssesmentPages/CareerReportPage"
 
 //Career Awareness
 import CareerChoicePage from "./Pages/CareerAwarenessPages/CareerChoicePage";
@@ -162,6 +168,7 @@ import PaymentOrderPage from "./Pages/NavPages/MartPages/ShopPages/PaymentOrderP
 
 //CommunicationTest
 import CommunicationTestPage from "./Pages/CommunicationTestPage/CommunicationTestPage";
+import VerifyCommunicationTestPage from "./Pages/CommunicationTestPage/VerifyCommunicationTestPage";
 
 //HrInterview
 import HRGiveTestPage from "./Pages/HRInterviewPages/HRGiveTestPage";
@@ -187,8 +194,11 @@ function App() {
           <Route path="/our-app" element={<OurApp />} />
 
           <Route path="/about-us" element={<Aboutus />} />
-          <Route path="/digital-workplace" element={<DigitalWorkplacePricingPage />}/>
-          <Route path="/business-proposal" element={<BusinessProposalPage />}/>
+          <Route
+            path="/digital-workplace"
+            element={<DigitalWorkplacePricingPage />}
+          />
+          <Route path="/business-proposal" element={<BusinessProposalPage />} />
           <Route path="/feedback" element={<Feedback />} />
           <Route path="/privacy-statement" element={<PrivacyStatement />} />
           <Route path="/terms-of-service" element={<TermsofService />} />
@@ -296,22 +306,19 @@ function App() {
           {/* Career Assesment */}
           <Route path="/aptitude-assesment" element={<AptitudeAssesment />} />
           <Route path="/aptitude-test" element={<AptitudeTest />} />
-          <Route
-            path="/attitude-assesment"
-            element={<AttitudeAssesmentPage />}
-          />
+          <Route path="/attitude-assesment" element={<AttitudeAssesmentPage />} />
           <Route path="/attitude-test" element={<AttitudePage />} />
-          <Route
-            path="/assesment-payment"
-            element={<CareerAssesmentPaymentPage />}
-          />
+          <Route  path="/assesment-payment"  element={<CareerAssesmentPaymentPage />}/>
+          <Route path="/inborn-ability-analyser" element={<InbornAbilityAnalyserPage />} />
+          <Route path="/edit-reference/:id" element={<EditReferencePage />} />
+          <Route path="/verify-reference" element={<VerifyReferencePage />} />
+          <Route path="/dermato-ability-verify" element={<DermetoAbilityVerifyPage />} />
+          <Route path="/edit-ability-dermato/:id" element={<EditAbilityDermatoPage />} />
+          <Route path="/career-report-admin" element={<CareerReportPage />} />
 
           {/* Career Awareness */}
           <Route path="/career-choice" element={<CareerChoicePage />} />
-          <Route
-            path="/subject-career-pathway"
-            element={<SubjectCareerPathwayPage />}
-          />
+          <Route  path="/subject-career-pathway" element={<SubjectCareerPathwayPage />} />
           <Route path="/pdf-viewer/:pdfFile" element={<PdfViewerPage />} />
 
           {/* CPP Training */}
@@ -361,6 +368,10 @@ function App() {
           <Route
             path="/communication-test"
             element={<CommunicationTestPage />}
+          />
+          <Route
+            path="/verify-communication-test"
+            element={<VerifyCommunicationTestPage />}
           />
 
           {/* Phone Pe Payment Status */}

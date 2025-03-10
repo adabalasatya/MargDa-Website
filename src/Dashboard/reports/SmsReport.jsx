@@ -26,9 +26,13 @@ const SMSReport = () => {
   const [showRemarkForm, setShowRemarkForm] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState(null);
   const [startDate, setStartDate] = useState(
-    new Date(new Date().setDate(new Date().getDate() - 30)).toISOString().split("T")[0]
+    new Date(new Date().setDate(new Date().getDate() - 30))
+      .toISOString()
+      .split("T")[0]
   );
-  const [endDate, setEndDate] = useState(new Date().toISOString().split("T")[0]);
+  const [endDate, setEndDate] = useState(
+    new Date().toISOString().split("T")[0]
+  );
   const [searchQuery, setSearchQuery] = useState("");
   const [isReplyPopUpOpen, setIsReplyPopUpOpen] = useState(false);
   const [replyData, setReplyData] = useState({
@@ -122,7 +126,12 @@ const SMSReport = () => {
 
         if (!query) return matchesDate;
 
-        return matchesDate && (name.includes(query) || mobile.includes(query) || message.includes(query));
+        return (
+          matchesDate &&
+          (name.includes(query) ||
+            mobile.includes(query) ||
+            message.includes(query))
+        );
       })
       .sort((a, b) => new Date(b.edate) - new Date(a.edate));
   };
@@ -148,17 +157,21 @@ const SMSReport = () => {
       setLoading(true);
       setError(null);
 
-      const response = await fetch("https://margda.in:7000/api/margda.org/report/sms-report", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await fetch(
+        "https://margda.in:7000/api/margda.org/report/sms-report",
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || `API responded with status ${response.status}`);
+        throw new Error(
+          errorData.message || `API responded with status ${response.status}`
+        );
       }
 
       const data = await response.json();
@@ -199,7 +212,12 @@ const SMSReport = () => {
   }, [accessToken]);
 
   const filterMessages = useCallback(() => {
-    const filtered = filterByDateRange(messages, startDate, endDate, searchQuery);
+    const filtered = filterByDateRange(
+      messages,
+      startDate,
+      endDate,
+      searchQuery
+    );
     setFilteredMessages(filtered);
 
     const calculatedTeamReport = calculateTeamReport(filtered);
@@ -253,18 +271,21 @@ const SMSReport = () => {
 
     try {
       setLoading(true);
-      const response = await fetch("https://margda.in:7000/api/margda.org/send-sms", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          receiver: replyData.receiver,
-          message: replyData.message,
-          simApi: replyData.simApi,
-        }),
-      });
+      const response = await fetch(
+        "https://margda.in:7000/api/margda.org/send-sms",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            receiver: replyData.receiver,
+            message: replyData.message,
+            simApi: replyData.simApi,
+          }),
+        }
+      );
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -286,7 +307,10 @@ const SMSReport = () => {
 
   const indexOfLastRecord = currentPage * recordsPerPage;
   const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
-  const currentRecords = filteredMessages.slice(indexOfFirstRecord, indexOfLastRecord);
+  const currentRecords = filteredMessages.slice(
+    indexOfFirstRecord,
+    indexOfLastRecord
+  );
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
@@ -302,19 +326,22 @@ const SMSReport = () => {
       return toast.error("Enter Follow Up date and time");
     }
     try {
-      const response = await fetch("https://margda.in:7000/api/margda.org/report/sms-add-remarks", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          smsID: selectedRecord.smsID,
-          remarks: remark,
-          cMobile: selectedRecord.mobile,
-          fdate: followUpDateTime,
-        }),
-      });
+      const response = await fetch(
+        "https://margda.in:7000/api/margda.org/report/sms-add-remarks",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            smsID: selectedRecord.smsID,
+            remarks: remark,
+            cMobile: selectedRecord.mobile,
+            fdate: followUpDateTime,
+          }),
+        }
+      );
       const data = await response.json();
       if (response.ok) {
         toast.success(data.message);
@@ -364,8 +391,12 @@ const SMSReport = () => {
         <h1 className="text-2xl font-bold mb-4 text-gray-900">SMS Report</h1>
         <div className="flex space-x-16 mb-4">
           <span className="text-lg font-semibold text-gray-700">Your SMS</span>
-          <span className="text-lg font-semibold text-gray-700">Team Report</span>
-          <span className="text-lg font-semibold text-gray-700">Team Summary</span>
+          <span className="text-lg font-semibold text-gray-700">
+            Team Report
+          </span>
+          <span className="text-lg font-semibold text-gray-700">
+            Team Summary
+          </span>
         </div>
       </div>
 
@@ -406,16 +437,36 @@ const SMSReport = () => {
           <table className="w-full border-collapse bg-white table-fixed">
             <thead>
               <tr className="bg-blue-500 text-white">
-                <th className="py-3 px-4 text-left font-semibold w-[10%]">Incoming Outgoing</th>
-                <th className="py-3 px-4 text-left font-semibold w-[10%]">Your Mobile</th>
-                <th className="py-3 px-4 text-left font-semibold w-[10%]">Client Mobile</th>
-                <th className="py-3 px-4 text-left font-semibold w-[20%]">Message</th>
-                <th className="py-3 px-4 text-left font-semibold w-[15%]">Date + Time Stamp</th>
-                <th className="py-3 px-4 text-left font-semibold w-[8%]">SIM+API</th>
-                <th className="py-3 px-4 text-left font-semibold w-[8%]">CRM+</th>
-                <th className="py-3 px-4 text-left font-semibold w-[8%]">Reply</th>
-                <th className="py-3 px-4 text-left font-semibold w-[11%]">Remarks</th>
-                <th className="py-3 px-4 text-left font-semibold w-[8%]">Actions</th>
+                <th className="py-3 px-4 text-left font-semibold w-[10%]">
+                  Incoming Outgoing
+                </th>
+                <th className="py-3 px-4 text-left font-semibold w-[10%]">
+                  Your Mobile
+                </th>
+                <th className="py-3 px-4 text-left font-semibold w-[10%]">
+                  Client Mobile
+                </th>
+                <th className="py-3 px-4 text-left font-semibold w-[20%]">
+                  Message
+                </th>
+                <th className="py-3 px-4 text-left font-semibold w-[15%]">
+                  Date + Time Stamp
+                </th>
+                <th className="py-3 px-4 text-left font-semibold w-[8%]">
+                  SIM+API
+                </th>
+                <th className="py-3 px-4 text-left font-semibold w-[8%]">
+                  CRM+
+                </th>
+                <th className="py-3 px-4 text-left font-semibold w-[8%]">
+                  Reply
+                </th>
+                <th className="py-3 px-4 text-left font-semibold w-[11%]">
+                  Remarks
+                </th>
+                <th className="py-3 px-4 text-left font-semibold w-[8%]">
+                  Actions
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -423,17 +474,27 @@ const SMSReport = () => {
                 currentRecords.map((message, index) => (
                   <tr
                     key={index}
-                    className={`border-b border-gray-100 ${index % 2 === 0 ? "bg-gray-50" : "bg-white"} hover:bg-blue-50 transition-colors duration-200`}
+                    className={`border-b border-gray-100 ${
+                      index % 2 === 0 ? "bg-gray-50" : "bg-white"
+                    } hover:bg-blue-50 transition-colors duration-200`}
                   >
-                    <td className="py-3 px-4 text-gray-700 break-words">{message.incomingOutgoing}</td>
-                    <td className="py-3 px-4 text-gray-700 break-words">{message.name}</td>
-                    <td className="py-3 px-4 text-gray-700 break-words">{message.mobile}</td>
+                    <td className="py-3 px-4 text-gray-700 break-words">
+                      {message.incomingOutgoing}
+                    </td>
+                    <td className="py-3 px-4 text-gray-700 break-words">
+                      {message.name}
+                    </td>
+                    <td className="py-3 px-4 text-gray-700 break-words">
+                      {message.mobile}
+                    </td>
                     <td className="py-3 px-4 text-gray-700 break-words">
                       {message.message.length > 50 ? (
                         <>
                           {message.message.substring(0, 50)}...
                           <button
-                            onClick={() => handleShowFullMessage(message.message)}
+                            onClick={() =>
+                              handleShowFullMessage(message.message)
+                            }
                             className="text-blue-500 hover:text-blue-700 ml-2 text-sm"
                           >
                             Read More
@@ -443,9 +504,15 @@ const SMSReport = () => {
                         message.message
                       )}
                     </td>
-                    <td className="py-3 px-4 text-gray-700 break-words">{message.dateTime}</td>
-                    <td className="py-3 px-4 text-gray-700 break-words">{message.simApi}</td>
-                    <td className="py-3 px-4 text-gray-700 break-words">{message.crm}</td>
+                    <td className="py-3 px-4 text-gray-700 break-words">
+                      {message.dateTime}
+                    </td>
+                    <td className="py-3 px-4 text-gray-700 break-words">
+                      {message.simApi}
+                    </td>
+                    <td className="py-3 px-4 text-gray-700 break-words">
+                      {message.crm}
+                    </td>
                     <td className="py-3 px-4 text-gray-700">
                       <button
                         onClick={() => handleReply(message.mobile)}
@@ -454,7 +521,9 @@ const SMSReport = () => {
                         <FaReply />
                       </button>
                     </td>
-                    <td className="py-3 px-4 text-gray-700 break-words">{message.remarks}</td>
+                    <td className="py-3 px-4 text-gray-700 break-words">
+                      {message.remarks}
+                    </td>
                     <td className="py-3 px-4 text-gray-700">
                       <div className="flex items-center justify-center gap-4">
                         <div className="relative group flex items-center">
@@ -502,7 +571,8 @@ const SMSReport = () => {
 
         <div className="mt-4 flex items-center justify-between flex-wrap gap-4">
           <span>
-            Showing {indexOfFirstRecord + 1} to {Math.min(indexOfLastRecord, filteredMessages.length)} of{" "}
+            Showing {indexOfFirstRecord + 1} to{" "}
+            {Math.min(indexOfLastRecord, filteredMessages.length)} of{" "}
             {filteredMessages.length} records
           </span>
           <div className="flex space-x-2">
@@ -525,12 +595,18 @@ const SMSReport = () => {
       </div>
 
       <div className="mb-8">
-        <h2 className="text-xl font-bold mb-4 text-gray-900">Your Team's SMS Report</h2>
+        <h2 className="text-xl font-bold mb-4 text-gray-900">
+          Your Team's SMS Report
+        </h2>
         <div className="flex items-center mb-4 flex-wrap gap-4">
           <div className="flex items-center">
             <FaUser className="mr-2 text-blue-500" />
-            <span className="text-lg font-semibold text-gray-700">Associates</span>
-            <span className="text-lg font-semibold text-gray-700 mx-4">List</span>
+            <span className="text-lg font-semibold text-gray-700">
+              Associates
+            </span>
+            <span className="text-lg font-semibold text-gray-700 mx-4">
+              List
+            </span>
           </div>
           <div className="flex items-center">
             <FaCalendarAlt className="mr-2 text-gray-500" />
@@ -571,9 +647,15 @@ const SMSReport = () => {
                   <FaUser className="inline mr-2" />
                   Associates
                 </th>
-                <th className="py-3 px-4 text-left font-semibold w-[20%]">Total Sent</th>
-                <th className="py-3 px-4 text-left font-semibold w-[20%]">Total Un-replied</th>
-                <th className="py-3 px-4 text-left font-semibold w-[20%]">Maximum Delays</th>
+                <th className="py-3 px-4 text-left font-semibold w-[20%]">
+                  Total Sent
+                </th>
+                <th className="py-3 px-4 text-left font-semibold w-[20%]">
+                  Total Un-replied
+                </th>
+                <th className="py-3 px-4 text-left font-semibold w-[20%]">
+                  Maximum Delays
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -581,12 +663,22 @@ const SMSReport = () => {
                 teamReport.map((report, index) => (
                   <tr
                     key={index}
-                    className={`border-b border-gray-100 ${index % 2 === 0 ? "bg-gray-50" : "bg-white"} hover:bg-blue-50 transition-colors duration-200`}
+                    className={`border-b border-gray-100 ${
+                      index % 2 === 0 ? "bg-gray-50" : "bg-white"
+                    } hover:bg-blue-50 transition-colors duration-200`}
                   >
-                    <td className="py-3 px-4 text-gray-700 break-words">{report.associate}</td>
-                    <td className="py-3 px-4 text-gray-700 break-words">{report.totalSent}</td>
-                    <td className="py-3 px-4 text-gray-700 break-words">{report.totalUnreplied}</td>
-                    <td className="py-3 px-4 text-gray-700 break-words">{report.maxDelay}</td>
+                    <td className="py-3 px-4 text-gray-700 break-words">
+                      {report.associate}
+                    </td>
+                    <td className="py-3 px-4 text-gray-700 break-words">
+                      {report.totalSent}
+                    </td>
+                    <td className="py-3 px-4 text-gray-700 break-words">
+                      {report.totalUnreplied}
+                    </td>
+                    <td className="py-3 px-4 text-gray-700 break-words">
+                      {report.maxDelay}
+                    </td>
                   </tr>
                 ))
               ) : (
@@ -611,31 +703,70 @@ const SMSReport = () => {
             <table className="w-full border-collapse bg-white table-fixed">
               <thead>
                 <tr className="bg-blue-500 text-white">
-                  <th className="py-3 px-4 text-left font-semibold w-[33%]">Category</th>
-                  <th className="py-3 px-4 text-left font-semibold w-[33%]">Team Member</th>
-                  <th className="py-3 px-4 text-left font-semibold w-[34%]">Details</th>
+                  <th className="py-3 px-4 text-left font-semibold w-[33%]">
+                    Category
+                  </th>
+                  <th className="py-3 px-4 text-left font-semibold w-[33%]">
+                    Team Member
+                  </th>
+                  <th className="py-3 px-4 text-left font-semibold w-[34%]">
+                    Details
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 {[
-                  { icon: FaPaperPlane, color: "green-500", label: "Top Sender", detail: teamSummary.topSender },
-                  { icon: FaReply, color: "blue-500", label: "Top Replier", detail: teamSummary.topReplier },
-                  { icon: FaTimesCircle, color: "red-500", label: "Top Neglecter", detail: teamSummary.topNeglecter },
-                  { icon: FaClock, color: "yellow-500", label: "Top Delayer", detail: teamSummary.topDelayer },
-                  { icon: FaPaperPlane, color: "gray-500", label: "Lowest Sender", detail: teamSummary.lowestSender },
+                  {
+                    icon: FaPaperPlane,
+                    color: "green-500",
+                    label: "Top Sender",
+                    detail: teamSummary.topSender,
+                  },
+                  {
+                    icon: FaReply,
+                    color: "blue-500",
+                    label: "Top Replier",
+                    detail: teamSummary.topReplier,
+                  },
+                  {
+                    icon: FaTimesCircle,
+                    color: "red-500",
+                    label: "Top Neglecter",
+                    detail: teamSummary.topNeglecter,
+                  },
+                  {
+                    icon: FaClock,
+                    color: "yellow-500",
+                    label: "Top Delayer",
+                    detail: teamSummary.topDelayer,
+                  },
+                  {
+                    icon: FaPaperPlane,
+                    color: "gray-500",
+                    label: "Lowest Sender",
+                    detail: teamSummary.lowestSender,
+                  },
                 ].map((item, index) => (
                   <tr
                     key={index}
-                    className={`border-b border-gray-100 ${index % 2 === 0 ? "bg-gray-50" : "bg-white"} hover:bg-blue-50 transition-colors duration-200`}
+                    className={`border-b border-gray-100 ${
+                      index % 2 === 0 ? "bg-gray-50" : "bg-white"
+                    } hover:bg-blue-50 transition-colors duration-200`}
                   >
                     <td className="py-3 px-4 flex items-center text-gray-700 break-words">
-                      <item.icon className={`h-5 w-5 mr-2 text-${item.color}`} />
+                      <item.icon
+                        className={`h-5 w-5 mr-2 text-${item.color}`}
+                      />
                       {item.label}
                     </td>
                     <td className="py-3 px-4 text-gray-700 break-words">
-                      {teamSummary[`${item.label.replace(/\s+/g, "").toLowerCase()}Member`] || "N/A"}
+                      {teamSummary[
+                        `${item.label.replace(/\s+/g, "").toLowerCase()}Member`
+                      ] || "N/A"}
                     </td>
-                    <td className="py-3 px-4 text-gray-700 break-words">{item.detail}</td>
+                    <td className="py-3 px-4 text-gray-700 break-words">
+                      {item.detail}
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -650,7 +781,9 @@ const SMSReport = () => {
             <h2 className="text-lg font-bold mb-4">Reply to Message</h2>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700">Receiver</label>
+                <label className="block text-sm font-medium text-gray-700">
+                  Receiver
+                </label>
                 <input
                   type="text"
                   value={replyData.receiver}
@@ -659,19 +792,27 @@ const SMSReport = () => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">Message</label>
+                <label className="block text-sm font-medium text-gray-700">
+                  Message
+                </label>
                 <textarea
                   value={replyData.message}
-                  onChange={(e) => setReplyData({ ...replyData, message: e.target.value })}
+                  onChange={(e) =>
+                    setReplyData({ ...replyData, message: e.target.value })
+                  }
                   className="mt-1 p-2 border rounded w-full focus:border-orange-500 focus:ring-orange-500"
                   rows="4"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">Send Via</label>
+                <label className="block text-sm font-medium text-gray-700">
+                  Send Via
+                </label>
                 <select
                   value={replyData.simApi}
-                  onChange={(e) => setReplyData({ ...replyData, simApi: e.target.value })}
+                  onChange={(e) =>
+                    setReplyData({ ...replyData, simApi: e.target.value })
+                  }
                   className="mt-1 p-2 border rounded w-full focus:border-orange-500 focus:ring-orange-500"
                 >
                   <option value="SIM">SIM</option>
@@ -701,7 +842,9 @@ const SMSReport = () => {
       {showRemarkForm && (
         <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-75 z-50">
           <div className="bg-white p-8 rounded-md shadow-2xl max-w-7xl min-w-2xl">
-            <div className="text-xl">Add Remark for {selectedRecord.mobile}</div>
+            <div className="text-xl">
+              Add Remark for {selectedRecord.mobile}
+            </div>
             <div className="flex flex-col gap-4">
               <div className="mt-4">
                 <label

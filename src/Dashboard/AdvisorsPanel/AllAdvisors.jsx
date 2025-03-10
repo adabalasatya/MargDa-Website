@@ -48,11 +48,12 @@ const AllAdvisors = () => {
     freeTwoMinutes: false,
     mobile: "",
     pincode: "",
+    active: false,
+    deactive: "",
   });
 
   const [isLanguagePopupOpen, setIsLanguagePopupOpen] = useState(false);
   const [isEditLanguagePopupOpen, setIsEditLanguagePopupOpen] = useState(false);
-  const [editingAdvisorId, setEditingAdvisorId] = useState("");
   const [allServices, setAllServices] = useState([]);
   const [services, setServices] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -283,6 +284,15 @@ const AllAdvisors = () => {
         [name]: value,
       });
     } else {
+      if (name == "active" && checked == true) {
+        console.log("c");
+        setEditFormData({
+          ...editFormData,
+          deactive: "",
+          [name]: type === "checkbox" ? checked : value,
+        });
+        return;
+      }
       setEditFormData({
         ...editFormData,
         [name]: type === "checkbox" ? checked : value,
@@ -370,6 +380,8 @@ const AllAdvisors = () => {
       freeTwoMinutes: consultant.free,
       mobile: consultant.mobile,
       pincode: consultant.pincode,
+      active: consultant.active,
+      deactive: consultant.deactive,
     });
     const filter = allServices.filter(
       (item) => item.servicetype == consultant.serviceType
@@ -418,6 +430,8 @@ const AllAdvisors = () => {
       free_2_minutes: editFormData.freeTwoMinutes,
       mobile: editFormData.mobile,
       pincode: editFormData.pincode,
+      active: editFormData.active,
+      deactive: editFormData.deactive,
     };
 
     try {
@@ -527,21 +541,21 @@ const AllAdvisors = () => {
                   <td className="py-6 px-6 border-b">
                     <div>
                       <div className="text-sm text-black-500">
-                        Service: <strong>{consultant.serviceName}</strong>
+                        <strong> Service:</strong> {consultant.serviceName}
                       </div>
                       <div className="text-sm text-black-600">
-                        Heading: <strong>{consultant.heading}</strong>
+                        <strong> Heading: </strong>
+                        {consultant.heading}
                       </div>
                       <div className="text-sm text-black-500">
-                        Details: <strong>{consultant.details}</strong>
+                        <strong> Details: </strong>
+                        {consultant.details}
                       </div>
                       <div className="text-sm text-black-500">
-                        Timing:{" "}
-                        <strong>
-                          {consultant.avail_time[0] +
-                            " - " +
-                            consultant.avail_time[1]}
-                        </strong>
+                        <strong>Timing:</strong>{" "}
+                        {consultant.avail_time[0] +
+                          " - " +
+                          consultant.avail_time[1]}
                       </div>
                     </div>
                   </td>
@@ -595,7 +609,7 @@ const AllAdvisors = () => {
                           Free 2 mins:
                         </span>
                         <button
-                          disabled={editingAdvisorId != consultant.advisorID}
+                          disabled
                           onClick={() => toggleFreeTwoMinutes(index)}
                           className={`relative w-16 h-6 rounded-full transition-colors duration-300 ${
                             consultant.free ? "bg-blue-600" : "bg-gray-300"
@@ -825,17 +839,52 @@ const AllAdvisors = () => {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label
+                      htmlFor="pincode"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
                       Pin Code
                     </label>
                     <input
                       type="text"
+                      id="pincode"
                       name="pincode"
                       value={editFormData.pincode}
                       onChange={handleEditChange}
                       className="w-full p-1.5 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
                       placeholder="Pin Code"
                     />
+                  </div>
+                  <div className="flex flex-col gap-3">
+                    <div className="flex gap-2">
+                      <input
+                        type="checkbox"
+                        name="active"
+                        id="active"
+                        onChange={handleEditChange}
+                        checked={editFormData.active}
+                      />
+                      <label htmlFor="active">Active</label>
+                    </div>
+                    {!editFormData.active && (
+                      <div>
+                        <label
+                          className="block text-sm font-medium text-gray-700 mb-1"
+                          htmlFor="deactive"
+                        >
+                          Deactive Reason
+                        </label>
+                        <input
+                          id="deactive"
+                          name="deactive"
+                          onChange={handleEditChange}
+                          value={editFormData.deactive}
+                          type="text"
+                          className="w-full p-1.5 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                          placeholder="Deactive Reason"
+                        />
+                      </div>
+                    )}
                   </div>
                 </div>
 

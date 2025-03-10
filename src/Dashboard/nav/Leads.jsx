@@ -1437,6 +1437,7 @@ const Leads = () => {
           setShowScheduleMeeting={setShowScheduleMeeting}
           unhideData={unhideData}
           setSelectedLeads={setSelectedRows}
+          fetchData={fetchData}
         />
       )}
 
@@ -1447,6 +1448,7 @@ const Leads = () => {
           setSendSms={setShowSmsSend}
           unhideData={unhideData}
           setSelectedLeads={setSelectedRows}
+          fetchData={fetchData}
         />
       )}
 
@@ -1457,6 +1459,7 @@ const Leads = () => {
           setShowCallCon={setShowCallCon}
           unhideData={unhideData}
           setSelectedLeads={setSelectedRows}
+          fetchData={fetchData}
         />
       )}
 

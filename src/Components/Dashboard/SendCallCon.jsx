@@ -6,6 +6,7 @@ const CallCon = ({
   selectedLeads,
   unhideData,
   setSelectedLeads,
+  fetchData,
 }) => {
   const [token, setToken] = useState(null);
   const [callType, setCallType] = useState("S");
@@ -16,6 +17,10 @@ const CallCon = ({
     { value: "S", name: "SIM" },
     { value: "A", name: "API" },
   ]);
+
+  const userLocalData = JSON.parse(localStorage.getItem("userData"));
+  const accessToken = userLocalData ? userLocalData.access_token : null;
+  const userMobile = userLocalData.user_data.mobile;
 
   useEffect(() => {
     fetchToken();
@@ -39,8 +44,6 @@ const CallCon = ({
   };
 
   const fetchToken = async () => {
-    const userLocalData = JSON.parse(localStorage.getItem("userData"));
-    const accessToken = userLocalData ? userLocalData.access_token : null;
     try {
       const response = await fetch(
         "https://margda.in:7000/api/android/push-notification/get-token",
@@ -105,13 +108,19 @@ const CallCon = ({
             body: JSON.stringify({
               token: token,
               number: mobile.length > 10 ? `+${mobile}` : mobile,
-              text: "call",
+              remarks: remarks,
+              followUpDateTime,
+              userMobile,
+              userID: lead.userId,
+              dataID: lead.dataId,
             }),
           }
         );
         if (response.ok) {
           toast.success("Calling in progress...");
           setSelectedLeads([]);
+          fetchData();
+          setShowCallCon(false);
         } else {
           const data = await response.json();
           toast.error(data.message || "Failed to initiate call.");

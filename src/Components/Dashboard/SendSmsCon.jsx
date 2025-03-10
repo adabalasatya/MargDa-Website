@@ -6,13 +6,14 @@ const SendSmsCon = ({
   selectedLeads,
   unhideData,
   setSelectedLeads,
+  fetchData,
 }) => {
   const [inputValues, setInputValues] = useState([]);
   const [smsContent, setSmsContent] = useState("");
   const [token, setToken] = useState("");
   const [smsType, setSmsType] = useState("S");
   const [loading, setLoading] = useState(false);
-  const [selectedTemplate, setSelectedTemplate] = useState(null);
+  const [selectedTemplate, setSelectedTemplate] = useState("");
   const [variablesCount, setVariablesCount] = useState(0);
   const [error, setError] = useState(null);
   const [templates, setTemplates] = useState([]);
@@ -24,6 +25,7 @@ const SendSmsCon = ({
   ]);
   const userLocalData = JSON.parse(localStorage.getItem("userData"));
   const accessToken = userLocalData ? userLocalData.access_token : null;
+  const userMobile = userLocalData.user_data.mobile;
 
   useEffect(() => {
     fetchToken();
@@ -103,14 +105,13 @@ const SendSmsCon = ({
       const template = templates[index];
       setSmsContent(template.matter);
       const matches = template.matter.match(/{#var#}/g);
-
       const count = matches ? matches.length : 0;
       setVariablesCount(count);
-      setSelectedTemplate(template);
+      setSelectedTemplate(index);
     } else {
       setVariablesCount(0);
       setSmsContent("");
-      setSelectedTemplate(null);
+      setSelectedTemplate("");
     }
   };
 
@@ -134,12 +135,12 @@ const SendSmsCon = ({
     setError(null);
     const userLocalData = JSON.parse(localStorage.getItem("userData"));
     const accessToken = userLocalData ? userLocalData.access_token : null;
-    const mobiles = selectedLeads.map((lead) => {
+    const leads = selectedLeads.map((lead) => {
       // Find the matching item in unhideData
       const match = unhideData.find(
         (item) => item.userId === lead.userId && item.dataId === lead.dataId
       );
-      return match.phone || lead.phone; // Return the matching item or the original lead
+      return match || lead; // Return the matching item or the original lead
     });
     if (smsType == "S") {
       if (!token) {
@@ -155,10 +156,18 @@ const SendSmsCon = ({
         setLoading(false);
         return toast.error("All Variables are required");
       }
-      const message = replaceVariables(selectedTemplate.matter, inputValues);
+      const template = templates[selectedTemplate];
+      const message = replaceVariables(template.matter, inputValues);
       try {
-        for (const number of mobiles) {
-          const formattedNumber = number.length > 10 ? `+${number}` : number;
+        for (const lead of leads) {
+          const formattedNumber =
+            lead.phone.length > 10 ? `+${lead.phone}` : lead.phone;
+          const cEmail = lead.email;
+          const cName = lead.name;
+          const addEmailVariable = message
+            .replace("{cEmail}", cEmail)
+            .replace("{user}", cName);
+
           const response = await fetch(
             "https://margda.in:7000/api/android/push-notification/send-sms",
             {
@@ -169,9 +178,13 @@ const SendSmsCon = ({
               },
               body: JSON.stringify({
                 token: token,
+                userMobile: userMobile,
                 number: formattedNumber,
-                text: "sms",
-                content: message,
+                remarks: remarks,
+                followUpDateTime,
+                content: addEmailVariable,
+                userID: lead.userId,
+                dataID: lead.dataId,
               }),
             }
           );
@@ -186,6 +199,9 @@ const SendSmsCon = ({
             }
           }
         }
+
+        fetchData();
+        setSendSms(false);
         setSelectedLeads([]);
         toast.success("SMS sent successfully!");
       } catch (err) {
@@ -202,7 +218,8 @@ const SendSmsCon = ({
         setLoading(false);
         return toast.error("All Variables are required");
       }
-      const message = replaceVariables(selectedTemplate.matter, inputValues);
+      const template = templates[selectedTemplate];
+      const message = replaceVariables(template.matter, inputValues);
       try {
         const response = await fetch(
           "https://margda.in:7000/api/sendsms/cloudapi",
@@ -214,7 +231,9 @@ const SendSmsCon = ({
             },
             body: JSON.stringify({
               tempID: selectedTemplate.auth,
-              recipientMobiles: mobiles,
+              recipientMobiles: leads.map((lead) => {
+                return lead.phone;
+              }),
               content: message,
             }),
           }
@@ -222,6 +241,8 @@ const SendSmsCon = ({
         const data = await response.json();
         if (response.ok) {
           toast.success(data.message);
+          fetchData();
+          setSendSms(false);
           setSelectedLeads([]);
         } else {
           toast.warning(data.message);

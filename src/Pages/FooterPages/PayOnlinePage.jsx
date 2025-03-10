@@ -1,6 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { FaFile, FaQrcode, FaMobileAlt, FaUniversity,  FaRupeeSign, FaUser, FaEnvelope } from "react-icons/fa";
+import {
+  FaFile,
+  FaQrcode,
+  FaMobileAlt,
+  FaUniversity,
+  FaRupeeSign,
+  FaUser,
+  FaEnvelope,
+} from "react-icons/fa";
 import Nav from "../../Components/Home/navbar";
 import Footer from "../../Components/Home/Footer";
 import QR from "../../assets/QRCode.jpg";
@@ -171,10 +179,10 @@ const PaymentOptions = ({
             <FaQrcode className="mr-3 text-blue-600 text-3xl" /> Payment Options
           </motion.h1>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Choose a convenient payment method to complete your transaction securely.
+            Choose a convenient payment method to complete your transaction
+            securely.
           </p>
         </motion.section>
-
 
         {/* Payment Methods and QR Code */}
         <motion.section
@@ -207,7 +215,9 @@ const PaymentOptions = ({
                     margd78386580@barodampay
                   </p>
                   <p>
-                    <span className="font-bold text-yellow-700">Mobile No:</span>{" "}
+                    <span className="font-bold text-yellow-700">
+                      Mobile No:
+                    </span>{" "}
                     7838681293
                   </p>
                   <p className="text-sm text-gray-500">
@@ -229,19 +239,27 @@ const PaymentOptions = ({
                 </div>
                 <div className="text-gray-700 text-sm space-y-2">
                   <p>
-                    <span className="font-bold text-yellow-700">Account Name:</span>{" "}
+                    <span className="font-bold text-yellow-700">
+                      Account Name:
+                    </span>{" "}
                     Margdarshak Media
                   </p>
                   <p>
-                    <span className="font-bold text-yellow-700">Account No:</span>{" "}
+                    <span className="font-bold text-yellow-700">
+                      Account No:
+                    </span>{" "}
                     45240200000580
                   </p>
                   <p>
-                    <span className="font-bold text-yellow-700">IFSC Code:</span>{" "}
+                    <span className="font-bold text-yellow-700">
+                      IFSC Code:
+                    </span>{" "}
                     BARB0DWADEL
                   </p>
                   <p>
-                    <span className="font-bold text-yellow-700">Bank Name:</span>{" "}
+                    <span className="font-bold text-yellow-700">
+                      Bank Name:
+                    </span>{" "}
                     Bank of Baroda
                   </p>
                   <p>
@@ -310,156 +328,185 @@ const PaymentOptions = ({
         {/* Payment Details For UPI APPS */}
 
         <motion.section
-  initial="hidden"
-  whileInView="visible"
-  viewport={{ once: true, amount: 0.2 }}
-  variants={sectionVariants}
-  className="mb-16 bg-white shadow-xl rounded-xl p-8 max-w-4xl mx-auto border border-blue-200"
->
-  <h2 className="text-3xl font-bold mb-8 text-gray-900 text-center tracking-tight">
-    <FaMobileAlt className="inline-block mr-2 text-blue-600" /> Payment Details
-  </h2>
-  <form className="grid grid-cols-1 md:grid-cols-2 gap-8">
-    {/* Amount Field */}
-    <div className="relative">
-      <label htmlFor="amount" className="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
-        <FaRupeeSign className="mr-2 text-blue-600" /> Amount (INR)
-      </label>
-      <div className="relative">
-        <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
-          ₹
-        </span>
-        <input
-          type="number"
-          id="amount"
-          placeholder="Enter Recharge Amount"
-          value={balanceAmount}
-          onChange={(e) => {
-            const value = e.target.value;
-            if (value >= 0) setBalanceAmount(value);
-          }}
-          className={`w-full pl-8 p-4 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300 ${
-            balanceAmount && balanceAmount < 1 ? "border-red-500" : "border-gray-300 hover:border-blue-400"
-          }`}
-          min="1"
-          step="1"
-        />
-      </div>
-      {balanceAmount && balanceAmount < 1 && (
-        <p className="text-red-500 text-xs mt-2 italic">Amount must be at least 1 INR</p>
-      )}
-    </div>
-
-    {/* Full Name Field */}
-    <div className="relative">
-      <label htmlFor="name" className="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
-        <FaUser className="mr-2 text-blue-600" /> Full Name
-      </label>
-      <input
-        type="text"
-        id="name"
-        placeholder="Enter Your Full Name"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        className={`w-full p-4 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300 ${
-          name && name.length < 2 ? "border-red-500" : "border-gray-300 hover:border-blue-400"
-        }`}
-      />
-      {name && name.length < 2 && (
-        <p className="text-red-500 text-xs mt-2 italic">Name must be at least 2 characters</p>
-      )}
-    </div>
-
-    {/* Mobile Number Field */}
-    <div className="relative">
-      <label htmlFor="mobile" className="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
-        <FaMobileAlt className="mr-2 text-blue-600" /> Mobile Number
-      </label>
-      <div className="relative">
-        <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
-          +91
-        </span>
-        <input
-          type="text"
-          id="mobile"
-          placeholder="Enter Your Mobile Number"
-          value={mobile}
-          onChange={(e) => {
-            const value = e.target.value.replace(/[^0-9]/g, "");
-            if (value.length <= 10) setMobile(value);
-          }}
-          className={`w-full pl-12 p-4 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300 ${
-            mobile && mobile.length !== 10 ? "border-red-500" : "border-gray-300 hover:border-blue-400"
-          }`}
-          maxLength="10"
-        />
-      </div>
-      {mobile && mobile.length !== 10 && (
-        <p className="text-red-500 text-xs mt-2 italic">Mobile number must be 10 digits</p>
-      )}
-    </div>
-
-    {/* Email Field */}
-    <div className="relative">
-      <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
-        <FaEnvelope className="mr-2 text-blue-600" /> Email Address
-      </label>
-      <input
-        type="email"
-        id="email"
-        placeholder="Enter Your Mail"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        className={`w-full p-4 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300 ${
-          email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
-            ? "border-red-500"
-            : "border-gray-300 hover:border-blue-400"
-        }`}
-      />
-      {email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) && (
-        <p className="text-red-500 text-xs mt-2 italic">Please enter a valid email address</p>
-      )}
-    </div>
-
-    {/* Payment Gateways */}
-    <div className="col-span-1 md:col-span-2">
-      <motion.div
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, amount: 0.2 }}
-        variants={sectionVariants}
-        className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-6"
-      >
-        <motion.div
-          variants={listItemVariants}
-          className="bg-gradient-to-r from-blue-50 to-blue-100 shadow-lg border border-blue-300 rounded-lg p-6 hover:shadow-xl transition-all duration-300 flex items-center justify-between cursor-pointer"
-          onClick={handlePhonePayPayment}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.2 }}
+          variants={sectionVariants}
+          className="mb-16 bg-white shadow-xl rounded-xl p-8 max-w-4xl mx-auto border border-blue-200"
         >
-          <div className="flex items-center">
-            <FaMobileAlt className="text-sky-600 text-2xl mr-3" />
-            <span className="text-xl font-semibold text-gray-800">PhonePe Gateway</span>
-          </div>
-        </motion.div>
-        <motion.div
-          variants={listItemVariants}
-          className="bg-gradient-to-r from-purple-50 to-purple-100 shadow-lg border border-purple-300 rounded-lg p-6 hover:shadow-xl transition-all duration-300 flex items-center justify-between cursor-pointer"
-          onClick={handleRazarPayPayment}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-        >
-          <div className="flex items-center">
-            <FaUniversity className="text-purple-600 text-2xl mr-3" />
-            <span className="text-xl font-semibold text-gray-800">Razorpay Gateway</span>
-          </div>
-        </motion.div>
-      </motion.div>
-    </div>
-  </form>
-</motion.section>
+          <h2 className="text-3xl font-bold mb-8 text-gray-900 text-center tracking-tight">
+            <FaMobileAlt className="inline-block mr-2 text-blue-600" /> Payment
+            Details
+          </h2>
+          <form className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* Amount Field */}
+            <div className="relative">
+              <label
+                htmlFor="amount"
+                className="block text-sm font-semibold text-gray-700 mb-2 flex items-center"
+              >
+                <FaRupeeSign className="mr-2 text-blue-600" /> Amount (INR)
+              </label>
+              <div className="relative">
+                <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
+                  ₹
+                </span>
+                <input
+                  type="number"
+                  id="amount"
+                  placeholder="Enter Recharge Amount"
+                  value={balanceAmount}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    if (value >= 0) setBalanceAmount(value);
+                  }}
+                  className={`w-full pl-8 p-4 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300 ${
+                    balanceAmount && balanceAmount < 1
+                      ? "border-red-500"
+                      : "border-gray-300 hover:border-blue-400"
+                  }`}
+                  min="1"
+                  step="1"
+                />
+              </div>
+              {balanceAmount && balanceAmount < 1 && (
+                <p className="text-red-500 text-xs mt-2 italic">
+                  Amount must be at least 1 INR
+                </p>
+              )}
+            </div>
 
-      
+            {/* Full Name Field */}
+            <div className="relative">
+              <label
+                htmlFor="name"
+                className="block text-sm font-semibold text-gray-700 mb-2 flex items-center"
+              >
+                <FaUser className="mr-2 text-blue-600" /> Full Name
+              </label>
+              <input
+                type="text"
+                id="name"
+                placeholder="Enter Your Full Name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className={`w-full p-4 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300 ${
+                  name && name.length < 2
+                    ? "border-red-500"
+                    : "border-gray-300 hover:border-blue-400"
+                }`}
+              />
+              {name && name.length < 2 && (
+                <p className="text-red-500 text-xs mt-2 italic">
+                  Name must be at least 2 characters
+                </p>
+              )}
+            </div>
+
+            {/* Mobile Number Field */}
+            <div className="relative">
+              <label
+                htmlFor="mobile"
+                className="block text-sm font-semibold text-gray-700 mb-2 flex items-center"
+              >
+                <FaMobileAlt className="mr-2 text-blue-600" /> Mobile Number
+              </label>
+              <div className="relative">
+                <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
+                  +91
+                </span>
+                <input
+                  type="text"
+                  id="mobile"
+                  placeholder="Enter Your Mobile Number"
+                  value={mobile}
+                  onChange={(e) => {
+                    const value = e.target.value.replace(/[^0-9]/g, "");
+                    if (value.length <= 10) setMobile(value);
+                  }}
+                  className={`w-full pl-12 p-4 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300 ${
+                    mobile && mobile.length !== 10
+                      ? "border-red-500"
+                      : "border-gray-300 hover:border-blue-400"
+                  }`}
+                  maxLength="10"
+                />
+              </div>
+              {mobile && mobile.length !== 10 && (
+                <p className="text-red-500 text-xs mt-2 italic">
+                  Mobile number must be 10 digits
+                </p>
+              )}
+            </div>
+
+            {/* Email Field */}
+            <div className="relative">
+              <label
+                htmlFor="email"
+                className="block text-sm font-semibold text-gray-700 mb-2 flex items-center"
+              >
+                <FaEnvelope className="mr-2 text-blue-600" /> Email Address
+              </label>
+              <input
+                type="email"
+                id="email"
+                placeholder="Enter Your Mail"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className={`w-full p-4 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300 ${
+                  email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+                    ? "border-red-500"
+                    : "border-gray-300 hover:border-blue-400"
+                }`}
+              />
+              {email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) && (
+                <p className="text-red-500 text-xs mt-2 italic">
+                  Please enter a valid email address
+                </p>
+              )}
+            </div>
+
+            {/* Payment Gateways */}
+            <div className="col-span-1 md:col-span-2">
+              <motion.div
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, amount: 0.2 }}
+                variants={sectionVariants}
+                className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-6"
+              >
+                <motion.div
+                  variants={listItemVariants}
+                  className="bg-gradient-to-r from-blue-50 to-blue-100 shadow-lg border border-blue-300 rounded-lg p-6 hover:shadow-xl transition-all duration-300 flex items-center justify-between cursor-pointer"
+                  onClick={handlePhonePayPayment}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <div className="flex items-center">
+                    <FaMobileAlt className="text-sky-600 text-2xl mr-3" />
+                    <span className="text-xl font-semibold text-gray-800">
+                      PhonePe Gateway
+                    </span>
+                  </div>
+                </motion.div>
+                <motion.div
+                  variants={listItemVariants}
+                  className="bg-gradient-to-r from-purple-50 to-purple-100 shadow-lg border border-purple-300 rounded-lg p-6 hover:shadow-xl transition-all duration-300 flex items-center justify-between cursor-pointer"
+                  onClick={handleRazarPayPayment}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <div className="flex items-center">
+                    <FaUniversity className="text-purple-600 text-2xl mr-3" />
+                    <span className="text-xl font-semibold text-gray-800">
+                      Razorpay Gateway
+                    </span>
+                  </div>
+                </motion.div>
+              </motion.div>
+            </div>
+          </form>
+        </motion.section>
       </main>
 
       {/* Footer */}

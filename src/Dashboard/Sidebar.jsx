@@ -683,7 +683,6 @@ const Sidebar = ({ toggleSidebar }) => {
                     <div className="flex items-center space-x-2">
                       <span className="text-lg">
                         <FaComments />{" "}
-                        {/* Using same icon as Communication, you can change if needed */}
                       </span>
                       {isOpen && (
                         <span className="font-semibold">
@@ -721,6 +720,11 @@ const Sidebar = ({ toggleSidebar }) => {
                           title: "Update Communication Score",
                           icon: <MdArrowForward />,
                           link: "",
+                        },
+                        {
+                          title: "Verify Communication Test",
+                          icon: <MdArrowForward />,
+                          link: "/verify-communication-test",
                         },
                       ].map((item, index) => (
                         <Link
@@ -1322,23 +1326,38 @@ const Sidebar = ({ toggleSidebar }) => {
                       {[
                         {
                           title: "Aptitude Assessment",
-                          icon: <FaChartBar />,
+                          icon: <MdArrowForward />,
                           link: "/aptitude-assesment",
                         },
                         {
                           title: "Attitude Assessment",
-                          icon: <FaAdversal />,
+                          icon: <MdArrowForward />,
                           link: "/attitude-assesment",
                         },
                         {
                           title: "Ability Analyzer",
-                          icon: <Fa500Px />,
-                          link: "#",
+                          icon: <MdArrowForward />,
+                          link: "/inborn-ability-analyser",
                         },
                         {
                           title: "Career Map",
-                          icon: <Fa500Px />,
+                          icon: <MdArrowForward />,
                           link: "/user-dashboard",
+                        },
+                        {
+                          title: "Verify Reference",
+                          icon: <MdArrowForward />,
+                          link: "/verify-reference",
+                        },
+                        {
+                          title: "Dermeto Ability Verify",
+                          icon: <MdArrowForward />,
+                          link: "/dermato-ability-verify",
+                        },
+                        {
+                          title: "Career Report",
+                          icon: <MdArrowForward />,
+                          link: "/career-report-admin",
                         },
                       ].map((item, index) => (
                         <Link

@@ -9,6 +9,7 @@ export const ScheduleMeeting = ({
   setShowScheduleMeeting,
   unhideData,
   setSelectedLeads,
+  fetchData,
 }) => {
   const [loading, setLoading] = useState(false);
   const [profile, setProfile] = useState([]);
@@ -18,6 +19,8 @@ export const ScheduleMeeting = ({
   const [selectedInvitationSend, setSelectedInvitationSend] = useState("A");
   const [selectedMeetingSource, setSelectedMeetingSource] = useState("");
   const [customLink, setCustomLink] = useState("");
+  const [remarks, setRemarks] = useState("");
+  const [followUpDateTime, setFollowUpDateTime] = useState("");
   const [invitationSendTypes, setInvitationSendTypes] = useState([
     { value: "A", name: "Official Whatsapp" },
     { value: "E", name: "Email" },
@@ -80,6 +83,12 @@ export const ScheduleMeeting = ({
     if (selectedMeetingSource == "C" && !customLink) {
       return toast.error("Please Provide Meeting Link");
     }
+    if (!remarks) {
+      return toast.error("Remarks Required");
+    }
+    if (!followUpDateTime) {
+      return toast.error("Follow up date and time required");
+    }
     const attendeesPhoneNumbers = selectedLeads.map((lead) => {
       // Find the matching item in unhideData
       const match = unhideData.find(
@@ -99,6 +108,8 @@ export const ScheduleMeeting = ({
     const startDate = new Date(startDateTime);
     const invitationMethod = selectedInvitationSend;
     const attendeesNames = selectedLeads.map((lead) => lead.name);
+    const dataIDs = selectedLeads.map((lead) => lead.dataId);
+    const userIDs = selectedLeads.map((lead) => lead.userId);
 
     const organizerName = userLocalData ? userLocalData.user_data.name : null;
     const organizerPhoneNumber = userLocalData
@@ -113,6 +124,10 @@ export const ScheduleMeeting = ({
       organizerName,
       attendeesNames,
       organizerEmail,
+      dataIDs,
+      userIDs,
+      remarks,
+      followUpDateTime,
       whatsappInstanceId: profile[0].instance,
       organizerPhoneNumber,
       attendeesPhoneNumbers,
@@ -148,7 +163,9 @@ export const ScheduleMeeting = ({
           data.message + "\n" + JSON.stringify(data.data) + "\n\n";
         // alert(message);
         toast.success(message);
+        await fetchData();
         setSelectedLeads([]);
+        setShowScheduleMeeting(false);
       }
       setLoading(false);
     } catch (error) {
@@ -278,62 +295,92 @@ export const ScheduleMeeting = ({
             </select>
           </div>
 
-          {/* Send Button */}
-          <div className="flex flex-row items-end gap-4 w-full">
-            {selectedInvitationSend === "W" && (
-              <>
-                {profile.length === 0 && (
-                  <Link
-                    to={"/qr-scan"}
-                    className="bg-red-400 cursor-default text-white p-2 rounded hover:bg-red-600 font-normal font-mono text-base"
-                  >
-                    scan whatsapp first
-                  </Link>
-                )}
-                {profile.length === 1 && !profile[0].active && (
-                  <Link
-                    to={"/qr-scan"}
-                    className="bg-red-400 cursor-default text-white p-2 rounded hover:bg-red-600 font-normal font-mono text-base"
-                  >
-                    re-scan whatsapp
-                  </Link>
-                )}
-                {profile.length === 1 && profile[0].active && (
-                  <button
-                    onClick={sendInvitation}
-                    disabled={loading}
-                    className={`bg-blue-500 text-white p-2 rounded hover:bg-blue-600 font-normal font-mono text-base ${
-                      loading ? "bg-gray-500 hover:bg-gray-400" : ""
-                    }`}
-                  >
-                    {loading ? "Sending" : "Send"}
-                  </button>
-                )}
-              </>
-            )}
-            {selectedInvitationSend === "E" && (
-              <button
-                onClick={sendInvitation}
-                disabled={loading}
-                className={`bg-blue-500 text-white p-2 rounded hover:bg-blue-600 font-normal font-mono text-base ${
-                  loading ? "bg-gray-500 hover:bg-gray-400" : ""
-                }`}
-              >
-                {loading ? "Sending" : "Send"}
-              </button>
-            )}
-            {selectedInvitationSend === "A" && (
-              <button
-                onClick={sendInvitation}
-                disabled={loading}
-                className={`bg-blue-500 text-white p-2 rounded hover:bg-blue-600 font-normal font-mono text-base ${
-                  loading ? "bg-gray-500 hover:bg-gray-400" : ""
-                }`}
-              >
-                {loading ? "Sending" : "Send"}
-              </button>
-            )}
+          {/* Follow Up date and time */}
+          <div className="flex flex-col items-start w-full">
+            <label htmlFor="followup-date-time" className="font-bold mb-2">
+              Follow up date
+            </label>
+            <input
+              name="followup-date-time"
+              id="followup-date-time"
+              value={followUpDateTime}
+              onChange={(e) => setFollowUpDateTime(e.target.value)}
+              type="datetime-local"
+              className="px-3  w-[90%] py-2 border border-gray-400 rounded font-light focus:ring-blue-500 text-base focus:border-blue-500 "
+            />
           </div>
+
+          {/* Remarks */}
+          <div className="flex flex-col">
+            <label htmlFor="remarks" className="font-bold mb-2">
+              Remarks
+            </label>
+            <textarea
+              name="remarks"
+              id="remarks"
+              value={remarks}
+              onChange={(e) => setRemarks(e.target.value)}
+              className="px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              rows="3"
+              placeholder="Remarks"
+            />
+          </div>
+        </div>
+        {/* Send Button */}
+        <div className="flex flex-row items-end gap-4 w-full mt-8">
+          {selectedInvitationSend === "W" && (
+            <>
+              {profile.length === 0 && (
+                <Link
+                  to={"/qr-scan"}
+                  className="bg-red-400 cursor-default text-white p-2 rounded hover:bg-red-600 font-normal font-mono text-base"
+                >
+                  scan whatsapp first
+                </Link>
+              )}
+              {profile.length === 1 && !profile[0].active && (
+                <Link
+                  to={"/qr-scan"}
+                  className="bg-red-400 cursor-default text-white p-2 rounded hover:bg-red-600 font-normal font-mono text-base"
+                >
+                  re-scan whatsapp
+                </Link>
+              )}
+              {profile.length === 1 && profile[0].active && (
+                <button
+                  onClick={sendInvitation}
+                  disabled={loading}
+                  className={`bg-blue-500 text-white p-2 rounded hover:bg-blue-600 font-normal font-mono text-base ${
+                    loading ? "bg-gray-500 hover:bg-gray-400" : ""
+                  }`}
+                >
+                  {loading ? "Sending" : "Send"}
+                </button>
+              )}
+            </>
+          )}
+          {selectedInvitationSend === "E" && (
+            <button
+              onClick={sendInvitation}
+              disabled={loading}
+              className={`bg-blue-500 text-white p-2 rounded hover:bg-blue-600 font-normal font-mono text-base ${
+                loading ? "bg-gray-500 hover:bg-gray-400" : ""
+              }`}
+            >
+              {loading ? "Sending" : "Send"}
+            </button>
+          )}
+          {selectedInvitationSend === "A" && (
+            <button
+              onClick={sendInvitation}
+              disabled={loading}
+              className={`bg-blue-500 text-white p-2 rounded hover:bg-blue-600 font-normal font-mono text-base ${
+                loading ? "bg-gray-500 hover:bg-gray-400" : ""
+              }`}
+            >
+              {loading ? "Sending" : "Send"}
+            </button>
+          )}
         </div>
         <div className="flex flex-row  my-5">
           {selectedMeetingSource === "Z" ? (

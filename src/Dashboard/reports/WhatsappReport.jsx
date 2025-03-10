@@ -35,7 +35,6 @@ const WhatsAppReport = () => {
   );
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedMessage, setSelectedMessage] = useState(null);
-
   const [isReplyModalOpen, setIsReplyModalOpen] = useState(false);
   const [replyMobile, setReplyMobile] = useState("");
   const [replyMessage, setReplyMessage] = useState("");
@@ -45,7 +44,6 @@ const WhatsAppReport = () => {
   const accessToken = localUserData ? localUserData.access_token : null;
 
   const fetchData = async () => {
-    // ... (keep fetchData function unchanged)
     try {
       setLoading(true);
       setError(null);
@@ -53,17 +51,10 @@ const WhatsAppReport = () => {
       const response = await fetch(
         "https://margda.in:7000/api/margda.org/report/whatsapp-report",
         {
-          method: "POST",
+          method: "GET",
           headers: {
             Authorization: `Bearer ${accessToken}`,
-            "Content-Type": "application/json",
-            Accept: "application/json",
           },
-          body: JSON.stringify({
-            startDate,
-            endDate,
-            searchQuery,
-          }),
         }
       );
 
@@ -77,9 +68,11 @@ const WhatsAppReport = () => {
         const formattedMessages = data.Chats.map((chat) => ({
           ...chat,
           edate: chat.edate || new Date().toISOString(),
-          mobile: chat.mobile || (chat.sender || chat.receiver),
-          whatsID: chat.whatsID || chat.id || `msg_${Date.now()}_${chat.sender}`,
+          mobile: chat.mobile || chat.sender || chat.receiver,
+          whatsID:
+            chat.whatsID || chat.id || `msg_${Date.now()}_${chat.sender}`,
           remarks: chat.remarks || "N/A",
+          message: chat.message || "N/A", // Ensure message is always defined
         }));
         setMessages(formattedMessages);
         setAllMessages(formattedMessages);
@@ -134,7 +127,6 @@ const WhatsAppReport = () => {
   const handleEndDateChange = (e) => setEndDate(e.target.value);
 
   function filterByDateRange(data, startDate, endDate, searchQuery) {
-    // ... (keep filterByDateRange unchanged)
     const start = new Date(startDate);
     const end = new Date(endDate);
     end.setHours(23, 59, 59, 999);
@@ -146,14 +138,20 @@ const WhatsAppReport = () => {
         itemTimestamp <= end &&
         ((item.sender && item.sender.includes(searchQuery)) ||
           (item.receiver && item.receiver.includes(searchQuery)) ||
-          (item.message && item.message.toLowerCase().includes(searchQuery.toLowerCase())))
+          (item.message &&
+            item.message.toLowerCase().includes(searchQuery.toLowerCase())))
       );
     });
   }
 
   useEffect(() => {
     setCurrentPage(1);
-    const data = filterByDateRange(allMessages, startDate, endDate, searchQuery);
+    const data = filterByDateRange(
+      allMessages,
+      startDate,
+      endDate,
+      searchQuery
+    );
     setMessages(data);
   }, [startDate, endDate, searchQuery]);
 
@@ -170,12 +168,13 @@ const WhatsAppReport = () => {
   };
 
   const handleSendReply = () => {
-    console.log(`Sending reply to ${replyMobile} via ${replyMethod}: ${replyMessage}`);
+    console.log(
+      `Sending reply to ${replyMobile} via ${replyMethod}: ${replyMessage}`
+    );
     closeReplyModal();
   };
 
   const getTeamMember = (category) => {
-    // ... (keep getTeamMember unchanged)
     switch (category) {
       case "Top Sender":
         return teamSummary.topSenderMember || "N/A";
@@ -198,7 +197,6 @@ const WhatsAppReport = () => {
   };
 
   const handleRemarkSubmit = async () => {
-    // ... (keep handleRemarkSubmit unchanged)
     if (!remark) {
       return toast.error("Enter Remark");
     } else if (!followUpDateTime) {
@@ -248,7 +246,11 @@ const WhatsAppReport = () => {
   };
 
   if (loading) {
-    return <div className="flex items-center justify-center p-4 text-orange-500">Loading WhatsApp report data...</div>;
+    return (
+      <div className="flex items-center justify-center p-4 text-orange-500">
+        Loading WhatsApp report data...
+      </div>
+    );
   }
 
   if (error) {
@@ -268,11 +270,19 @@ const WhatsAppReport = () => {
   return (
     <div className="p-4">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold mb-4 text-black-500">WhatsApp Report</h1>
+        <h1 className="text-2xl font-bold mb-4 text-black-500">
+          WhatsApp Report
+        </h1>
         <div className="flex space-x-16 mb-4">
-          <span className="text-lg font-semibold text-black-700">Your WhatsApp</span>
-          <span className="text-lg font-semibold text-black-700">Team Report</span>
-          <span className="text-lg font-semibold text-black-700">Team Summary</span>
+          <span className="text-lg font-semibold text-black-700">
+            Your WhatsApp
+          </span>
+          <span className="text-lg font-semibold text-black-700">
+            Team Report
+          </span>
+          <span className="text-lg font-semibold text-black-700">
+            Team Summary
+          </span>
         </div>
       </div>
 
@@ -335,11 +345,15 @@ const WhatsAppReport = () => {
           <table className="w-full border-collapse bg-white">
             <thead>
               <tr className="bg-blue-500 text-white">
-                <th className="py-3 px-4 text-left font-semibold">Incoming/Outgoing</th>
+                <th className="py-3 px-4 text-left font-semibold">
+                  Incoming/Outgoing
+                </th>
                 <th className="py-3 px-4 text-left font-semibold">Sender</th>
                 <th className="py-3 px-4 text-left font-semibold">Receiver</th>
                 <th className="py-3 px-4 text-left font-semibold">Message</th>
-                <th className="py-3 px-4 text-left font-semibold">Date + Time Stamp</th>
+                <th className="py-3 px-4 text-left font-semibold">
+                  Date + Time Stamp
+                </th>
                 <th className="py-3 px-4 text-left font-semibold">SIM+API</th>
                 <th className="py-3 px-4 text-left font-semibold">Reply</th>
                 <th className="py-3 px-4 text-left font-semibold">Remarks</th>
@@ -348,10 +362,13 @@ const WhatsAppReport = () => {
             </thead>
             <tbody>
               {currentRecords.map((message, index) => {
-                const messageText = message.message || "N/A";
-                const isLongMessage = messageText.length > 50;
-                const truncatedMessage = isLongMessage 
-                  ? `${messageText.substring(0, 50)}...` 
+                // Ensure messageText is always a string
+                const messageText = message.message
+                  ? String(message.message)
+                  : "N/A";
+                const isLongMessage = messageText.length > 10;
+                const truncatedMessage = isLongMessage
+                  ? `${messageText.substring(0, 10)}...`
                   : messageText;
 
                 return (
@@ -448,12 +465,15 @@ const WhatsAppReport = () => {
       </div>
 
       {/* Team Report Section */}
-      {/* ... (keep unchanged) */}
       <div className="mb-8">
-        <h2 className="text-xl font-bold mb-4 text-black-500">Your Team's WhatsApp Report</h2>
+        <h2 className="text-xl font-bold mb-4 text-black-500">
+          Your Team's WhatsApp Report
+        </h2>
         <div className="flex items-center mb-4">
           <FaUser className="mr-2 text-blue-500" />
-          <span className="text-lg font-semibold text-gray-700">Associates</span>
+          <span className="text-lg font-semibold text-gray-700">
+            Associates
+          </span>
           <span className="text-lg font-semibold text-gray-700 mx-4">List</span>
           <FaCalendarAlt className="mr-2 text-gray-500" />
           <span className="mr-4">From Date</span>
@@ -488,9 +508,15 @@ const WhatsAppReport = () => {
                 <th className="py-3 px-4 text-left font-semibold">
                   <FaUser className="inline mr-2" /> Associates
                 </th>
-                <th className="py-3 px-4 text-left font-semibold">Total Sent</th>
-                <th className="py-3 px-4 text-left font-semibold">Total Un-replied</th>
-                <th className="py-3 px-4 text-left font-semibold">Maximum Delays</th>
+                <th className="py-3 px-4 text-left font-semibold">
+                  Total Sent
+                </th>
+                <th className="py-3 px-4 text-left font-semibold">
+                  Total Un-replied
+                </th>
+                <th className="py-3 px-4 text-left font-semibold">
+                  Maximum Delays
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -513,29 +539,58 @@ const WhatsAppReport = () => {
       </div>
 
       {/* Team Summary Section */}
-      {/* ... (keep unchanged) */}
       <section className="mb-6">
         <div className="bg-white p-4 rounded-lg shadow-md">
           <h3 className="text-lg font-semibold text-gray-700 mb-4 flex items-center">
-            <FaUser className="h-5 w-5 mr-2 text-blue-500" /> Team’s WhatsApp Summary
+            <FaUser className="h-5 w-5 mr-2 text-blue-500" /> Team’s WhatsApp
+            Summary
           </h3>
 
           <div className="overflow-x-auto rounded-lg shadow-md">
             <table className="w-full border-collapse bg-white">
               <thead>
                 <tr className="bg-blue-500 text-white">
-                  <th className="py-3 px-4 text-left font-semibold">Category</th>
-                  <th className="py-3 px-4 text-left font-semibold">Team Member</th>
+                  <th className="py-3 px-4 text-left font-semibold">
+                    Category
+                  </th>
+                  <th className="py-3 px-4 text-left font-semibold">
+                    Team Member
+                  </th>
                   <th className="py-3 px-4 text-left font-semibold">Details</th>
                 </tr>
               </thead>
               <tbody>
                 {[
-                  { icon: FaPaperPlane, color: "green-500", label: "Top Sender", detail: teamSummary.topSender },
-                  { icon: FaReply, color: "blue-500", label: "Top Replier", detail: teamSummary.topReplier },
-                  { icon: FaTimesCircle, color: "red-500", label: "Top Neglecter", detail: teamSummary.topNeglecter },
-                  { icon: FaClock, color: "yellow-500", label: "Top Delayer", detail: teamSummary.topDelayer },
-                  { icon: FaPaperPlane, color: "gray-500", label: "Lowest Sender", detail: teamSummary.lowestSender },
+                  {
+                    icon: FaPaperPlane,
+                    color: "green-500",
+                    label: "Top Sender",
+                    detail: teamSummary.topSender,
+                  },
+                  {
+                    icon: FaReply,
+                    color: "blue-500",
+                    label: "Top Replier",
+                    detail: teamSummary.topReplier,
+                  },
+                  {
+                    icon: FaTimesCircle,
+                    color: "red-500",
+                    label: "Top Neglecter",
+                    detail: teamSummary.topNeglecter,
+                  },
+                  {
+                    icon: FaClock,
+                    color: "yellow-500",
+                    label: "Top Delayer",
+                    detail: teamSummary.topDelayer,
+                  },
+                  {
+                    icon: FaPaperPlane,
+                    color: "gray-500",
+                    label: "Lowest Sender",
+                    detail: teamSummary.lowestSender,
+                  },
                 ].map((item, index) => (
                   <tr
                     key={index}
@@ -544,7 +599,9 @@ const WhatsAppReport = () => {
                     } hover:bg-blue-50 transition-colors duration-200`}
                   >
                     <td className="py-3 px-4 flex items-center text-gray-700">
-                      <item.icon className={`h-5 w-5 mr-2 text-${item.color}`} />
+                      <item.icon
+                        className={`h-5 w-5 mr-2 text-${item.color}`}
+                      />
                       {item.label}
                     </td>
                     <td className="py-3 px-4">{getTeamMember(item.label)}</td>
@@ -562,7 +619,9 @@ const WhatsAppReport = () => {
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="bg-white p-6 rounded-lg shadow-lg w-96 max-h-[80vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-semibold text-blue-500">Full Message</h3>
+              <h3 className="text-lg font-semibold text-blue-500">
+                Full Message
+              </h3>
               <button
                 onClick={closeMessagePopup}
                 className="text-gray-500 hover:text-gray-700"
@@ -578,7 +637,8 @@ const WhatsAppReport = () => {
                 <strong>Receiver:</strong> {selectedMessage.receiver || "N/A"}
               </p>
               <p className="text-sm text-gray-600">
-                <strong>Date:</strong> {selectedMessage.edate
+                <strong>Date:</strong>{" "}
+                {selectedMessage.edate
                   ? new Date(selectedMessage.edate).toLocaleString("en-US", {
                       dateStyle: "short",
                       timeStyle: "short",
@@ -604,14 +664,21 @@ const WhatsAppReport = () => {
       )}
 
       {/* Remark Form */}
-      {/* ... (keep unchanged) */}
       {showRemarkForm && (
         <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-75 z-50">
           <div className="bg-white p-8 rounded-md shadow-2xl max-w-7xl min-w-2xl">
-            <div className="text-xl">Add Remark for {selectedRecord.cmobile || selectedRecord.sender || "N/A"}</div>
+            <div className="text-xl">
+              Add Remark for{" "}
+              {selectedRecord.cmobile || selectedRecord.sender || "N/A"}
+            </div>
             <div className="flex flex-col gap-4">
               <div className="mt-4">
-                <label htmlFor="remark" className="block font-semibold text-sm font-medium text-gray-700 mb-1">Remark</label>
+                <label
+                  htmlFor="remark"
+                  className="block font-semibold text-sm font-medium text-gray-700 mb-1"
+                >
+                  Remark
+                </label>
                 <input
                   type="text"
                   value={remark}
@@ -654,7 +721,6 @@ const WhatsAppReport = () => {
       )}
 
       {/* Reply Modal */}
-      {/* ... (keep unchanged) */}
       {isReplyModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white p-6 rounded-lg shadow-lg w-96">

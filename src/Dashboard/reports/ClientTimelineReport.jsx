@@ -1,3 +1,4 @@
+import { Loader } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import ReactAudioPlayer from "react-audio-player";
 import {
@@ -9,21 +10,27 @@ import {
   FaUsers,
   FaCalendarAlt,
   FaUser,
+  FaEdit,
 } from "react-icons/fa";
 import { useLocation } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const ClientTimeline = () => {
   const location = useLocation();
   const [leadData, setLeadData] = useState({});
   const [logsData, setLogsData] = useState([]);
+  const [editLogID, setEditLogID] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [stateItem, setStateItem] = useState(null);
+  const [remark, setRemark] = useState("");
   const userLocalData = JSON.parse(localStorage.getItem("userData")) || {};
   const accessToken = userLocalData.access_token || null;
-  const loginUserID = userLocalData.user_data?.userID || null;
   const userName = userLocalData.user_data.name || null;
 
   useEffect(() => {
     const state = location.state || null;
     if (state && state.item) {
+      setStateItem(state.item);
       fetchLogs(state.item);
       setLeadData(state.item);
     }
@@ -53,6 +60,35 @@ const ClientTimeline = () => {
     }
   };
 
+  const handleRemarkSave = async () => {
+    setIsLoading(true);
+    try {
+      const response = await fetch(
+        "https://margda.in:7000/api/logs/update-remarks",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ logID: editLogID, remarks: remark }),
+        }
+      );
+      const data = await response.json();
+      if (response.ok) {
+        setIsLoading(false);
+        setEditLogID(null);
+        fetchLogs(stateItem);
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   if (!leadData.name)
     return (
       <div className="p-6 bg-gray-50 min-h-screen">
@@ -72,6 +108,7 @@ const ClientTimeline = () => {
     );
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
+      {isLoading && <Loader />}
       {/* Client Timeline Section */}
       <div className="max-w-7xl mx-auto">
         <h2 className="text-2xl font-bold mb-6 text-orange-500">
@@ -123,7 +160,7 @@ const ClientTimeline = () => {
                             : event.type === "W"
                             ? "green"
                             : event.type === "S"
-                            ? "yellow"
+                            ? "orange"
                             : "gray",
                       }}
                     >
@@ -166,13 +203,13 @@ const ClientTimeline = () => {
                             <span className="font-semibold">
                               Caller Mobile:
                             </span>{" "}
-                            {event.caller}
+                            {event.umobile}
                           </div>
                           <div>
                             <span className="font-semibold">
                               Receiver Mobile:
                             </span>{" "}
-                            {event.receiver}
+                            {event.cmobile}
                           </div>
                           <div>
                             <span className="font-semibold">Duration:</span>{" "}
@@ -229,12 +266,18 @@ const ClientTimeline = () => {
                             <span className="font-semibold">Subject:</span>{" "}
                             {event.subject}
                           </div>
-                          <div>
+                          <div className="overflow-x-scroll">
                             <span className="font-semibold">Matter:</span>{" "}
-                            {event.matter}
+                            <div
+                              id="preview"
+                              className="border border-gray-300 rounded p-4 overflow-x-scroll"
+                              dangerouslySetInnerHTML={{
+                                __html: event.matter ? event.matter : "",
+                              }}
+                            />
                           </div>
                         </>
-                      ) : event.type === "W" || event.type === "S" ? (
+                      ) : event.type === "W" ? (
                         <>
                           <div>
                             <span className="font-semibold">
@@ -253,32 +296,110 @@ const ClientTimeline = () => {
                             {event.message}
                           </div>
                         </>
+                      ) : event.type === "S" ? (
+                        <>
+                          <div>
+                            <span className="font-semibold">
+                              Sender Mobile:
+                            </span>{" "}
+                            {event.umobile}
+                          </div>
+                          <div>
+                            <span className="font-semibold">
+                              Receiver Mobile:
+                            </span>{" "}
+                            {event.mobile}
+                          </div>
+                          <div>
+                            <span className="font-semibold">Message:</span>{" "}
+                            {event.message}
+                          </div>
+                        </>
                       ) : (
                         <>
                           <div>
-                            <span className="font-semibold">Host:</span>{" "}
-                            {event.host}
+                            <span className="font-semibold">Type:</span>{" "}
+                            {event.source == "G"
+                              ? "Google Meet"
+                              : event.source == "Z"
+                              ? "Zoom"
+                              : event.source == "M"
+                              ? "Team"
+                              : event.source}
                           </div>
                           <div>
-                            <span className="font-semibold">Client:</span>{" "}
-                            {event.client}
+                            <span className="font-semibold">Meeting Code:</span>{" "}
+                            {event.link_code}
                           </div>
                           <div>
                             <span className="font-semibold">Join Time:</span>{" "}
-                            {event.joinTime}
+                            {new Date(event.start_time).toLocaleString()}
                           </div>
                           <div>
-                            <span className="font-semibold">Duration:</span>{" "}
-                            {event.duration}
+                            <span className="font-semibold">Attendees:</span>{" "}
+                            {event.invitees.map((attendee, i) => (
+                              <div key={i}>{attendee}</div>
+                            ))}
                           </div>
                         </>
                       )}
+                    </div>
+                    <div className="flex items-center justify-between text-sm mt-3">
+                      <div>
+                        <span className="font-semibold ">Remarks:</span>
+
+                        <span> {event.remark}</span>
+                      </div>
+
+                      <span
+                        className="hover:text-blue-500 cursor-pointer"
+                        onClick={() => {
+                          setRemark(event.remark);
+                          setEditLogID(event.logID);
+                        }}
+                      >
+                        <FaEdit />
+                      </span>
                     </div>
                   </div>
                 </div>
               ))}
           </div>
         </div>
+
+        {/* Edit Remarks Form */}
+        {editLogID && (
+          <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-75 z-50">
+            <div className="bg-white p-8 rounded-md shadow-2xl max-w-7xl">
+              <div className="text-xl py-5">Edit Remark</div>
+              <div>
+                <input
+                  type="text"
+                  placeholder="Remark"
+                  value={remark}
+                  onChange={(e) => setRemark(e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all placeholder-gray-400"
+                />
+              </div>
+
+              <div className="flex justify-end space-x-4 mt-8">
+                <button
+                  onClick={() => setEditLogID(null)}
+                  className="items-center justify-center w-1/3 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-all duration-200 font-semibold shadow-sm"
+                >
+                  Close
+                </button>
+                <button
+                  className="w-1/3 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all duration-200 font-semibold shadow-sm hover:shadow-md"
+                  disabled={isLoading}
+                  onClick={handleRemarkSave}
+                >
+                  {isLoading ? "Saving..." : "Save"}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

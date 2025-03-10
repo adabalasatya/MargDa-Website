@@ -62,7 +62,7 @@ const Footer = () => {
                   Margdarshak
                 </Link>
               </li>
-             
+
               {/* <li>
         <Link
           to=""
@@ -175,14 +175,17 @@ const Footer = () => {
 
           {/* Get Associated */}
           <div className="w-full md:w-auto ml-4 mb-8 md:mb-0">
-            <h3 className="text-lg font-semibold py-4 text-gray-800 mb-4">Get Associated</h3>
+            <h3 className="text-lg font-semibold py-4 text-gray-800 mb-4">
+              Get Associated
+            </h3>
             <ul className="text-gray-600 space-y-3">
-            {/* <li>
+              {/* <li>
                 <Link
                   to="/digital-workplace"
                   className="flex items-center hover:text-orange-500 transition transform hover:translate-x-2 duration-300"
                 >
-                  <HiOutlineArrowNarrowRight className="mr-2" /> Digital Workplace 
+                  <HiOutlineArrowNarrowRight className="mr-2" /> Digital
+                  Workplace
                 </Link>
               </li> */}
               <li>
@@ -190,18 +193,19 @@ const Footer = () => {
                   to="/business-proposal"
                   className="flex items-center hover:text-orange-500 transition transform hover:translate-x-2 duration-300"
                 >
-                  <HiOutlineArrowNarrowRight className="mr-2" /> Business Proposal
+                  <HiOutlineArrowNarrowRight className="mr-2" /> Business
+                  Proposal
                 </Link>
-                </li>
-                <li>
+              </li>
+              <li>
                 <Link
                   to="/subscription"
                   className="flex items-center hover:text-orange-500 transition transform hover:translate-x-2 duration-300"
                 >
                   <HiOutlineArrowNarrowRight className="mr-2" /> Subscription
                 </Link>
-                </li>
-                <li>
+              </li>
+              <li>
                 <Link
                   to="/pay-online"
                   className="flex items-center hover:text-orange-500 transition transform hover:translate-x-2 duration-300"
@@ -209,7 +213,7 @@ const Footer = () => {
                   <HiOutlineArrowNarrowRight className="mr-2" /> Pay Online
                 </Link>
               </li>
-              
+
               {/* <li>
                 <Link
                   to=""
@@ -244,7 +248,6 @@ const Footer = () => {
               </li> */}
             </ul>
           </div>
-           
 
           {/* Be Informed */}
           {/* <div className="w-full md:w-auto mb-8 md:mb-0">
